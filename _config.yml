@@ -125,4 +125,7 @@ feed:
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type: ''
+  type: git
+  repo: git@github.com:YK-Unit/Hexo-Blog.git
+  branch: gh-pages
+
