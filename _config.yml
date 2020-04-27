@@ -95,6 +95,12 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: next
 
+# 出站链接优化
+nofollow:
+  enable: true
+  field: site
+  exclude: ["github.com", "stackoverflow.com", "juejin.im"]
+
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
