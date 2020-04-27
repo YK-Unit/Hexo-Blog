@@ -1,0 +1,59 @@
+name: Hexo-Blog Deploy
+
+# Controls when the action will run. Triggers the workflow on push
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+
+# Setup Timezone
+# from: https://xirikm.net/2020/313-1
+env:
+  TZ: Asia/Shanghai
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    # from: https://github.com/actions/checkout  
+    - name: Checkout Codes
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive # recursively checkout submodules
+
+    # from: https://github.com/actions/setup-node  
+    - name: Setup Node Env
+      uses: actions/setup-node@v1
+      with:
+        node-version: "13.x"
+
+    - name: Setup Hexo Env
+      run: |
+        npm install hexo-cli -g
+        npm install
+
+    # from: https://xiaopc.org/2019/08/29/github-actions-测试-自动部署-hexo/  
+    - name: Setup Git Env
+      env:
+        Hexo-Blog_deploy_key: ${{ secrets.Hexo_Blog_deploy_key }}
+      run: |
+        # setup private key for deploy
+        mkdir -p ~/.ssh/
+        echo "${Hexo-Blog_deploy_key}" | tr -d '\r' > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        # setup git infomation
+        git config user.name "York"
+        git config user.email "yorkzhang520@gmail.com"
+
+    - name: Deploy
+      run: |
+        hexo clean
+        hexo generate
+        hexo deploy
