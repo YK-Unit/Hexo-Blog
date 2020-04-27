@@ -108,6 +108,20 @@ search:
   format: html
   limit: 100
 
+# rss
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+  hub:
+  content:
+  content_limit: 140
+  content_limit_delim: ' '
+  order_by: -date
+  icon: icon.png
+  autodiscovery: true
+  template:
+
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
