@@ -46,12 +46,6 @@ jobs:
       run: |
         git clone https://github.com/YK-Unit/YorkFish-Blog-Source.git source/_posts
 
-    - name: Deploy YorkFish Blog
-      run: |
-        hexo clean
-        hexo generate
-        hexo deploy
-
     # Deploy YorkFish Hexo Blog website
     # from: https://github.com/marketplace/actions/hexo-action
     - name: Deploy Blog
