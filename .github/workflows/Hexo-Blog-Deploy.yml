@@ -54,7 +54,7 @@ jobs:
       env:
         Hexo-Blog_deploy_key: ${{ secrets.Hexo_Blog_deploy_key }}
       with:
-        deploy_key: ${Hexo-Blog_deploy_key}
+        deploy_key: ${{ secrets.Hexo_Blog_deploy_key }}
         user_name: "York"  # (or delelte this input setting to use bot account)
         user_email: "yorkzhang520@gmail.com"  # (or delelte this input setting to use bot account)
         commit_msg: ${{ github.event.head_commit.message }}  # (or delelte this input setting to use hexo default settings)
