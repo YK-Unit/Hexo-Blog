@@ -5,6 +5,8 @@ name: Hexo-Blog-Deploy
 on:
   push:
     branches: [master]
+    paths-ignore: ["README.md", "LICENSE.md", ".gitignore", ".github/**", "*.log"]
+
   # Used for Triggering by other repository
   # from: https://github.com/marketplace/actions/repository-dispatch
   repository_dispatch:
