@@ -1,10 +1,12 @@
-name: Hexo-Blog Deploy
+name: Hexo-Blog-Deploy
 
 # Controls when the action will run. Triggers the workflow on push
 # events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [master]
+  repository_dispatch:
+    types: [deploy-blog-event]
 
 # Setup Timezone
 # from: https://xirikm.net/2020/313-1
@@ -38,21 +40,16 @@ jobs:
         npm install hexo-cli -g
         npm install
 
-    # from: https://xiaopc.org/2019/08/29/github-actions-测试-自动部署-hexo/  
     - name: Setup Git Env
-      env:
-        Hexo-Blog_deploy_key: ${{ secrets.Hexo_Blog_deploy_key }}
       run: |
-        # setup private key for deploy
-        mkdir -p ~/.ssh/
-        echo "${Hexo-Blog_deploy_key}" | tr -d '\r' > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
-        # setup git infomation
-        git config user.name "York"
-        git config user.email "yorkzhang520@gmail.com"
+        git config --global user.name "York"
+        git config --global user.email "yorkzhang520@gmail.com"
 
-    - name: Deploy
+    - name: Download YorkFish-Blog-Source to ./source/_posts
+      run: |
+        git clone https://github.com/YK-Unit/YorkFish-Blog-Source.git source/_posts
+
+    - name: Deploy YorkFish Blog
       run: |
         hexo clean
         hexo generate
