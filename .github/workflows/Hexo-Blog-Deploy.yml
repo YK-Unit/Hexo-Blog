@@ -5,6 +5,8 @@ name: Hexo-Blog-Deploy
 on:
   push:
     branches: [master]
+  # Used for Triggering by other repository
+  # from: https://github.com/marketplace/actions/repository-dispatch
   repository_dispatch:
     types: [deploy-blog-event]
 
@@ -40,19 +42,6 @@ jobs:
         npm install hexo-cli -g
         npm install
 
-    # from: https://xiaopc.org/2019/08/29/github-actions-测试-自动部署-hexo/
-    - name: Setup Git Env
-      env:
-        Hexo-Blog_deploy_key: ${{ secrets.Hexo_Blog_deploy_key }}
-      run: |
-        git config --global user.name "York"
-        git config --global user.email "yorkzhang520@gmail.com"
-        # config ssh key for hexo deploy
-        mkdir -p ~/.ssh
-        echo "${Hexo-Blog_deploy_key}" | tr -d '\r' > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
-
     - name: Download YorkFish-Blog-Source to source/_posts
       run: |
         git clone https://github.com/YK-Unit/YorkFish-Blog-Source.git source/_posts
@@ -63,6 +52,19 @@ jobs:
         hexo generate
         hexo deploy
 
-    - name: Clean Risk 
+    # Deploy YorkFish Hexo Blog website
+    # from: https://github.com/marketplace/actions/hexo-action
+    - name: Deploy Blog
+      id: deploy
+      uses: sma11black/hexo-action@v1.0.1
+      env:
+        Hexo-Blog_deploy_key: ${{ secrets.Hexo_Blog_deploy_key }}
+      with:
+        deploy_key: ${Hexo-Blog_deploy_key}
+        user_name: "York"  # (or delelte this input setting to use bot account)
+        user_email: "yorkzhang520@gmail.com"  # (or delelte this input setting to use bot account)
+        commit_msg: ${{ github.event.head_commit.message }}  # (or delelte this input setting to use hexo default settings)
+    # Use the output from the `deploy` step(use for test action)
+    - name: Get the output
       run: |
-        rm -rf ~/.ssh
+        echo "${{ steps.deploy.outputs.notify }}"
