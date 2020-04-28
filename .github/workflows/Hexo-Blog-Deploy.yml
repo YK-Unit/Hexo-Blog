@@ -40,12 +40,20 @@ jobs:
         npm install hexo-cli -g
         npm install
 
+    # from: https://xiaopc.org/2019/08/29/github-actions-测试-自动部署-hexo/
     - name: Setup Git Env
+      env:
+        Hexo-Blog_deploy_key: ${{ secrets.Hexo_Blog_deploy_key }}
       run: |
         git config --global user.name "York"
         git config --global user.email "yorkzhang520@gmail.com"
+        # config ssh key for hexo deploy
+        mkdir -p ~/.ssh
+        echo "${Hexo-Blog_deploy_key}" | tr -d '\r' > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-    - name: Download YorkFish-Blog-Source to ./source/_posts
+    - name: Download YorkFish-Blog-Source to source/_posts
       run: |
         git clone https://github.com/YK-Unit/YorkFish-Blog-Source.git source/_posts
 
@@ -54,3 +62,7 @@ jobs:
         hexo clean
         hexo generate
         hexo deploy
+
+    - name: Clean Risk 
+      run: |
+        rm -rf ~/.ssh
