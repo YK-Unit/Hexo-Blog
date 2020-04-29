@@ -1,4 +1,4 @@
-name: Hexo-Blog-Deploy
+name: Fish-Blog-Deploy
 
 # Controls when the action will run. Triggers the workflow on push
 # events but only for the master branch
@@ -64,7 +64,7 @@ jobs:
       id: deploy
       uses: sma11black/hexo-action@v1.0.1
       with:
-        deploy_key: ${{ secrets.Hexo_Blog_deploy_key }}
+        deploy_key: ${{ secrets.Fish_Blog_deploy_key }}
         user_name: "York"  # (or delelte this input setting to use bot account)
         user_email: "yorkzhang520@gmail.com"  # (or delelte this input setting to use bot account)
         commit_msg: ${{ env.SITE_UPDATED_LOG }}  # (or delelte this input setting to use hexo default settings)
