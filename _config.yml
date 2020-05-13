@@ -129,3 +129,12 @@ deploy:
   repo: git@github.com:YK-Unit/Fish-Blog.git
   branch: gh-pages
 
+# sitemap
+## for google: hexo-generator-sitemap
+sitemap:
+    path: sitemap.xml
+    # template: ./sitemap_template.xml
+    # rel: false
+## for baidu: hexo-generator-baidu-sitemap
+baidusitemap:
+    path: baidusitemap.xml
