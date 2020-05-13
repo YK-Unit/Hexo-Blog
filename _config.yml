@@ -130,11 +130,27 @@ deploy:
   branch: gh-pages
 
 # sitemap
-## for google: hexo-generator-sitemap
+## supported by plugin:: hexo-generator-sitemap
 sitemap:
     path: sitemap.xml
     # template: ./sitemap_template.xml
     # rel: false
-## for baidu: hexo-generator-baidu-sitemap
+## supported by plugin:: hexo-generator-baidu-sitemap
 baidusitemap:
     path: baidusitemap.xml
+
+# robots.txt
+## supported by plugin: hexo-generator-robotstxt
+robotstxt:
+  useragent: "*"
+  allow:
+    - /
+  disallow:
+    - /vendors/
+    - /js/
+    - /css/
+    - /fonts/
+    - /fancybox/
+  sitemap: 
+    - https://blog.yorkfish.me/sitemap.xml
+    - https://blog.yorkfish.me/baidusitemap.xml
