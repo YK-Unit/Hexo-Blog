@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言你自定义了一个数据类型后，是否希望像var num: Int &#x3D; 10这样通过一个字面量初始化一个类型的实例呢？是的话，请看下文详细介绍。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swift的字面量类型（Literal Type）和字面量协议（Literal Protocol）">
+<meta property="og:url" content="https://blog.yorkfish.me/2017/Swift%E7%9A%84%E5%AD%97%E9%9D%A2%E9%87%8F%E7%B1%BB%E5%9E%8B%EF%BC%88Literal%20Type%EF%BC%89%E5%92%8C%E5%AD%97%E9%9D%A2%E9%87%8F%E5%8D%8F%E8%AE%AE%EF%BC%88Literal%20Protocol%EF%BC%89/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言你自定义了一个数据类型后，是否希望像var num: Int &#x3D; 10这样通过一个字面量初始化一个类型的实例呢？是的话，请看下文详细介绍。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-10-28T04:34:56.000Z">
+<meta property="article:modified_time" content="2017-10-28T04:34:56.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="2017">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2017/Swift%E7%9A%84%E5%AD%97%E9%9D%A2%E9%87%8F%E7%B1%BB%E5%9E%8B%EF%BC%88Literal%20Type%EF%BC%89%E5%92%8C%E5%AD%97%E9%9D%A2%E9%87%8F%E5%8D%8F%E8%AE%AE%EF%BC%88Literal%20Protocol%EF%BC%89/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Swift的字面量类型（Literal Type）和字面量协议（Literal Protocol） | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2017/Swift%E7%9A%84%E5%AD%97%E9%9D%A2%E9%87%8F%E7%B1%BB%E5%9E%8B%EF%BC%88Literal%20Type%EF%BC%89%E5%92%8C%E5%AD%97%E9%9D%A2%E9%87%8F%E5%8D%8F%E8%AE%AE%EF%BC%88Literal%20Protocol%EF%BC%89/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Swift的字面量类型（Literal Type）和字面量协议（Literal Protocol）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-10-28 12:34:56" itemprop="dateCreated datePublished" datetime="2017-10-28T12:34:56+08:00">2017-10-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>你自定义了一个数据类型后，是否希望像<code>var num: Int = 10</code>这样通过一个字面量初始化一个类型的实例呢？是的话，请看下文详细介绍。</p>
+<a id="more"></a>
+
+<h2 id="一、字面量类型（Literal-Type）"><a href="#一、字面量类型（Literal-Type）" class="headerlink" title="一、字面量类型（Literal Type）"></a>一、字面量类型（Literal Type）</h2><p>在介绍字面量类型前，我们先认识下字面量的概念。</p>
+<p><strong>所谓字面量，是指一段能表示特定类型的值（如数值、布尔值、字符串）的源码表达式（it is the source code representation of a fixed value）</strong>。比如下面例子：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> num: <span class="type">Int</span> = <span class="number">10</span></span><br><span class="line"><span class="keyword">let</span> flag: <span class="type">Bool</span> = <span class="literal">true</span></span><br><span class="line"><span class="keyword">let</span> str: <span class="type">String</span> = <span class="string">"hello"</span></span><br></pre></td></tr></table></figure>
+
+<p>例子中的<code>10</code>、<code>true</code>、<code>hello</code>都是字面量。</p>
+<p>那什么是字面量类型呢？</p>
+<p><strong>字面量类型就是支持通过字面量进行实例初始化的数据类型</strong>，如例子中的<code>Int</code>、<code>Bool</code>、<code>String</code>类型。</p>
+<p>在Swift中，其的字面量类型有：</p>
+<ul>
+<li>所有的数值类型: Int、Double、Float以及其的相关类型（如UInt、Int16、Int32等）</li>
+<li>布尔值类型：Bool</li>
+<li>字符串类型：String</li>
+<li>组合类型：Array、Dictionary、Set</li>
+<li>空类型：Nil</li>
+</ul>
+<h2 id="二、字面量协议（Literal-Protocol）"><a href="#二、字面量协议（Literal-Protocol）" class="headerlink" title="二、字面量协议（Literal Protocol）"></a>二、字面量协议（Literal Protocol）</h2><p>Swift是如何让上述的数据类型具有字面量初始化的能力呢？</p>
+<p><strong>答案是：实现指定的字面量协议。</strong></p>
+<p>所以，如果我们希望自定义的数据类型也能通过字面量进行初始化，只要实现对应的字面量协议即可。</p>
+<p>Swift中的字面量协议主要有以下几个：</p>
+<ul>
+<li><code>ExpressibleByNilLiteral</code> // nil字面量协议</li>
+<li><code>ExpressibleByIntegerLiteral</code> // 整数字面量协议</li>
+<li><code>ExpressibleByFloatLiteral</code> // 浮点数字面量协议</li>
+<li><code>ExpressibleByBooleanLiteral</code> // 布尔值字面量协议</li>
+<li><code>ExpressibleByStringLiteral</code> // 字符串字面量协议</li>
+<li><code>ExpressibleByArrayLiteral</code> // 数组字面量协议</li>
+<li><code>ExpressibleByDictionaryLiteral</code> // 字典字面量协议</li>
+</ul>
+<p>其中， <code>ExpressibleByStringLiteral</code> 字符串字面量协议相对复杂一点，该协议还依赖于以下2个协议（也就是说，实现<code>ExpressibleByStringLiteral</code>时，还需要实现下面2个协议）:</p>
+<ul>
+<li><code>ExpressibleByUnicodeScalarLiteral</code></li>
+<li><code>ExpressibleByExtendedGraphemeClusterLiteral</code></li>
+</ul>
+<blockquote>
+<p>在 Swift3.0 之前，上述的字面量协议的名称对应如下：</p>
+<ul>
+<li><code>NilLiteralConvertible</code></li>
+<li><code>IntegerLiteralConvertible</code></li>
+<li><code>FloatLiteralConvertible</code></li>
+<li><code>BooleanLiteralConvertible</code></li>
+<li><code>StringLiteralConvertible</code></li>
+<li><code>ArrayLiteralConvertible</code></li>
+<li><code>DictionaryLiteralConvertible</code></li>
+</ul>
+</blockquote>
+<h2 id="三、字面量协议例子（Literal-Protocol-Example）"><a href="#三、字面量协议例子（Literal-Protocol-Example）" class="headerlink" title="三、字面量协议例子（Literal Protocol Example）"></a>三、字面量协议例子（Literal Protocol Example）</h2><p>下面将会通过具体例子为大家演示如何通过实现上述的字面量协议。</p>
+<blockquote>
+<p>下面的例子均已经上传GitHub，查看下载请点击<a href="https://github.com/YK-Unit/Swift-LiteralProtocolExample" target="_blank" rel="noopener">LiteralProtocolExample</a></p>
+</blockquote>
+<h3 id="1、定义Moeny类型，实现通过整数字面量、浮点数字面量、字符串字面量、布尔值字面量初始化Money实例："><a href="#1、定义Moeny类型，实现通过整数字面量、浮点数字面量、字符串字面量、布尔值字面量初始化Money实例：" class="headerlink" title="1、定义Moeny类型，实现通过整数字面量、浮点数字面量、字符串字面量、布尔值字面量初始化Money实例："></a>1、定义<code>Moeny</code>类型，实现通过整数字面量、浮点数字面量、字符串字面量、布尔值字面量初始化<code>Money</code>实例：</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//: Playground - noun: a place where people can play</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> UIKit</span><br><span class="line"><span class="keyword">import</span> Foundation</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Money</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> value: <span class="type">Double</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span>(value: <span class="type">Double</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.value = value</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现CustomStringConvertible协议，提供description方法</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Money</span>: <span class="title">CustomStringConvertible</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">var</span> description: <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"\(value)"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现ExpressibleByIntegerLiteral字面量协议</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Money</span>: <span class="title">ExpressibleByIntegerLiteral</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">IntegerLiteralType</span> = <span class="type">Int</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(integerLiteral value: <span class="type">IntegerLiteralType</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.<span class="keyword">init</span>(value: <span class="type">Double</span>(value))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现ExpressibleByFloatLiteral字面量协议</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Money</span>: <span class="title">ExpressibleByFloatLiteral</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(floatLiteral value: <span class="type">FloatLiteralType</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.<span class="keyword">init</span>(value: value)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现ExpressibleByStringLiteral字面量协议</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Money</span>: <span class="title">ExpressibleByStringLiteral</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(stringLiteral value: <span class="type">StringLiteralType</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> doubleValue = <span class="type">Double</span>(value) &#123;</span><br><span class="line">            <span class="keyword">self</span>.<span class="keyword">init</span>(value: doubleValue)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">self</span>.<span class="keyword">init</span>(value: <span class="number">0</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 实现ExpressibleByExtendedGraphemeClusterLiteral字面量协议</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(extendedGraphemeClusterLiteral value: <span class="type">StringLiteralType</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> doubleValue = <span class="type">Double</span>(value) &#123;</span><br><span class="line">            <span class="keyword">self</span>.<span class="keyword">init</span>(value: doubleValue)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">self</span>.<span class="keyword">init</span>(value: <span class="number">0</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 实现ExpressibleByUnicodeScalarLiteral字面量协议</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(unicodeScalarLiteral value: <span class="type">StringLiteralType</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> doubleValue = <span class="type">Double</span>(value) &#123;</span><br><span class="line">            <span class="keyword">self</span>.<span class="keyword">init</span>(value: doubleValue)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">self</span>.<span class="keyword">init</span>(value: <span class="number">0</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现ExpressibleByBooleanLiteral字面量协议</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Money</span>: <span class="title">ExpressibleByBooleanLiteral</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(booleanLiteral value: <span class="type">BooleanLiteralType</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> doubleValue: <span class="type">Double</span> = value ? <span class="number">1.0</span> : <span class="number">0.0</span></span><br><span class="line">        <span class="keyword">self</span>.<span class="keyword">init</span>(value: doubleValue)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过整数字面量初始化</span></span><br><span class="line"><span class="keyword">let</span> intMoney: <span class="type">Money</span> = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过浮点数字面量初始化</span></span><br><span class="line"><span class="keyword">let</span> floatMoney: <span class="type">Money</span> = <span class="number">10.1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过字符串字面量初始化</span></span><br><span class="line"><span class="keyword">let</span> strMoney: <span class="type">Money</span> = <span class="string">"10.2"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过布尔值初始化</span></span><br><span class="line"><span class="keyword">let</span> boolMoney: <span class="type">Money</span> = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<h3 id="2、定义Book类型，实现通过字典字面量、数组字面量、nil字面量初始化Book实例"><a href="#2、定义Book类型，实现通过字典字面量、数组字面量、nil字面量初始化Book实例" class="headerlink" title="2、定义Book类型，实现通过字典字面量、数组字面量、nil字面量初始化Book实例:"></a>2、定义<code>Book</code>类型，实现通过字典字面量、数组字面量、nil字面量初始化<code>Book</code>实例:</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//: Playground - noun: a place where people can play</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> Foundation</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Book</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">var</span> id: <span class="type">Int</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">var</span> name: <span class="type">String</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span>(id: <span class="type">Int</span>, name: <span class="type">String</span> = <span class="string">"unnamed"</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.id = id</span><br><span class="line">        <span class="keyword">self</span>.name = name</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现CustomStringConvertible协议，提供description方法</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Book</span>: <span class="title">CustomStringConvertible</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">var</span> description: <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"id:\(id)\nname:《\(name)》"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现ExpressibleByDictionaryLiteral字面量协议</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Book</span>: <span class="title">ExpressibleByDictionaryLiteral</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Key</span> = <span class="type">String</span></span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Value</span> = <span class="type">Any</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(dictionaryLiteral elements: (<span class="type">Key</span>, <span class="type">Value</span>)...) &#123;</span><br><span class="line">        <span class="keyword">var</span> dictionary = [<span class="type">Key</span>: <span class="type">Value</span>](minimumCapacity: elements.<span class="built_in">count</span>)</span><br><span class="line">        <span class="keyword">for</span> (k, v) <span class="keyword">in</span> elements &#123;</span><br><span class="line">            dictionary[k] = v</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> id = (dictionary[<span class="string">"id"</span>] <span class="keyword">as</span>? <span class="type">Int</span>) ?? <span class="number">0</span></span><br><span class="line">        <span class="keyword">let</span> name = (dictionary[<span class="string">"name"</span>] <span class="keyword">as</span>? <span class="type">String</span>) ?? <span class="string">"unnamed"</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">self</span>.<span class="keyword">init</span>(id: id, name: name)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现ExpressibleByArrayLiteral字面量协议</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Book</span>: <span class="title">ExpressibleByArrayLiteral</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">ArrayLiteralElement</span> = <span class="type">Any</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(arrayLiteral elements: <span class="type">ArrayLiteralElement</span>...) &#123;</span><br><span class="line">        <span class="keyword">var</span> id: <span class="type">Int</span> = <span class="number">0</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> eId = elements.first <span class="keyword">as</span>? <span class="type">Int</span> &#123;</span><br><span class="line">            id = eId</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> name = <span class="string">"unnamed"</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> eName = elements[<span class="number">1</span>] <span class="keyword">as</span>? <span class="type">String</span> &#123;</span><br><span class="line">            name = eName</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">self</span>.<span class="keyword">init</span>(id: id, name: name)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现ExpressibleByNilLiteral字面量协议</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Book</span>: <span class="title">ExpressibleByNilLiteral</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(nilLiteral: ()) &#123;</span><br><span class="line">        <span class="keyword">self</span>.<span class="keyword">init</span>()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过字典字面量初始化</span></span><br><span class="line"><span class="keyword">let</span> dictBook: <span class="type">Book</span> = [<span class="string">"id"</span>: <span class="number">100</span>, <span class="string">"name"</span>: <span class="string">"Love is Magic"</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">"\(dictBook)\n"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过数组字面量初始化</span></span><br><span class="line"><span class="keyword">let</span> arrayBook: <span class="type">Book</span> = [<span class="number">101</span>, <span class="string">"World is word"</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">"\(arrayBook)\n"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过nil字面量初始化</span></span><br><span class="line"><span class="keyword">let</span> nilBook: <span class="type">Book</span> = <span class="literal">nil</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">"\(nilBook)\n"</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、关于-‘not-expressible-by-any-literal-enum’-Error"><a href="#四、关于-‘not-expressible-by-any-literal-enum’-Error" class="headerlink" title="四、关于 ‘not expressible by any literal enum’ Error"></a>四、关于 ‘not expressible by any literal enum’ Error</h2><p>当你使用自定义数据类型定义枚举时，可能会遇到以下类似错误：</p>
+<blockquote>
+<p>raw type ‘XX_TYPE’ is not expressible by any literal<br>enum XX_ENUM: XX_TYPE</p>
+</blockquote>
+<p>这是说你的自定义数据类型没有实现字面量协议。然而需要注意的是，<strong>enum目前支持的字面量协议是有限制的，其目前只支持以下几个字面量协议：</strong></p>
+<ul>
+<li>ExpressibleByIntegerLiteral</li>
+<li>ExpressibleByFloatLiteral</li>
+<li>ExpressibleByStringLiteral</li>
+</ul>
+<p>也就是说，若你的自定义数据类型实现的字面量协议没有包含上面中的一个，就会得到此种错误。具体示例如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//: Playground - noun: a place where people can play</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> Foundation</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">StockType</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> number: <span class="type">Int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现CustomStringConvertible协议，提供description方法</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">StockType</span>: <span class="title">CustomStringConvertible</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">var</span> description: <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Stock Number:\(number)"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现Equatable协议，提供==方法</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">StockType</span>: <span class="title">Equatable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> ==<span class="params">(lhs: StockType, rhs: StockType)</span></span> -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> lhs.number == rhs.number</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现ExpressibleByDictionaryLiteral字面量协议</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">StockType</span>: <span class="title">ExpressibleByDictionaryLiteral</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Key</span> = <span class="type">String</span></span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Value</span> = <span class="type">Any</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(dictionaryLiteral elements: (<span class="type">Key</span>, <span class="type">Value</span>)...) &#123;</span><br><span class="line">        <span class="keyword">var</span> dictionary = [<span class="type">Key</span>: <span class="type">Value</span>](minimumCapacity: elements.<span class="built_in">count</span>)</span><br><span class="line">        <span class="keyword">for</span> (k, v) <span class="keyword">in</span> elements &#123;</span><br><span class="line">            dictionary[k] = v</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> number = (dictionary[<span class="string">"number"</span>] <span class="keyword">as</span>? <span class="type">Int</span>) ?? <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">self</span>.<span class="keyword">init</span>(number: number)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现ExpressibleByIntegerLiteral字面量协议</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">StockType</span>: <span class="title">ExpressibleByIntegerLiteral</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(integerLiteral value: <span class="type">IntegerLiteralType</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.<span class="keyword">init</span>(number: value)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> 若StockType没有实现 ExpressibleByIntegerLiteral、ExpressibleByFloatLiteral、ExpressibleByStringLiteral中的一个，会报错误：error: raw type 'StockType' is not expressible by any literal</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">// 你可以尝试去掉ExpressibleByIntegerLiteral的实现，看看编译器报的错误</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">Stock</span>: <span class="title">StockType</span> </span>&#123;</span><br><span class="line">    <span class="keyword">case</span> apple = <span class="number">1001</span></span><br><span class="line">    <span class="keyword">case</span> google = <span class="number">1002</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> appleStock = <span class="type">Stock</span>.apple.rawValue</span><br><span class="line"><span class="built_in">print</span>(<span class="string">"\(appleStock)"</span>)</span><br></pre></td></tr></table></figure>
+
+<p>上述例子中，定义了<code>StockType</code>数据类型和<code>Stock</code>枚举类型。若<code>StockType</code>去掉<code>ExpressibleByIntegerLiteral</code>字面量的协议的实现，将会获得上述的编译错误。</p>
+<h2 id="资料参考"><a href="#资料参考" class="headerlink" title="资料参考"></a>资料参考</h2><ul>
+<li><a href="https://developer.apple.com/documentation/swift/initialization_with_literals" target="_blank" rel="noopener external nofollow noreferrer">Initialization with Literals</a></li>
+<li><a href="http://blog.krzyzanowskim.com/2015/03/12/swift-raw-not-representable-enum/" target="_blank" rel="noopener external nofollow noreferrer">Swift: Raw{Not}Representable enum</a></li>
+<li><a href="https://www.tutorialspoint.com/swift/swift_literals.htm" target="_blank" rel="noopener external nofollow noreferrer">Swift - Literals</a></li>
+<li><a href="http://nshipster.com/swift-literal-convertible/" target="_blank" rel="noopener external nofollow noreferrer">Swift Literal Convertibles</a></li>
+<li><a href="http://swifter.tips/literal/" target="_blank" rel="noopener external nofollow noreferrer">字面量转换</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2017/Swift%E7%9A%84%E5%AD%97%E9%9D%A2%E9%87%8F%E7%B1%BB%E5%9E%8B%EF%BC%88Literal%20Type%EF%BC%89%E5%92%8C%E5%AD%97%E9%9D%A2%E9%87%8F%E5%8D%8F%E8%AE%AE%EF%BC%88Literal%20Protocol%EF%BC%89/readme/" title="Swift的字面量类型（Literal Type）和字面量协议（Literal Protocol）">https://blog.yorkfish.me/2017/Swift的字面量类型（Literal Type）和字面量协议（Literal Protocol）/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/2017/" rel="tag"># 2017</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/private_external_symbol%20VS%20external_symbol/readme/" rel="prev" title="private_external_symbol VS external_symbol">
+      <i class="fa fa-chevron-left"></i> private_external_symbol VS external_symbol
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/Gambler's%20Ruin%20Problem%EF%BC%88%E8%B5%8C%E5%BE%92%E7%A0%B4%E4%BA%A7%E9%97%AE%E9%A2%98%EF%BC%89%E7%A0%94%E7%A9%B6%E6%80%BB%E7%BB%93/readme/" rel="next" title="Gambler's Ruin Problem（赌徒破产问题）研究总结">
+      Gambler's Ruin Problem（赌徒破产问题）研究总结 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一、字面量类型（Literal-Type）"><span class="nav-number">2.</span> <span class="nav-text">一、字面量类型（Literal Type）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、字面量协议（Literal-Protocol）"><span class="nav-number">3.</span> <span class="nav-text">二、字面量协议（Literal Protocol）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、字面量协议例子（Literal-Protocol-Example）"><span class="nav-number">4.</span> <span class="nav-text">三、字面量协议例子（Literal Protocol Example）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、定义Moeny类型，实现通过整数字面量、浮点数字面量、字符串字面量、布尔值字面量初始化Money实例："><span class="nav-number">4.1.</span> <span class="nav-text">1、定义Moeny类型，实现通过整数字面量、浮点数字面量、字符串字面量、布尔值字面量初始化Money实例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、定义Book类型，实现通过字典字面量、数组字面量、nil字面量初始化Book实例"><span class="nav-number">4.2.</span> <span class="nav-text">2、定义Book类型，实现通过字典字面量、数组字面量、nil字面量初始化Book实例:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、关于-‘not-expressible-by-any-literal-enum’-Error"><span class="nav-number">5.</span> <span class="nav-text">四、关于 ‘not expressible by any literal enum’ Error</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料参考"><span class="nav-number">6.</span> <span class="nav-text">资料参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

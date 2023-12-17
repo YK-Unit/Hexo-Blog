@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言Flr 是我主导的和组织团队对外开源的第一款作品——一个用于帮助管理Flutter资源的开发工具系列产品，包括：   flr-as-plugin：Flr的Android Studio插件版本 flr-vscode-extension：Flr的VSCode插件版本 flr-cli：Flr的命令行版本  在这里，主要分享一下Flr背后的产品观和开发观。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flr的产品观和开发观">
+<meta property="og:url" content="https://blog.yorkfish.me/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言Flr 是我主导的和组织团队对外开源的第一款作品——一个用于帮助管理Flutter资源的开发工具系列产品，包括：   flr-as-plugin：Flr的Android Studio插件版本 flr-vscode-extension：Flr的VSCode插件版本 flr-cli：Flr的命令行版本  在这里，主要分享一下Flr背后的产品观和开发观。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/flr.png">
+<meta property="article:published_time" content="2020-06-04T04:34:56.000Z">
+<meta property="article:modified_time" content="2020-06-04T04:34:56.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="人文">
+<meta property="article:tag" content="2020">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/flr.png">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Flr的产品观和开发观 | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Flr的产品观和开发观
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-06-04 12:34:56" itemprop="dateCreated datePublished" datetime="2020-06-04T12:34:56+08:00">2020-06-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BA%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">人文</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img src="/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/flr.png" alt="Flr"></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><a href="https://blog.yorkfish.me/2020/Flr%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%87%BA%E8%89%B2%E7%9A%84Flutter%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/">Flr</a> 是我主导的和组织团队对外开源的第一款作品——一个用于帮助管理Flutter资源的开发工具系列产品，包括： </p>
+<ul>
+<li><a href="https://github.com/Fly-Mix/flr-as-plugin" target="_blank" rel="noopener">flr-as-plugin</a>：<code>Flr</code>的Android Studio插件版本</li>
+<li><a href="https://github.com/Fly-Mix/flr-vscode-extension" target="_blank" rel="noopener">flr-vscode-extension</a>：<code>Flr</code>的VSCode插件版本</li>
+<li><a href="https://github.com/Fly-Mix/flr-cli" target="_blank" rel="noopener">flr-cli</a>：<code>Flr</code>的命令行版本</li>
+</ul>
+<p>在这里，主要分享一下<code>Flr</code>背后的产品观和开发观。</p>
+<a id="more"></a>
+
+<h2 id="Flr的产品观"><a href="#Flr的产品观" class="headerlink" title="Flr的产品观"></a>Flr的产品观</h2><p><code>Flr</code>的产品观主要体现在“产品矩阵策略”和“产品运营策略”这2点上，下面对这2点分别做具体的分享。</p>
+<h3 id="产品矩阵策略"><a href="#产品矩阵策略" class="headerlink" title="产品矩阵策略"></a>产品矩阵策略</h3><p><code>Flr</code>的产品矩阵组成如下：</p>
+<ul>
+<li><a href="https://github.com/Fly-Mix/flr-as-plugin" target="_blank" rel="noopener">flr-as-plugin</a>：<code>Flr</code>的Android Studio插件版本</li>
+<li><a href="https://github.com/Fly-Mix/flr-vscode-extension" target="_blank" rel="noopener">flr-vscode-extension</a>：<code>Flr</code>的VSCode插件版本</li>
+<li><a href="https://github.com/Fly-Mix/flr-cli" target="_blank" rel="noopener">flr-cli</a>：<code>Flr</code>的命令行版本</li>
+</ul>
+<p><code>Flr</code>的产品矩阵策略主要是2点：</p>
+<ul>
+<li>构建开发场景支持全面的产品矩阵</li>
+<li>构建具备容灾能力的产品的矩阵</li>
+</ul>
+<h4 id="构建开发场景支持全面的产品矩阵"><a href="#构建开发场景支持全面的产品矩阵" class="headerlink" title="构建开发场景支持全面的产品矩阵"></a>构建开发场景支持全面的产品矩阵</h4><p>Flutter的开发场景主要有：</p>
+<ol>
+<li><p>使用Android Studio进行Flutter开发</p>
+</li>
+<li><p>使用VSCode进行Flutter开发</p>
+</li>
+<li><p>使用其他文本编辑工具（如Emacs）进行Flutter开发</p>
+</li>
+<li><p>使用CI工具对Flutter工程进行自动构建</p>
+</li>
+</ol>
+<blockquote>
+<p>Flutter官方推荐的IDE主要有Android Studio和VSCode两种。</p>
+<p>详细可见<a href="https://flutter.cn/docs/get-started/editor" target="_blank" rel="noopener external nofollow noreferrer">《Flutter编辑工具设定》</a></p>
+</blockquote>
+<p> 对应上述产品矩阵：</p>
+<ol>
+<li><p><code>flr-as-plugin</code>用于满足开发场景一</p>
+</li>
+<li><p><code>flr-vscode-extension</code>用于满足开发场景二</p>
+</li>
+<li><p><code>flr-cli</code>主要用于满足开发场景三和开发场景四 </p>
+</li>
+</ol>
+<p>通过实施这个策略，<code>Flr</code>将能获得以下好处：</p>
+<ul>
+<li>支持全面，有助全面占领市场（此处的市场特指Flutter资源管理开发工具这个垂直领域市场）</li>
+<li>形成宣传亮点，有助宣传推广产品</li>
+<li>形成护城河，直接提升后来挑战者的竞争门槛</li>
+</ul>
+<h4 id="构建具备容灾能力的产品的矩阵"><a href="#构建具备容灾能力的产品的矩阵" class="headerlink" title="构建具备容灾能力的产品的矩阵"></a>构建具备容灾能力的产品的矩阵</h4><p>   此处所述的“灾难”，主要是指Android Studio或者VSCode进行了breaking式的版本升级后，插件因为兼容性问题导致运行失败或者运行异常。<br>   当发生此种“灾难”后，上述产品矩阵中的<code>flr-cli</code>可以作为<code>flr-as-plugin</code>和<code>flr-vscode-extension</code>的“备胎”，帮助开发者正常完成开发任务，顺利过渡到插件新版本的发布。</p>
+<h3 id="产品运营策略"><a href="#产品运营策略" class="headerlink" title="产品运营策略"></a>产品运营策略</h3><p><code>Flr</code>的产品运营策略主要是2点：</p>
+<ul>
+<li><p>突出<code>Flr</code>的全平台支持特性，强调支持“Android Studio”、“VSCode”、“命令行”</p>
+<p> 注意，此处使用“平台”代替上述的“场景”，一是因为<code>Flr</code>的目标用户是开发者，相比“场景”，“平台”与“开发者”具有更深的“亲缘性”，简单来说就是“全平台”比“全场景”更容易获得目标用户的理解；二是因为在字眼上，“平台”这个词比“场景”更有“震撼力”，简单来说就是显得“更牛逼”。</p>
+</li>
+<li><p>突出<code>Flr</code>的健壮性，强调支持各种异常场景</p>
+<p> 不过，这一点主要体现在<code>Flr</code>相关产品的特性说明上，而不是在日常宣传上，因为“事实胜于雄辩”——在目标用户头脑埋下这个种子后，等目标用户在事实中进行发现和获得证明即可。</p>
+</li>
+<li><p>对外输出Flr的标准，比如推荐的资源组织结构</p>
+</li>
+</ul>
+<h2 id="Flr的开发观"><a href="#Flr的开发观" class="headerlink" title="Flr的开发观"></a>Flr的开发观</h2><p>Flr的开发观主要体现在其所采用的开发策略上：</p>
+<ul>
+<li><p>构建<code>Flr</code>核心逻辑项目——<a href="https://github.com/Fly-Mix/flr-core" target="_blank" rel="noopener">flr-core</a>，以保证<code>flr-as-plugin</code>、<code>flr-vscode-extension</code>、<code>flr-cli</code>在核心逻辑上保持一致，在输出产物上保持一致</p>
+<blockquote>
+<ul>
+<li>“输出产物”包括：文件输出、日志输出、交互输出</li>
+<li>现阶段，保证“文件输出”一致是第一要求</li>
+</ul>
+</blockquote>
+</li>
+<li><p>构建测试用例文档（详细见<code>flr-core</code>各分支版本下的<code>CLD/assets/flr-use-case.xmind</code>），以保证<code>flr-as-plugin</code>、<code>flr-vscode-extension</code>、<code>flr-cli</code>的健壮性</p>
+</li>
+<li><p>以<code>flr-cli</code>的“文件输出”作为测试结果基准，以提升<code>flr-as-plugin</code>、<code>flr-vscode-extension</code>的测试速度和进一步提升这二者的健壮性</p>
+</li>
+<li><p><code>flr-cli</code>作为新特性的实验田，在论证新特性的可行性后，再引进到<code>flr-as-plugin</code>、<code>flr-vscode-extension</code></p>
+<blockquote>
+<p><code>flr-cli</code>采用<code>Ruby</code>开发，可快速实现新特性，以察看特性效果</p>
+</blockquote>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/" title="Flr的产品观和开发观">https://blog.yorkfish.me/2020/Flr的产品观和开发观/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BA%BA%E6%96%87/" rel="tag"># 人文</a>
+              <a href="/tags/2020/" rel="tag"># 2020</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/Future%E5%92%8CPromise%E7%9A%84%E5%8C%BA%E5%88%AB/readme/" rel="prev" title="Future和Promise的区别">
+      <i class="fa fa-chevron-left"></i> Future和Promise的区别
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/FP%E6%8E%A2%E7%B4%A2/readme/" rel="next" title="FP探索">
+      FP探索 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flr的产品观"><span class="nav-number">2.</span> <span class="nav-text">Flr的产品观</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#产品矩阵策略"><span class="nav-number">2.1.</span> <span class="nav-text">产品矩阵策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#构建开发场景支持全面的产品矩阵"><span class="nav-number">2.1.1.</span> <span class="nav-text">构建开发场景支持全面的产品矩阵</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#构建具备容灾能力的产品的矩阵"><span class="nav-number">2.1.2.</span> <span class="nav-text">构建具备容灾能力的产品的矩阵</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#产品运营策略"><span class="nav-number">2.2.</span> <span class="nav-text">产品运营策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flr的开发观"><span class="nav-number">3.</span> <span class="nav-text">Flr的开发观</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言这篇文章既是对上篇《手Y开发规范化建设一：Commit Message 规范建设》在文章结尾抛出的问题的解答，也是对外分享已经在手Y业务团队落地实施5个月（自2021年8月初开始）了的《手Y业务工程规范》的建设经验。 业务背景截止到目前，手Y业务组件数量已经达到30+。伴随着业务的进一步复杂化，团队中出现了不少有碍代码质量、影响效率的问题，比如：  部分手Y业务组件随便引入体积超标图片资源，引">
+<meta property="og:type" content="article">
+<meta property="og:title" content="手Y开发规范化建设二：手Y业务工程规范建设">
+<meta property="og:url" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言这篇文章既是对上篇《手Y开发规范化建设一：Commit Message 规范建设》在文章结尾抛出的问题的解答，也是对外分享已经在手Y业务团队落地实施5个月（自2021年8月初开始）了的《手Y业务工程规范》的建设经验。 业务背景截止到目前，手Y业务组件数量已经达到30+。伴随着业务的进一步复杂化，团队中出现了不少有碍代码质量、影响效率的问题，比如：  部分手Y业务组件随便引入体积超标图片资源，引">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/%E5%8E%BB%E5%B7%A5%E7%A8%8B%E6%96%87%E4%BB%B6%E5%8C%96.webp">
+<meta property="og:image" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/yy-commit-msg-convention.webp">
+<meta property="og:image" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/yy-commit-linter%E6%8E%A5%E5%85%A5iOS%E9%A1%B9%E7%9B%AE%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88.webp">
+<meta property="og:image" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/%E4%B8%B4%E6%97%B6%E5%81%9C%E7%94%A8yy-commit-linter.webp">
+<meta property="article:published_time" content="2021-12-13T02:10:01.000Z">
+<meta property="article:modified_time" content="2021-12-13T02:10:01.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="教程">
+<meta property="article:tag" content="2021">
+<meta property="article:tag" content="工程实践">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/%E5%8E%BB%E5%B7%A5%E7%A8%8B%E6%96%87%E4%BB%B6%E5%8C%96.webp">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>手Y开发规范化建设二：手Y业务工程规范建设 | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          手Y开发规范化建设二：手Y业务工程规范建设
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-13 10:10:01" itemprop="dateCreated datePublished" datetime="2021-12-13T10:10:01+08:00">2021-12-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这篇文章既是对上篇<a href="https://juejin.cn/post/6980910026151952391" target="_blank" rel="noopener external nofollow noreferrer">《手Y开发规范化建设一：Commit Message 规范建设》</a>在文章结尾抛出的问题的解答，也是对外分享已经在手Y业务团队落地实施5个月（自2021年8月初开始）了的《手Y业务工程规范》的建设经验。</p>
+<h2 id="业务背景"><a href="#业务背景" class="headerlink" title="业务背景"></a>业务背景</h2><p>截止到目前，手Y业务组件数量已经达到30+。伴随着业务的进一步复杂化，团队中出现了不少有碍代码质量、影响效率的问题，比如：</p>
+<ul>
+<li>部分手Y业务组件随便引入体积超标图片资源，引起手Y和联运SDK体积劣化</li>
+<li>部分已做二进制化的手Y业务组件不正确设置代码文件的<code>Target Membership</code>，导致构建的二进制产物丢失头文件或者符号，阻塞了手Y的正常开发和构建</li>
+<li>部分手Y业务组件不规范使用<code>API</code>，导致手Y运行时异常</li>
+<li>手Y业务组件提交的 commit 日志格式各异</li>
+</ul>
+<p>为进一步提升手Y的代码质量，提高团队的协作开发效率，我制定了《手Y业务工程规范》来引导团队成员规范开发。</p>
+<a id="more"></a>
+
+<h2 id="手Y业务工程规范简介"><a href="#手Y业务工程规范简介" class="headerlink" title="手Y业务工程规范简介"></a>手Y业务工程规范简介</h2><p>《手Y业务工程规范》是由一系列的满足业务和团队特定需要的规则组成。截止到目前，《手Y业务工程规范》包含了以下规则：</p>
+<ul>
+<li>no_fat_resource_files</li>
+<li>no_unreferenced_code_files</li>
+<li>no_conflicting_files</li>
+<li>yy_commit_msg_convention</li>
+<li>yy_assert_api_first</li>
+<li>yy_color_api_first</li>
+<li>yy_http_api_first</li>
+<li>yy_userdefaults_api_first</li>
+<li>yy_dispatch_task_block_api_first</li>
+</ul>
+<blockquote>
+<p>后面随着团队和业务的需要，规则会有增删改。</p>
+</blockquote>
+<p>下面将会对以上规则进行一一介绍，分享这些规则的承载目的和内容。</p>
+<h3 id="no-fat-resource-files"><a href="#no-fat-resource-files" class="headerlink" title="no_fat_resource_files"></a>no_fat_resource_files</h3><ul>
+<li>规则目的：限制工程随意引入体积超标的资源文件，防止手Y和联运SDK体积劣化</li>
+<li>规则简介：工程引入的图片的体积不能超过4kb（直播间业务工程引入的图片体积不能超过2.5kb）</li>
+</ul>
+<blockquote>
+<p>该规则规定了工程引入的图片体积不能超过4kb，而由于百度App对联运SDK体积有更严苛的要求，该规则要求直播间业务工程引入的图片体积不能超过2.5kb。随着业务的变化，未来这2个数字有可能是会变化的。</p>
+</blockquote>
+<h3 id="no-unreferenced-code-files"><a href="#no-unreferenced-code-files" class="headerlink" title="no_unreferenced_code_files"></a>no_unreferenced_code_files</h3><ul>
+<li>规则目的：防止残留无用代码文件，以及预防业务组件工程的二进制产物缺失头文件或者符号，阻塞手Y的正常开发和构建</li>
+<li>规则简介：工程目录中的代码文件（包括有：头文件、实现文件、库文件、xib文件、storyboard文件）需要保证设置了有效的<code>Target Membership</code></li>
+</ul>
+<blockquote>
+<p>在手Y业务团队中，导致【业务组件工程的二进制产物缺失头文件或者符号】问题产生的原因是：<br>每个业务组件工程在实施二进制化后，都有单独的二进制产物构建工程；而大多数同学在做业务组件开发时，都是使用<code>Development Pods</code>方式接入到手Y宿主工程进行开发，在开发过程中新增的代码文件都没有同步回二进制产物构建工程，从而导致了业务组件二进制产物缺失头文件或者符号的问题。</p>
+<p>那么对这个问题的解决，除了是选择在提交代码时，做<code>no_unreferenced_code_files</code>规则的检测，还有其他代替方案吗？</p>
+<p>答案是：有的。这个代替方案就是做【去工程化】。所谓的【去工程化】，就是基于项目的文件夹结构，使用工程自述文件（<code>project spec file</code>）生成 Xcode 工程文件：</p>
+<p><img src="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/%E5%8E%BB%E5%B7%A5%E7%A8%8B%E6%96%87%E4%BB%B6%E5%8C%96.webp" alt="去工程文件化"></p>
+<blockquote>
+<p>目前业内提供实现【去工程化】的工具有：</p>
+<ul>
+<li><a href="https://github.com/yonaskolb/XcodeGen" target="_blank" rel="noopener">XcodeGen</a></li>
+<li><a href="https://github.com/lyptt/struct" target="_blank" rel="noopener">struct</a></li>
+</ul>
+</blockquote>
+<p>基于这个方案，我们可以选择在构建二进制产物时，根据工程自述文件生成等价于开发时用到的 <code>Development Pods</code>工程，从而解决掉上述问题。目前手Y已经在部分业务组件上实施该方案。</p>
+</blockquote>
+<h3 id="no-conflicting-files"><a href="#no-conflicting-files" class="headerlink" title="no_conflicting_files"></a>no_conflicting_files</h3><ul>
+<li>规则目的：防止没解决<code>merge conflicts</code>（合并冲突）的文件阻塞他人的开发</li>
+<li>规则简介：开发者不能提交存在<code>merge conflicts</code>（合并冲突）的文件到工程仓库中</li>
+</ul>
+<h3 id="yy-commit-msg-convention"><a href="#yy-commit-msg-convention" class="headerlink" title="yy_commit_msg_convention"></a>yy_commit_msg_convention</h3><ul>
+<li><p>规则目的：统一手Y和手Y业务组件的 Commit 日志规范</p>
+</li>
+<li><p>规则简介：开发者提交的 Commit 日志需要满足<a href="https://juejin.cn/post/6980910026151952391#heading-1" target="_blank" rel="noopener external nofollow noreferrer">《YY Commit 日志规范》</a></p>
+<p>  <img src="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/yy-commit-msg-convention.webp" alt="image.png"></p>
+</li>
+</ul>
+<h3 id="yy-assert-api-first"><a href="#yy-assert-api-first" class="headerlink" title="yy_assert_api_first"></a>yy_assert_api_first</h3><ul>
+<li><p>规则目的：规范API使用，优先使用业务定制的<code>YY API</code>代替<code>System API</code>；以及让业务组件的二进制包在宿主的<code>debug</code>环境下可运行<code>Assert</code>代码</p>
+</li>
+<li><p>规则简介：工程若依赖了<code>YYAppEnvironment</code>，则该工程的代码应优先使用<code>YYAppAssert API</code>而不是 <code>NSAssert API</code>，比如：</p>
+  <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bad case</span></span><br><span class="line"><span class="built_in">NSAssert</span>(<span class="literal">NO</span>, <span class="string">@"unimplemented enum value"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// good case</span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;YYAppEnvironment/YYAppEnvironment.h&gt;</span></span></span><br><span class="line">YYAppAssert(<span class="literal">NO</span>, <span class="string">@"unimplemented enum value"</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>关于规则目的提及的第2点：让业务组件的二进制包在宿主的<code>debug</code>环境下可运行<code>Assert</code>代码，这里补充一下知识点。目前业务组件的二进制包都是<code>release</code>编译，<code>release</code>编译时，业务组件中<code>NSAssert</code>代码会被编译器清理掉，这会导致业务组件的二进制包在宿主的<code>debug</code>环境下运行会失效，达不到开发者调试的目的。</p>
+<p>为此我们的一个解决方案是： 业务组件使用<code>YYAppAssert API</code>代替<code>NSAssert API</code>，然后宿主接入<code>YYAppAssert</code>源码编译，然后业务组件的<code>Assert</code>代码可以和以前一样，宿主运行环境是<code>debug</code>环境时，<code>Assert</code>代码生效；宿主环境是<code>release</code>环境时，<code>Assert</code>代码不生效。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="yy-color-api-first"><a href="#yy-color-api-first" class="headerlink" title="yy_color_api_first"></a>yy_color_api_first</h3><ul>
+<li><p>规则目的：规范API使用，优先使用业务定制的<code>YY API</code>代替<code>System API</code>；以及反向推动设计同事优先使用视觉规范上的色表颜色</p>
+</li>
+<li><p>规则简介：工程若依赖了<code>yybaseapisdk</code>，则该工程的代码应优先使用<code>YYColor API</code>而不是<code>UIColor API</code>，比如：</p>
+  <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bad case</span></span><br><span class="line"><span class="built_in">UIColor</span> *bgColor = [<span class="built_in">UIColor</span> whiteColor];</span><br><span class="line"></span><br><span class="line"><span class="comment">// good case</span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;yybaseapisdk/YYColor.h&gt;</span></span></span><br><span class="line"><span class="built_in">UIColor</span> *bgColor = [YYColor B0Color];</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="yy-http-api-first"><a href="#yy-http-api-first" class="headerlink" title="yy_http_api_first"></a>yy_http_api_first</h3><ul>
+<li><p>规则目的：规范API使用，优先使用业务定制的<code>YY API</code>代替<code>System API</code></p>
+</li>
+<li><p>规则简介：工程若依赖了<code>yybaseapisdk</code>，则该工程的代码应优先使用<code>YYNetClient API</code>而不是 <code>NSURLSession/NSURLConnection API</code>，比如：</p>
+  <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bad case</span></span><br><span class="line"><span class="built_in">NSURLSession</span> *session = [<span class="built_in">NSURLSession</span> sessionWithConfiguration:[<span class="built_in">NSURLSessionConfiguration</span> defaultSessionConfiguration]];</span><br><span class="line"><span class="built_in">NSURL</span> *imgUrl = [<span class="built_in">NSURL</span> URLWithString:urlStr];</span><br><span class="line"><span class="built_in">NSURLSessionDataTask</span> *task = [session dataTaskWithURL:imgUrl completionHandler:^(<span class="built_in">NSData</span> * _Nullable data, <span class="built_in">NSURLResponse</span> * _Nullable response, <span class="built_in">NSError</span> * _Nullable error) &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;];</span><br><span class="line">[task resume];</span><br><span class="line"></span><br><span class="line"><span class="comment">// good case</span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;yybaseapisdk/YYNetClient.h&gt;</span></span></span><br><span class="line">YYJumpLiveWinRecmdInfoRequest *request = [YYJumpLiveWinRecmdInfoRequest new];</span><br><span class="line">[YYNetClient sendUrl:urlStr</span><br><span class="line">              method:YYHttpRequestMethodGET</span><br><span class="line">             request:request</span><br><span class="line">       responseClass:YYJumpLiveWinRecmdInfoResponse.class</span><br><span class="line">          onFinished:responseBlock];</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="yy-userdefaults-api-first"><a href="#yy-userdefaults-api-first" class="headerlink" title="yy_userdefaults_api_first"></a>yy_userdefaults_api_first</h3><ul>
+<li><p>规则目的：规范API使用，优先使用业务定制的<code>YY API</code>代替<code>System API</code></p>
+</li>
+<li><p>规则简介：工程若依赖了<code>yybaseapisdk</code>，则该工程的代码应优先使用<code>YYUserDefaults API</code>而不是 <code>NSUserDefaults API</code>，比如：</p>
+  <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bad case</span></span><br><span class="line"><span class="keyword">id</span> hiddenObj = [[<span class="built_in">NSUserDefaults</span> standardUserDefaults] objectForKey:key];</span><br><span class="line"><span class="built_in">BOOL</span> hidden = (hiddenObj != <span class="literal">nil</span>) ? [hiddenObj boolValue] : <span class="literal">YES</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// good case</span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;yybaseapisdk/YYUserDefaults.h&gt;</span></span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;yybaseapisdk/YYUserDefaultsDefine.h&gt;</span></span></span><br><span class="line"><span class="built_in">BOOL</span> hidden = [YYUserDefaults yy_boolForKey:key forModule:module];</span><br></pre></td></tr></table></figure>
+<h3 id="yy-dispatch-task-block-api-first"><a href="#yy-dispatch-task-block-api-first" class="headerlink" title="yy_dispatch_task_block_api_first"></a>yy_dispatch_task_block_api_first</h3></li>
+<li><p>规则目的：规范API使用，优先使用业务定制的<code>YY API</code>代替<code>System API</code></p>
+</li>
+<li><p>规则简介：工程若依赖了<code>yybaseapisdk</code>，则该工程的代码应优先使用<code>YY Dispatch Task Block API</code>（<code>dispatch_yy_sync</code>/<code>dispatch_yy_async</code>/<code>dispatch_sys_sync</code>/<code>dispatch_sys_async</code>） 而不是<code>System Dispatch Task Block API</code>（<code>dispatch_sync</code>/<code>dispatch_async</code>），比如：</p>
+  <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bad case</span></span><br><span class="line"><span class="built_in">dispatch_async</span>(dispatch_get_main_queue(), ^&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// good case</span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;yybaseapisdk/YYDispatchQueue.h&gt;</span></span></span><br><span class="line">dispatch_yy_async(dispatch_get_yy_main_queue(), ^&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="保障《手Y业务工程规范》实施的技术方案"><a href="#保障《手Y业务工程规范》实施的技术方案" class="headerlink" title="保障《手Y业务工程规范》实施的技术方案"></a>保障《手Y业务工程规范》实施的技术方案</h2><p>为保证《手Y业务工程规范》的实施，我们研发了配套的保障工具：<code>yy-commit-linter</code>：</p>
+<ol>
+<li><code>yy-commit-linter</code>是一个基于<code>Ruby</code>开发的<code>gem</code>包</li>
+<li>为了实现<code>yy-commit-linter</code>的自动安装和升级，我们把<code>yy-commit-linter</code>包装成一个<code>Pod</code>库</li>
+<li>然后在手Y主工程安装<code>Pod</code>库时，安装<code>yy-commit-linter CLI</code>到开发者的电脑，并设置<code>git global hooks</code>指向<code>yy-commit-linter git-hooks</code></li>
+<li><code>yy-commit-linter git-hooks</code> 承载了《手Y业务工程规范》的每项检测，当开发者在手Y业务工程完成开发提交代码时，<code>yy-commit-linter git-hooks</code> 就会被触发，然后会对提交的内容进行检测，确保开发者遵守了制定的规范</li>
+</ol>
+<p><img src="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/yy-commit-linter%E6%8E%A5%E5%85%A5iOS%E9%A1%B9%E7%9B%AE%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88.webp" alt="image.png"></p>
+<h2 id="手Y业务工程规范FAQ"><a href="#手Y业务工程规范FAQ" class="headerlink" title="手Y业务工程规范FAQ"></a>手Y业务工程规范FAQ</h2><h3 id="对于暂不需要做二进制化的业务组件工程，如何临时跳过no-unreferenced-code-files规则的检测？"><a href="#对于暂不需要做二进制化的业务组件工程，如何临时跳过no-unreferenced-code-files规则的检测？" class="headerlink" title="对于暂不需要做二进制化的业务组件工程，如何临时跳过no_unreferenced_code_files规则的检测？"></a>对于暂不需要做二进制化的业务组件工程，如何临时跳过<code>no_unreferenced_code_files</code>规则的检测？</h3><p>针对这种场景，<code>yy-commit-linter</code>为<code>no_unreferenced_code_files</code>规则设计和实现了名为【白名单凭证（<code>white_passport</code>）】的白名单机制：若业务组件工程存在白名单凭证文件，即可不受<code>no_unreferenced_code_files</code>规则的约束。</p>
+<p>添加白名单凭证文件步骤如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入业务工程根目录</span></span><br><span class="line">cd path/to/yyxxxcomponent-ios</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 为当前业务工程添加白名单凭证（white_passport）</span></span><br><span class="line">yy-commit-linter white_passport</span><br></pre></td></tr></table></figure>
+
+<h3 id="图片资源体积超标但是又必须放置在本地时，这时候该如何跳过no-fat-resource-files规则的检测？"><a href="#图片资源体积超标但是又必须放置在本地时，这时候该如何跳过no-fat-resource-files规则的检测？" class="headerlink" title="图片资源体积超标但是又必须放置在本地时，这时候该如何跳过no_fat_resource_files规则的检测？"></a>图片资源体积超标但是又必须放置在本地时，这时候该如何跳过<code>no_fat_resource_files</code>规则的检测？</h3><p>针对这种场景，<code>yy-commit-linter</code>为<code>no_fat_resource_files</code>规则设计和实现了名为【白名单口令（<code>white_passphrase</code>）】的白名单机制：若违规的图片资源存在合法的白名单口令，则可不受<code>no_fat_resource_files</code>规则的约束。</p>
+<p>为违规的图片资源添加合法的白名单口令的示例流程如下：</p>
+<ol>
+<li>向违规的图片资源向<code>yy-commit-linter</code>的持有人申请获得专属白名单口令</li>
+<li>在工程根目录下为违规的图片资源添加专属白名单口令，示例如下： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入业务工程根目录</span></span><br><span class="line">cd path/to/yyxxxcomponent-ios</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 为违规的图片资源文件添加分配给它的白名单口令（white_passphrase） xxx1（若你有多个，则执行多次该指令）</span></span><br><span class="line">yy-commit-linter white_passphrase --passphrase xxx1</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 为下一个违规的图片资源文件添加分配给它的白名单口令（white_passphrase）xxx2</span></span><br><span class="line">yy-commit-linter white_passphrase --passphrase xxx2</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="一些特殊场景下，必须使用System-API，这时候该如何跳过yy-api-first系列规则的检测？"><a href="#一些特殊场景下，必须使用System-API，这时候该如何跳过yy-api-first系列规则的检测？" class="headerlink" title="一些特殊场景下，必须使用System API，这时候该如何跳过yy_api_first系列规则的检测？"></a>一些特殊场景下，必须使用<code>System API</code>，这时候该如何跳过<code>yy_api_first</code>系列规则的检测？</h3><p>针对这种场景，<code>yy-commit-linter</code>为<code>yy_api_first</code>系列规则设计和实现了名为【白名单标签（<code>white_label</code>】的白名单机制：若违规的代码存在一个白名单标签，则可不受对应的<code>yy_api_first</code>规则的约束。</p>
+<p>【白名单标签（<code>white_label</code>】形式上是一个 <code>ignore_yy_api_first</code>注释标签。</p>
+<p>添加白名单标签示例如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例1</span></span><br><span class="line"><span class="built_in">NSUserDefaults</span> *userDefaults = [[<span class="built_in">NSUserDefaults</span> alloc] initWithSuiteName:groundIdentifier]; <span class="comment">//ignore_yy_api_first</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例2</span></span><br><span class="line"><span class="built_in">NSUserDefaults</span> *userDefaults = [[<span class="built_in">NSUserDefaults</span> alloc] initWithSuiteName:groundIdentifier]; <span class="comment">/* ignore_yy_api_first */</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="如果需要临时停用yy-commit-linter检测功能，应该如何处理"><a href="#如果需要临时停用yy-commit-linter检测功能，应该如何处理" class="headerlink" title="如果需要临时停用yy-commit-linter检测功能，应该如何处理?"></a>如果需要临时停用<code>yy-commit-linter</code>检测功能，应该如何处理?</h3><p>针对这种场景，<code>yy-commit-linter</code>为提供了<code>uninstall</code>功能，但是为了防止用户滥用，设计了<code>uninstall</code>口令：执行<code>uninstall</code>前，需要先向<code>yy-commit-linter</code>的持有人申请一个口令，然后执行<code>uninstall</code>时，输入该口令才能成功<code>uninstall</code>。</p>
+<p>执行<code>uninstall</code>的示例如下：</p>
+<p><img src="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/%E4%B8%B4%E6%97%B6%E5%81%9C%E7%94%A8yy-commit-linter.webp" alt="image.png"></p>
+<blockquote>
+<p>需要注意的是，<code>uninstall</code>口令具有定向性（只对申请人生效）和时效性（只在当天有效）。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/" title="手Y开发规范化建设二：手Y业务工程规范建设">https://blog.yorkfish.me/2021/手Y开发规范化建设二：手Y业务工程规范建设/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/%E6%95%99%E7%A8%8B/" rel="tag"># 教程</a>
+              <a href="/tags/2021/" rel="tag"># 2021</a>
+              <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" rel="tag"># 工程实践</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/" rel="prev" title="手Y开发规范化建设一：Commit Message 规范建设">
+      <i class="fa fa-chevron-left"></i> 手Y开发规范化建设一：Commit Message 规范建设
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#业务背景"><span class="nav-number">2.</span> <span class="nav-text">业务背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#手Y业务工程规范简介"><span class="nav-number">3.</span> <span class="nav-text">手Y业务工程规范简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#no-fat-resource-files"><span class="nav-number">3.1.</span> <span class="nav-text">no_fat_resource_files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#no-unreferenced-code-files"><span class="nav-number">3.2.</span> <span class="nav-text">no_unreferenced_code_files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#no-conflicting-files"><span class="nav-number">3.3.</span> <span class="nav-text">no_conflicting_files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yy-commit-msg-convention"><span class="nav-number">3.4.</span> <span class="nav-text">yy_commit_msg_convention</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yy-assert-api-first"><span class="nav-number">3.5.</span> <span class="nav-text">yy_assert_api_first</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yy-color-api-first"><span class="nav-number">3.6.</span> <span class="nav-text">yy_color_api_first</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yy-http-api-first"><span class="nav-number">3.7.</span> <span class="nav-text">yy_http_api_first</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yy-userdefaults-api-first"><span class="nav-number">3.8.</span> <span class="nav-text">yy_userdefaults_api_first</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yy-dispatch-task-block-api-first"><span class="nav-number">3.9.</span> <span class="nav-text">yy_dispatch_task_block_api_first</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#保障《手Y业务工程规范》实施的技术方案"><span class="nav-number">4.</span> <span class="nav-text">保障《手Y业务工程规范》实施的技术方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#手Y业务工程规范FAQ"><span class="nav-number">5.</span> <span class="nav-text">手Y业务工程规范FAQ</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#对于暂不需要做二进制化的业务组件工程，如何临时跳过no-unreferenced-code-files规则的检测？"><span class="nav-number">5.1.</span> <span class="nav-text">对于暂不需要做二进制化的业务组件工程，如何临时跳过no_unreferenced_code_files规则的检测？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#图片资源体积超标但是又必须放置在本地时，这时候该如何跳过no-fat-resource-files规则的检测？"><span class="nav-number">5.2.</span> <span class="nav-text">图片资源体积超标但是又必须放置在本地时，这时候该如何跳过no_fat_resource_files规则的检测？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一些特殊场景下，必须使用System-API，这时候该如何跳过yy-api-first系列规则的检测？"><span class="nav-number">5.3.</span> <span class="nav-text">一些特殊场景下，必须使用System API，这时候该如何跳过yy_api_first系列规则的检测？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如果需要临时停用yy-commit-linter检测功能，应该如何处理"><span class="nav-number">5.4.</span> <span class="nav-text">如果需要临时停用yy-commit-linter检测功能，应该如何处理?</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1234567891011121314151617181920&#x2F;&#x2F;代码片段摘自苹果开源的runtime代码（objc4-208版本）&#x2F;&#x2F;https:&#x2F;&#x2F;opensource.apple.com&#x2F;source&#x2F;objc4&#x2F;objc4-208&#x2F;runtime&#x2F;objc-class.hstruct objc_class &amp;#123;				struct objc_class *isa;		struct">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二级指针指向的数据结构是什么样的？">
+<meta property="og:url" content="https://blog.yorkfish.me/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="1234567891011121314151617181920&#x2F;&#x2F;代码片段摘自苹果开源的runtime代码（objc4-208版本）&#x2F;&#x2F;https:&#x2F;&#x2F;opensource.apple.com&#x2F;source&#x2F;objc4&#x2F;objc4-208&#x2F;runtime&#x2F;objc-class.hstruct objc_class &amp;#123;				struct objc_class *isa;		struct">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/aP-bP-obj.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/aP-bP-objArray.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/aP-bPArray.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E5%8F%AF%E8%83%BD%E6%80%A7%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C.png">
+<meta property="article:published_time" content="2017-02-26T04:34:56.000Z">
+<meta property="article:modified_time" content="2017-02-26T04:34:56.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="2017">
+<meta property="article:tag" content="OS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/aP-bP-obj.png">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>二级指针指向的数据结构是什么样的？ | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          二级指针指向的数据结构是什么样的？
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-02-26 12:34:56" itemprop="dateCreated datePublished" datetime="2017-02-26T12:34:56+08:00">2017-02-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//代码片段摘自苹果开源的runtime代码（objc4-208版本）</span></span><br><span class="line"><span class="comment">//https://opensource.apple.com/source/objc4/objc4-208/runtime/objc-class.h</span></span><br><span class="line"><span class="keyword">struct</span> objc_class &#123;			</span><br><span class="line">	<span class="keyword">struct</span> objc_class *isa;	</span><br><span class="line">	<span class="keyword">struct</span> objc_class *super_class;	</span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">char</span> *name;		</span><br><span class="line">	<span class="keyword">long</span> version;</span><br><span class="line">	<span class="keyword">long</span> info;</span><br><span class="line">	<span class="keyword">long</span> instance_size;</span><br><span class="line">	<span class="keyword">struct</span> objc_ivar_list *ivars;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(Release3CompatibilityBuild)</span></span><br><span class="line">	<span class="keyword">struct</span> objc_method_list *methods;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">	<span class="keyword">struct</span> objc_method_list **methodLists;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">struct</span> objc_cache *cache;</span><br><span class="line"> 	<span class="keyword">struct</span> objc_protocol_list *protocols;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这是Objective-C 2.0中的类的代码，相信做iOS开发的同学都很熟悉的了。有天在查资料又看到它的时候，想到了一个好奇的问题：</p>
+<blockquote>
+<p><code>methodLists</code> 是一个二级指针，在内存中，它指向的是什么呢？（或者说，其指向的数据结构到底是怎么样的？）</p>
+</blockquote>
+<a id="more"></a>
+
+<p>然后，我想到了下面几个可能性：</p>
+<ul>
+<li><p><code>methodLists</code> 指向的是一个结构体的指针</p>
+<p><img src="/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/aP-bP-obj.png" alt="aP-bP-obj.png"></p>
+</li>
+<li><p><code>methodLists</code> 指向的是结构体数组的指针</p>
+<p><img src="/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/aP-bP-objArray.png" alt="aP-bP-objArray.png"></p>
+</li>
+<li><p><code>methodLists</code> 指向的是结构体指针数组</p>
+<p><img src="/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/aP-bPArray.png" alt="aP-bPArray.png"></p>
+</li>
+</ul>
+<p>那么上面的可能性都是存在的吗？为了验证，我写了下面的代码进行测试。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">  <span class="keyword">float</span> version;</span><br><span class="line">&#125; method;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> <span class="keyword">const</span> *argv[])</span> </span>&#123;</span><br><span class="line">  method **methodList;</span><br><span class="line"></span><br><span class="line">  method aMethod;</span><br><span class="line">  aMethod.version = <span class="number">1.1</span>;</span><br><span class="line"></span><br><span class="line">  method bMethod;</span><br><span class="line">  bMethod.version = <span class="number">2.2</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"开始验证第1种可能性：aP-&gt;bP-&gt;obj\n"</span>);</span><br><span class="line">  method *aMethodP = &amp;aMethod;</span><br><span class="line">  methodList = &amp;aMethodP;</span><br><span class="line"></span><br><span class="line">  method* currentMethod = *methodList;</span><br><span class="line">  <span class="keyword">float</span> version = currentMethod-&gt;version;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"version:%0.1f\n"</span>,version);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"结束验证第1种可能性。\n"</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"开始验证第2种可能性：aP-&gt;bP-&gt;obj[]\n"</span>);</span><br><span class="line">  method methodArray[<span class="number">2</span>];</span><br><span class="line">  methodArray[<span class="number">0</span>] = aMethod;</span><br><span class="line">  methodArray[<span class="number">1</span>] = bMethod;</span><br><span class="line"></span><br><span class="line">  *methodList = methodArray;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++) &#123;</span><br><span class="line">    method* currentMethod = &amp;((*methodList)[i]);</span><br><span class="line">    <span class="keyword">float</span> version = currentMethod-&gt;version;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"version:%0.1f\n"</span>,version);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"结束验证第2种可能性。\n"</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"开始验证第3种可能性：aP-&gt;[(bP-&gt;obj)]\n"</span>);</span><br><span class="line">  method* methodPointArray[<span class="number">2</span>];</span><br><span class="line">  methodPointArray[<span class="number">0</span>]=&amp;aMethod;</span><br><span class="line">  methodPointArray[<span class="number">1</span>]=&amp;bMethod;</span><br><span class="line"></span><br><span class="line">  methodList = &amp;(methodPointArray[<span class="number">0</span>]);</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++) &#123;</span><br><span class="line">    method* currentMethod = *(methodList+i);</span><br><span class="line">    <span class="keyword">float</span> version = currentMethod-&gt;version;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"version:%0.1f\n"</span>,version);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"结束验证第3种可能性。\n"</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<p><img src="/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E5%8F%AF%E8%83%BD%E6%80%A7%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C.png" alt="二级指针可能性运行结果.png"></p>
+<p>按照上面提出的模型所编写的代码可以运行通过，这证明所说的3种可能性都存在，然而在<code>runtime</code>里使用的是哪种呢？</p>
+<p>为此，特意去看了相关的代码，得到的答案是：第三种。</p>
+<p>论据为：<code>runtime</code>中的<code>class</code>移除<code>method</code>的方法代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//代码片段摘自苹果开源的runtime代码（objc4-208版本）</span></span><br><span class="line"><span class="comment">//https://opensource.apple.com/source/objc4/objc4-208/runtime/objc-class.m</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">class_removeMethods</span> <span class="params">(Class cls, struct objc_method_list * meths)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// Remove atomically.</span></span><br><span class="line">	_objc_removeMethods (meths, &amp;((struct objc_class *) cls)-&gt;methodLists);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// Must flush when dynamically removing methods.  No need to flush</span></span><br><span class="line">	<span class="comment">// all the class method caches.  If cls is a meta class, though,</span></span><br><span class="line">	<span class="comment">// this will still flush it and any of its sub-meta classes.</span></span><br><span class="line">	flush_caches (cls, NO); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//代码片段摘自苹果开源的runtime代码（objc4-208版本）</span></span><br><span class="line"><span class="comment">//https://opensource.apple.com/source/objc4/objc4-208/runtime/objc-runtime.m</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> _objc_removeMethods (struct objc_method_list * mlist, struct objc_method_list *** <span class="built_in">list</span>)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">objc_method_list</span> **	<span class="title">ptr</span>;</span></span><br><span class="line"> </span><br><span class="line">        <span class="comment">// Locate list in the array </span></span><br><span class="line">        ptr = *<span class="built_in">list</span>;</span><br><span class="line">        <span class="keyword">while</span> (*ptr != mlist) &#123;</span><br><span class="line">                <span class="comment">// fix for radar # 2538790</span></span><br><span class="line">                <span class="keyword">if</span> ( *ptr == END_OF_METHODS_LIST ) <span class="keyword">return</span>;</span><br><span class="line">                ptr += <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">// Remove this entry </span></span><br><span class="line">        *ptr = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">        <span class="comment">// Left shift the following entries</span></span><br><span class="line">        <span class="keyword">while</span> (*(++ptr) != END_OF_METHODS_LIST)</span><br><span class="line">                *(ptr<span class="number">-1</span>) = *ptr;</span><br><span class="line">        *(ptr<span class="number">-1</span>) = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>那么对于标题提出的问题：『二级指针指向的数据结构是什么样的？』，它的标准答案是什么呢？</p>
+<p>答案是：没有标准答案，它的答案应该是结合具体的业务代码来回答的，比如<code>Runtime</code>里的<code>methodLists</code>。</p>
+<p>另外，在最后，不得不感叹下：指针真是C语言的灵魂，其让C变得何其灵活！（当然，同时也让C变得复杂，在你不知道作者的指针意图的时候）</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2017/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F/readme/" title="二级指针指向的数据结构是什么样的？">https://blog.yorkfish.me/2017/二级指针指向的数据结构是什么样的？/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/2017/" rel="tag"># 2017</a>
+              <a href="/tags/OS/" rel="tag"># OS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/%E5%9C%A8Mac%E4%B8%8B%E4%BD%BF%E7%94%A8Atom%E6%90%AD%E5%BB%BAC%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/readme/" rel="prev" title="在Mac下使用Atom搭建C开发环境">
+      <i class="fa fa-chevron-left"></i> 在Mac下使用Atom搭建C开发环境
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AASSH-Key/readme/" rel="next" title="配置多个SSH-Key">
+      配置多个SSH-Key <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#写在最后"><span class="nav-number">1.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

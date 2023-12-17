@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言在面向对象领域中，方法（method）和函数（function）有什么区别和关联呢？ 方法和函数的区别在面向对象领域中，方法和函数的区别是：  定义不一样  函数是指一段可以直接被其名称调用的代码块 方法指的是一段被它关联的对象通过它的名字调用的代码块   与对象的关系不一样  函数独立于对象 方法依附在对象之上，可以在代码块内直接处理对象上的成员数据   传递的数据（比如参数）不一样  传递">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OOP：方法（method）和函数（function）的区别">
+<meta property="og:url" content="https://blog.yorkfish.me/2020/OOP%EF%BC%9A%E6%96%B9%E6%B3%95%EF%BC%88method%EF%BC%89%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%88function%EF%BC%89%E7%9A%84%E5%8C%BA%E5%88%AB/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言在面向对象领域中，方法（method）和函数（function）有什么区别和关联呢？ 方法和函数的区别在面向对象领域中，方法和函数的区别是：  定义不一样  函数是指一段可以直接被其名称调用的代码块 方法指的是一段被它关联的对象通过它的名字调用的代码块   与对象的关系不一样  函数独立于对象 方法依附在对象之上，可以在代码块内直接处理对象上的成员数据   传递的数据（比如参数）不一样  传递">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-05-05T02:10:01.000Z">
+<meta property="article:modified_time" content="2020-05-05T02:10:01.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="2020">
+<meta property="article:tag" content="基础理论">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2020/OOP%EF%BC%9A%E6%96%B9%E6%B3%95%EF%BC%88method%EF%BC%89%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%88function%EF%BC%89%E7%9A%84%E5%8C%BA%E5%88%AB/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>OOP：方法（method）和函数（function）的区别 | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/OOP%EF%BC%9A%E6%96%B9%E6%B3%95%EF%BC%88method%EF%BC%89%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%88function%EF%BC%89%E7%9A%84%E5%8C%BA%E5%88%AB/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OOP：方法（method）和函数（function）的区别
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-05-05 10:10:01" itemprop="dateCreated datePublished" datetime="2020-05-05T10:10:01+08:00">2020-05-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在面向对象领域中，方法（method）和函数（function）有什么区别和关联呢？</p>
+<h2 id="方法和函数的区别"><a href="#方法和函数的区别" class="headerlink" title="方法和函数的区别"></a>方法和函数的区别</h2><p>在面向对象领域中，方法和函数的区别是：</p>
+<ol>
+<li><p>定义不一样</p>
+<ul>
+<li>函数是指一段可以直接被其名称调用的代码块</li>
+<li>方法指的是一段被它关联的对象通过它的名字调用的代码块</li>
+</ul>
+</li>
+<li><p>与对象的关系不一样</p>
+<ul>
+<li>函数独立于对象</li>
+<li>方法依附在对象之上，可以在代码块内直接处理对象上的成员数据</li>
+</ul>
+</li>
+<li><p>传递的数据（比如参数）不一样</p>
+<ul>
+<li>传递给函数的数据都是明文明确的</li>
+<li>传递给方法的数据有部分是隐式的，其中隐式部分的数据主要是调用该方法的对象实例</li>
+</ul>
+</li>
+<li><p>可访问范围不一样</p>
+<ul>
+<li>一般来说（在不考虑module、package等作用域的设计情况下），函数的可访问范围是全局性的，即可以在代码的任何地方访问到</li>
+<li>方法的可访问范围由其访问修饰符决定，基本上其范围都局限在所依赖的对象内</li>
+</ul>
+</li>
+</ol>
+<a id="more"></a>
+
+<h2 id="方法和函数的关联"><a href="#方法和函数的关联" class="headerlink" title="方法和函数的关联"></a>方法和函数的关联</h2><p>在面向对象领域中，方法和函数的关联是：在概念上，方法可简单视作函数的特例——方法就是对象的函数。</p>
+<h2 id="C-标准为何没有使用“方法”而是使用“成员函数”"><a href="#C-标准为何没有使用“方法”而是使用“成员函数”" class="headerlink" title="C++标准为何没有使用“方法”而是使用“成员函数”"></a>C++标准为何没有使用“方法”而是使用“成员函数”</h2><p>C++标准为何没有使用“方法”这个术语而是选择使用了“成员函数”这个术语呢？</p>
+<p>这个问题没有正式的、官方的答案。我的个人理解则是：</p>
+<ul>
+<li><p>这可能和编程语言设计观相关：对于C++<br>作者来说，采用“成员函数”可以减少一个术语概念，降低复杂性</p>
+</li>
+<li><p>这也可能和编程语言的底层实现的设计相关：C++ 的一个关键目标是尽量地节省额外开销，特别是内存的开销，为此，在 C++ 代码和硬件之间，C++ 没有做额外的抽象、虚拟或者其他的数学模型，而是直接把基本类型（char, int, double 等）映射到内存中的实体——比如字节（Byte）、字（Word），把有类型的对象映射到内存中一块连续空间内。在处理类的方法（此处使用面向对象术语）时，并没有做额外抽象，而是和处理普通函数一样：做直接的内存映射（在内存上都是一段连续的指令）。那么，在底层实现这个层面上，以及没有做额外的抽象、虚拟的情况下，类的方法和普通函数没有本质区别，使用“成员函数”的术语似乎优于“方法”这个术语了。</p>
+<blockquote>
+<p>关于C++ 的类的一个微妙问题：</p>
+<p>一个常见的混淆其实只是一个微妙的术语问题：由于它的演化来自C，在C++ 中的术语对象和C语言一样是意味着存储器区域，而不是类的实体，在其它绝大多数的面向对象语言也是如此。举例来说，在C和C++中，语句int i;定义一个int类型的对象，这就是变量的值i将在指派时，所存入的存储器区域。</p>
+<p>源自：<a href="https://zh.wikipedia.org/wiki/C%2B%2B#C++中的特色" target="_blank" rel="noopener external nofollow noreferrer">维基 -《C++》</a></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://stackoverflow.com/questions/155609/whats-the-difference-between-a-method-and-a-function?page=1&tab=votes#tab-top" target="_blank" rel="noopener">stackoverflow -《What’s the difference between a method and a function?》</a></li>
+<li><a href="https://blog.csdn.net/notsaltedfish/article/details/75174556" target="_blank" rel="noopener external nofollow noreferrer">《方法和函数的区别》</a></li>
+<li><a href="https://www.cnblogs.com/wancy86/p/7271850.html" target="_blank" rel="noopener external nofollow noreferrer">《方法（method）和函数（function）有什么区别？》</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/C%2B%2B#C++中的特色" target="_blank" rel="noopener external nofollow noreferrer">维基 -《C++》</a></li>
+<li><a href="https://liam.page/2017/04/09/Foundations-of-Cpp/" target="_blank" rel="noopener external nofollow noreferrer">《C++ 的几个基本原理和技术》</a></li>
+<li><a href="http://cs.ioc.ee/etaps12/invited/stroustrup-slides.pdf" target="_blank" rel="noopener external nofollow noreferrer">《Foundations of C++（PPT版本）》</a></li>
+<li><a href="http://www.stroustrup.com/ETAPS-corrected-draft.pdf" target="_blank" rel="noopener external nofollow noreferrer">《Foundations of C++（论文版本）》</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2020/OOP%EF%BC%9A%E6%96%B9%E6%B3%95%EF%BC%88method%EF%BC%89%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%88function%EF%BC%89%E7%9A%84%E5%8C%BA%E5%88%AB/readme/" title="OOP：方法（method）和函数（function）的区别">https://blog.yorkfish.me/2020/OOP：方法（method）和函数（function）的区别/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/2020/" rel="tag"># 2020</a>
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/" rel="tag"># 基础理论</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/%E4%B8%BA%E4%BD%95%E9%87%8D%E5%90%AF%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%EF%BC%9F/readme/" rel="prev" title="为何重启个人博客？">
+      <i class="fa fa-chevron-left"></i> 为何重启个人博客？
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/Objective-C%E7%9A%84%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%9A%5Bself%20class%5D%20%E4%B8%8E%20%5Bsuper%20class%5D/readme/" rel="next" title="Objective-C的一道题：[self class] 与 [super class]">
+      Objective-C的一道题：[self class] 与 [super class] <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法和函数的区别"><span class="nav-number">2.</span> <span class="nav-text">方法和函数的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法和函数的关联"><span class="nav-number">3.</span> <span class="nav-text">方法和函数的关联</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-标准为何没有使用“方法”而是使用“成员函数”"><span class="nav-number">4.</span> <span class="nav-text">C++标准为何没有使用“方法”而是使用“成员函数”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

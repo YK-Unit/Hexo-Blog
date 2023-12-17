@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Keep IT Simple &amp; Stupid">
+<meta property="og:type" content="website">
+<meta property="og:title" content="YorkFish Blog">
+<meta property="og:url" content="https://blog.yorkfish.me/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="Keep IT Simple &amp; Stupid">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="YorkFish">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.yorkfish.me/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'en'
+  };
+</script>
+
+  <title>YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/" class="post-title-link" itemprop="url">手Y开发规范化建设二：手Y业务工程规范建设</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-13 10:10:01" itemprop="dateCreated datePublished" datetime="2021-12-13T10:10:01+08:00">2021-12-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这篇文章既是对上篇<a href="https://juejin.cn/post/6980910026151952391" target="_blank" rel="noopener external nofollow noreferrer">《手Y开发规范化建设一：Commit Message 规范建设》</a>在文章结尾抛出的问题的解答，也是对外分享已经在手Y业务团队落地实施5个月（自2021年8月初开始）了的《手Y业务工程规范》的建设经验。</p>
+<h2 id="业务背景"><a href="#业务背景" class="headerlink" title="业务背景"></a>业务背景</h2><p>截止到目前，手Y业务组件数量已经达到30+。伴随着业务的进一步复杂化，团队中出现了不少有碍代码质量、影响效率的问题，比如：</p>
+<ul>
+<li>部分手Y业务组件随便引入体积超标图片资源，引起手Y和联运SDK体积劣化</li>
+<li>部分已做二进制化的手Y业务组件不正确设置代码文件的<code>Target Membership</code>，导致构建的二进制产物丢失头文件或者符号，阻塞了手Y的正常开发和构建</li>
+<li>部分手Y业务组件不规范使用<code>API</code>，导致手Y运行时异常</li>
+<li>手Y业务组件提交的 commit 日志格式各异</li>
+</ul>
+<p>为进一步提升手Y的代码质量，提高团队的协作开发效率，我制定了《手Y业务工程规范》来引导团队成员规范开发。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/" class="post-title-link" itemprop="url">手Y开发规范化建设一：Commit Message 规范建设</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-07-04 10:10:01" itemprop="dateCreated datePublished" datetime="2021-07-04T10:10:01+08:00">2021-07-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我于2020年年中加入了手机YY iOS团队，那时发现团队成员在特性阶段所写的<code>Commit Message</code>比较随意；在集成阶段，则比较统一：</p>
+<p><img src="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/old-commit-msgs.awebp" alt="image.png"></p>
+<blockquote>
+<p>这里简要介绍一下手Y团队采用的<code>Git</code>分支管理模型和<code>YY GitLab Server</code>端对<code>maint</code>分支实施的<code>Commit Message</code>规范。</p>
+<p>手Y团队采用的<code>Git</code>分支管理模型是一种基于主干的分支模型：<code>master-maint-feature</code>，其中：</p>
+<ul>
+<li><code>master</code>分支是主干分支，用于存放对外发布的版本，永久存在，属于长生命周期</li>
+<li><code>maint</code>分支是集成分支，从<code>master</code>分支拉出，用于集成特性和发布版本，存在于集成阶段（在此阶段，团队成员都往该分支提交和只提交修复代码），属于中生命周期（版本发布后，合并回<code>master</code>分支，这之后一般还会存在一段时间）</li>
+<li><code>feature</code>分支是特性分支，从<code>master</code>分支拉出，用于开发特性，存在于特性阶段（在此阶段，团队成员都往该分支提交特性代码、修复代码等），属于短生命周期（特性集成之日，合并回<code>master</code>分支，然后被删除）</li>
+</ul>
+<p><code>YY GitLab Server</code>端对<code>maint</code>分支实施的<code>Commit Message</code>规范是，要求提交格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[bug id &lt;bugId&gt;] &lt;subject&gt; review by [&lt;reviewer&gt;]</span><br></pre></td></tr></table></figure>
+
+</blockquote>
+<p>为了使得手Y工程的<code>Commit Message</code>规范变得完整（任意阶段都有规范）和完善，从而帮助团队更好地发展和更好地维护工程，我根据团队实际情况和需求，制定和落地了一套合适手Y的新的<code>Commit Message</code>规范。截止到目前，该规范已经运行快一年，给团队和工程带来了显著的收益：</p>
+<ul>
+<li>帮助团队成员建立更好的规范意识</li>
+<li>帮助团队新成员更好地理解<code>Commit</code>和<code>历史代码</code></li>
+<li>帮助团队成员更快地对当前<code>Commit</code>进行<code>Code Review</code></li>
+<li>让工程变得更好维护</li>
+<li>其他等等</li>
+</ul>
+<p>新<code>Commit Message</code>规范在经过实践的验收后，作为一个负责的开发团队，我们觉得可以对外分享我们的这个新的<code>Commit Message</code>规范，以及分享我们如何去保障新<code>Commit Message</code>规范的实施。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/" class="post-title-link" itemprop="url">手Y工程实践之Podfile.lock管理新方案</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-03-07 10:10:01" itemprop="dateCreated datePublished" datetime="2021-03-07T10:10:01+08:00">2021-03-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在iOS工程接入<code>CocoaPods</code>做依赖管理后，开发者对<code>Podfile.lock</code>的管理主要有以下两种方案：</p>
+<ol>
+<li>不把<code>Podfile.lock</code>纳入版本管理</li>
+<li>把<code>Podfile.lock</code>纳入版本管理</li>
+</ol>
+<p>这两种方案各有优劣和各有适用场景：</p>
+<ol>
+<li>第1种方案不强制团队成员使用统一版本的<code>CocoaPods</code>，对团队成员较为友好，但是无法保证团队成员在本地安装的依赖是一致的；其适合个人或者前期对规范不作要求、规模很小的团队</li>
+<li>第2种方案能保证团队成员在本地安装的依赖是一致的，但是却要强制团队成员使用统一版本的<code>CocoaPods</code>；其适合对规范有要求的团队</li>
+</ol>
+<p>在我加入手Y团队之前，手Y团队选用的是第1种方案。基于第1种方案的选择，为了能保证团队成员在本地安装的依赖是一致的，手Y团队又做了以下的解决措施：</p>
+<blockquote>
+<p>Podfile里的每个库都声明一个具名的固定版本号，如<code>pod &#39;yyabtestsdk&#39;, &#39;2.1.0-dev.2&#39;</code>、<code>pod &#39;yybaseapisdk&#39;, :git=&gt;&#39;https://xxx/yybaseapisdk-ios.git&#39;, :tag =&gt; &#39;7.46.0-dev.8&#39;</code>。</p>
+</blockquote>
+<p>随着团队的变大（现在iOS业务端已有40+人），这种方案的弊端逐渐暴露：</p>
+<ul>
+<li><p>无法百分百确保编译运行阶段，团队成员的本地安装的依赖是一致的</p>
+<p>这个弊端对应的场景是：有人更新了<code>Podfile</code>，安装了<code>非BreakingChanges</code>的、新版本的依赖库，并进行了代码推送；其他人拉取代码后，若不手动执行一次<code>Pod install/update</code>，其本地安装的依赖是落后的，并且在编译运行阶段，由于代码兼容，若非出现严重bug，其不会发现其本地依赖需要更新。</p>
+</li>
+<li><p>因本地依赖的版本不正确导致编译失败的时机延迟发生到了编译中后期</p>
+<p>这个弊端对应的场景是：有人更新了<code>Podfile</code>，安装了<code>BreakingChanges</code>的、新版本的依赖库，并进行了代码推送；其他人拉取代码后，若不手动执行一次<code>Pod install/update</code>，其本地安装的依赖是落后的，然后其进行编译时，由于代码不兼容，会发现编译失败了——但是这时候编译失败的时机常常是发生在编译中后期——在让开发者至少等待了十几分钟后才抛出编译失败的错误——这相当影响开发者的心情和工作效率。</p>
+<blockquote>
+<p>对于<code>BreakingChanges</code>的疑问可看下文的《Q&amp;A》</p>
+</blockquote>
+</li>
+</ul>
+<p>为了解决这些弊端，有必要考虑重新把<code>Podfile.lock</code>纳入版本管理。那有没有一种方案，能同时获得上述第1种方案和第2种方案的收益呢？具体是，希望有一种方案能满足以下的需求：</p>
+<ol>
+<li>保证团队成员本地安装的依赖是一致的</li>
+<li>允许团队成员不使用统一版本的<code>CocoaPods</code></li>
+<li>把因本地依赖的版本不正确导致编译失败的时机从编译中后期提前到编译前，帮助提升开发效率</li>
+<li>新方案对当前团队成员是零负担（不强制团队成员做不必要的事、不耗费团队成员不必要的注意力和精力）</li>
+</ol>
+<p>为此，我制定了一个新的<code>Podfile.lock</code>管理方案，下面将会做具体的介绍。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/" class="post-title-link" itemprop="url">当第一张图片加载渲染时（渲染原理+图片解码）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-08-05 10:10:01" itemprop="dateCreated datePublished" datetime="2020-08-05T10:10:01+08:00">2020-08-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%9F%A5%E8%AF%86%E5%A4%8D%E7%9B%98/" itemprop="url" rel="index"><span itemprop="name">知识复盘</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="UIImage和UIImageView"><a href="#UIImage和UIImageView" class="headerlink" title="UIImage和UIImageView"></a>UIImage和UIImageView</h2><p>UIImage 和 UIImageView 的角色类似于 MVC 架构模式中的数据和视图，如下图所示。</p>
+<p><img src="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/UIIamgeView-Model.png" alt="image"></p>
+<p>UIImage 是 iOS 中处理图像的高级类。创建一个 UIImage 实例只会加载 Data Buffer，将图像显示到屏幕上才会触发解码，也就是 Data Buffer 解码为 Image Buffer。Image Buffer 也关联在 UIImage 上。</p>
+<blockquote>
+<ul>
+<li><p>Data Buffer 是存储在内存中的原始数据，图像可以使用不同的格式保存，如 jpg、png。Data Buffer 的信息不能用来描述图像的像素信息。</p>
+</li>
+<li><p>Image Buffer 是图像在内存中的存在方式，其中每个元素描述了一个像素点。Image Buffer 的大小和图像的大小成正比。</p>
+</li>
+</ul>
+</blockquote>
+<p>参考资料：</p>
+<ul>
+<li><a href="https://blog.jamchenjun.com/2018/08/22/image-and-graphics-best-practices.html" target="_blank" rel="noopener external nofollow noreferrer">《iOS 图像解码和最佳实践》</a></li>
+</ul>
+<h2 id="UIImage解码"><a href="#UIImage解码" class="headerlink" title="UIImage解码"></a>UIImage解码</h2><p>在iOS中，UIImage解码分为2种：</p>
+<ul>
+<li><p>隐式解码</p>
+<p>  将图像显示到屏幕上会触发隐式解码。（必须同时满足图像被设置到 UIImageView 中、UIImageView 添加到视图，才会触发图像解码。)</p>
+  <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">UIImageView</span> *imageView = [[<span class="built_in">UIImageView</span> alloc] init];</span><br><span class="line">[<span class="keyword">self</span>.view addSubview:imageView];</span><br><span class="line">[imageView setImage:image];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>手动解码</p>
+<p>  使用iOS提供的图形框架（UIKit、Core Graphics、Image I/O等）提供的API进行手动解码</p>
+</li>
+</ul>
+<p>参考资料：</p>
+<ul>
+<li><a href="https://www.jianshu.com/p/de7b6aede888" target="_blank" rel="noopener external nofollow noreferrer">《iOS的5种图片缩略技术以及性能探讨》</a><h2 id="UIImage优化实践"><a href="#UIImage优化实践" class="headerlink" title="UIImage优化实践"></a>UIImage优化实践</h2></li>
+</ul>
+<ol>
+<li><p>减少内存占用</p>
+<p> 当实际显示的图片尺寸小于图片真实大小时，对图片进行向下采样，生成缩略图供UI层使用。</p>
+</li>
+<li><p>优化 CPU 使用</p>
+<p> 建立后台线程，在CPU空闲阶段（监听Runloop状态，进入休眠状态时，主线程变空闲）对图片进行提前解码。</p>
+</li>
+</ol>
+<h2 id="UIView的渲染"><a href="#UIView的渲染" class="headerlink" title="UIView的渲染"></a>UIView的渲染</h2><p>基于Core Animation的视图渲染流水线</p>
+<p><img src="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/UIView-Render.png" alt="image"></p>
+<ol>
+<li><p>Commit Transaction</p>
+<ul>
+<li><p>Layout（布局）：Set up the views</p>
+<p>  执行细节：调用<code>layoutSubviews</code>（若重写了）；创建View和执行<code>addSubview:</code>；填充内容和数据查找；一般会造成CPU和 I/O瓶颈</p>
+<p>  可优化手段：简化view的布局和层级；减少使用xib、storyboard等</p>
+</li>
+<li><p>Display（显示）：Draw the views</p>
+<p>  执行细节： 调用 <code>drawRect:</code>（若重写了）；绘制字符串；一般会造成CPU和 内存瓶颈</p>
+<p>  可优化手段：减少自定义绘制（<code>drawRect:</code>），或者在自定义绘制中减少字符串、圆角layer等图层绘制</p>
+</li>
+<li><p>Prepare（准备）：Additional Core Animation work</p>
+<p>  执行细节：图片解码；图片格式转换（转换GPU不支持的图片）；一般会造成CPU和 内存瓶颈</p>
+<p>  可优化手段：异步线程解码图片；对大图进行向下采样显示；使用GPU支持的图片</p>
+</li>
+<li><p>Commit（提交）：Package up layers and send them to render server</p>
+<p>  执行细节：递归处理Layer-Tree：打包Layer信息并通过IPC发送到Render Server进程；如果图层树太复杂会消耗很大，对性能有很大的影响</p>
+<p>  可优化手段：简化图层树（如果图层树太复杂会消耗很大，对性能有很大的影响）</p>
+</li>
+</ul>
+</li>
+<li><p>Decode</p>
+</li>
+<li><p>DrawCalls</p>
+</li>
+<li><p>Render</p>
+</li>
+<li><p>Display</p>
+</li>
+</ol>
+<h2 id="Core-Animation-性能优化"><a href="#Core-Animation-性能优化" class="headerlink" title="Core Animation 性能优化"></a>Core Animation 性能优化</h2><ul>
+<li><a href="http://zxfcumtcs.github.io/2015/03/21/CoreAnimation/" target="_blank" rel="noopener external nofollow noreferrer">《Core Animation 性能优化》</a></li>
+</ul>
+<h2 id="Core-Animation执行动画时涉及的图层树类型有几种"><a href="#Core-Animation执行动画时涉及的图层树类型有几种" class="headerlink" title="Core Animation执行动画时涉及的图层树类型有几种"></a>Core Animation执行动画时涉及的图层树类型有几种</h2><p><img src="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/layer-tree.png" alt="image"></p>
+<ul>
+<li><p>model layer tree (or simply “layer tree”) </p>
+<p>  模型层树的对象（<code>modelLayer</code>）用于存放动画的目标值（比如起始值和结束值）。</p>
+</li>
+<li><p>presentation tree</p>
+<p>  表示层树的对象（<code>presentationLayer</code>）用于给上层访问动画过程中的实时值。</p>
+</li>
+<li><p>render tree</p>
+<p>  渲染树的对象（<code>renderLayer</code>）用于存放动画的绘制数据，供图形系统绘制动画使用，对上层屏蔽。</p>
+<p>  render tree 在系统的Render Server进程中，是真正处理动画的地方。而且线程的优先级也比我们主线程优先级高。所以有时候即使我们的App主线程busy，依然不会影响到手机屏幕的绘制工作</p>
+</li>
+</ul>
+<blockquote>
+<ul>
+<li><code>model layer tree</code>其实就是我们口中常说的图层树（<code>layer tree</code>）</li>
+<li>通过<code>layer.modelLayer</code>可以获得一个layer对象的<code>model layer object</code>；而事实上<code>layer.modelLayer</code>就是Layer对象本身，即<code>layer == layer.modelLayer</code></li>
+<li>通过<code>layer.presentationLayer</code>可以获得一个layer对象的<code>presentation layer object</code>的副本</li>
+</ul>
+</blockquote>
+<h2 id="iOS-渲染框架"><a href="#iOS-渲染框架" class="headerlink" title="iOS 渲染框架"></a>iOS 渲染框架</h2><ul>
+<li><p>UIKit Framework</p>
+<ul>
+<li>正如Apple官方文档对UIKit Framework的介绍，它主要提供了：界面呈现能力、事件响应能力、驱动RunLoop运行和与系统内核通信的数据。简单来说就是：主要负责界面展示、事件响应以及是RunLoop的需求方。UIView当然是属于UIKit Framework。</li>
+</ul>
+</li>
+<li><p>QuartzCore Framework(CoreAnimation)</p>
+<ul>
+<li>正如Apple官方文档对Quarz Core Framework的介绍，它提供了图形处理和视频图像处理的能力。简单来说就是：QuartzCore Framework负责把图形图像最终显示到屏幕上，这里我觉得应该是特指CoreAnimation。不要从字面上去理解CoreAnimation的职责，因为它的核心工作不单是负责动画的创建和执行，它还负责把我们用代码构建的界面显示到屏幕上，实际上是CoreAnimation通过OpenGLES做的。（别急，虽然这里面的机理很复杂，但是在后面会提到）。CALayer是属于QuarzCore Framework下的CoreAnimation</li>
+</ul>
+</li>
+<li><p>CoreGraphics Framework</p>
+<ul>
+<li>如Apple官方文档对Core Graphics Framework的介绍。CoreGraphics Framework一个基于C库函数的高级绘画引擎，它提供了非常强大的轻量级2D渲染能力。可以使用CoreGraphics处理基于path的绘图工作(如，CGPath)、变形操作(如，CGAffineTransform)、颜色管理(如，CGColor)、离屏渲染(如，CGBitmapContextCreateImage)、渲染模式(patterns)、渐变(gradients)、阴影效果、图形数据管理、图形创建、蒙版以及PDF文档的创建、显示和解析。 千万别和QuartzCore混淆，CoreGraphics负责创建显示到屏幕上的数据模型，QuartzCore(CoreAnimation –&gt; OpenGLES)负责把CoreGraphics创建的数据模型真正显示到屏幕上。 CG打头的类都是属于CoreGraphics Framework</li>
+<li>当开发者需要在 运行时创建图像 时，可以使用 Core Graphics 去绘制。与之相对的是 运行前创建图像，例如用 Photoshop 提前做好图片素材直接导入应用。相比之下，我们更需要 Core Graphics 去在运行时实时计算、绘制一系列图像帧来实现动画。</li>
+</ul>
+</li>
+<li><p>Core Image</p>
+<ul>
+<li>Core Image 与 Core Graphics 恰恰相反，Core Graphics 用于在 运行时创建图像，而 Core Image 是用来处理 运行前创建的图像 的。Core Image 框架拥有一系列现成的图像过滤器，能对已存在的图像进行高效的处理。</li>
+<li>大部分情况下，Core Image 会在 GPU 中完成工作，但如果 GPU 忙，会使用 CPU 进行处理。</li>
+</ul>
+</li>
+<li><p>OpenGL ES</p>
+<ul>
+<li>OpenGL ES（OpenGL for Embedded Systems，简称 GLES），是 OpenGL 的子集。在前面的 图形渲染原理综述 一文中提到过 OpenGL 是一套第三方标准，函数的内部实现由对应的 GPU 厂商开发实现。</li>
+</ul>
+</li>
+<li><p>Metal</p>
+<ul>
+<li>Metal 类似于 OpenGL ES，也是一套第三方标准，具体实现由苹果实现。大多数开发者都没有直接使用过 Metal，但其实所有开发者都在间接地使用 Metal。Core Animation、Core Image、SceneKit、SpriteKit 等等渲染框架都是构建于 Metal 之上的。</li>
+<li>当在真机上调试 OpenGL 程序时，控制台会打印出启用 Metal 的日志。根据这一点可以猜测，Apple 已经实现了一套机制将 OpenGL 命令无缝桥接到 Metal 上，由 Metal 担任真正于硬件交互的工作。</li>
+</ul>
+</li>
+</ul>
+<h2 id="UIKit-Framework、QuartzCore-Framework-CoreAnimation-、CoreGraphics-Framework-三者的关系"><a href="#UIKit-Framework、QuartzCore-Framework-CoreAnimation-、CoreGraphics-Framework-三者的关系" class="headerlink" title="UIKit Framework、QuartzCore Framework(CoreAnimation)、CoreGraphics Framework 三者的关系"></a>UIKit Framework、QuartzCore Framework(CoreAnimation)、CoreGraphics Framework 三者的关系</h2><p><img src="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/UIKit.png" alt="image"></p>
+<p>UIKit 建立在 Core Animation 基础之上，在 Core Animation 之下是 OpenGL ES 和 Core Graphics，分别对应 GPU 和 CPU。Core Animation 本身并不做渲染工作，而是将这些工作转交给 Graphics Hardware(GPU)处理。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/" class="post-title-link" itemprop="url">当用户第一次点击UIView（关于iOS硬件事件的那些事）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-07-29 10:10:01" itemprop="dateCreated datePublished" datetime="2020-07-29T10:10:01+08:00">2020-07-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%9F%A5%E8%AF%86%E5%A4%8D%E7%9B%98/" itemprop="url" rel="index"><span itemprop="name">知识复盘</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>当App启动后，用户第一次点击App内的一个视图，这时候将会产生一个点击事件。</p>
+<p>下面将会讲述这点击事件背后的相关知识点，比如：</p>
+<ul>
+<li>点击事件如何从硬件层传递到App</li>
+<li>App如何查找到最佳响应者（hit-tested view）</li>
+<li>App查找到最佳响应者（hit-tested view）后，如何把点击事件传递给最佳响应者（hit-tested view）</li>
+<li>最佳响应者（hit-tested view）作为第一响应者（first responder），如何对事件进行响应和传递？</li>
+<li>异常场景的冲突解决<ul>
+<li>手势与点击冲突</li>
+<li>多个手势冲突</li>
+<li>让多个UIView响应同一个点击事件</li>
+</ul>
+</li>
+</ul>
+<h2 id="iOS设备事件的类型"><a href="#iOS设备事件的类型" class="headerlink" title="iOS设备事件的类型"></a>iOS设备事件的类型</h2><ul>
+<li>Touch Events(触摸事件)</li>
+<li>Motion Events(运动事件，比如重力感应和摇一摇等)</li>
+<li>Remote Events(远程事件，比如用耳机上得按键来控制手机)</li>
+</ul>
+<h2 id="可以处理触摸事件的类有哪些"><a href="#可以处理触摸事件的类有哪些" class="headerlink" title="可以处理触摸事件的类有哪些"></a>可以处理触摸事件的类有哪些</h2><ul>
+<li>UIResponder的子类（UIApplication，UIWindow，UIViewController和UIView）</li>
+<li>UIGestureRecognizer的子类</li>
+<li>UIControl的子类（UIButton，UISegmentedControl，UISwitch）</li>
+</ul>
+<blockquote>
+<ul>
+<li>UIResponder是iOS中用于处理用户事件的API，可以处理触摸事件、按压事件(3D touch)、远程控制事件、硬件运动事件。 可以通过touchesBegan、pressesBegan、motionBegan、remoteControlReceivedWithEvent等方法，获取到对应的回调消息。UIResponder不只用来接收事件，还可以处理和传递对应的事件，如果当前响应者不能处理，则转发给其他合适的响应者处理。</li>
+<li>UIConotrol是UIView（UIResponder）的子类，相比于UIResponder，其增加了target-action的特别设计。</li>
+</ul>
+</blockquote>
+<h2 id="UIConotrol、UIGestureRecognizer、-UIResponder的触摸事件响应优先级排名"><a href="#UIConotrol、UIGestureRecognizer、-UIResponder的触摸事件响应优先级排名" class="headerlink" title="UIConotrol、UIGestureRecognizer、 UIResponder的触摸事件响应优先级排名"></a>UIConotrol、UIGestureRecognizer、 UIResponder的触摸事件响应优先级排名</h2><ul>
+<li>UIResponder优先级最低</li>
+<li>UIConotrol的优先级大于其父视图上UIGestureRecognizer，小于添加在其自身上的UIGestureRecognizer</li>
+</ul>
+<h2 id="触摸事件如何从硬件层转发到App"><a href="#触摸事件如何从硬件层转发到App" class="headerlink" title="触摸事件如何从硬件层转发到App"></a>触摸事件如何从硬件层转发到App</h2><ol>
+<li><p>触摸发生时，系统内核生成触摸事件，然后交由给IOKit进程</p>
+</li>
+<li><p>IOKit进程把触摸事件封装成IOHIDEvent对象，通过IPC（mach port）发送给SpringBoard进程。</p>
+</li>
+<li><p>SpringBoard进程通过IPC（mach port）发送IOHIDEvent对象给当前App进程。</p>
+<blockquote>
+<p>需要注意的是，若当前前台无App运行，则SpringBoard进程会把该IOHIDEvent对象发送给桌面系统处理。</p>
+</blockquote>
+</li>
+<li><p>App进程的mach port收到IOHIDEvent后，会唤醒主线程的runloop，触发source1回调；source1回调又触发一个source0回调，将接收到的IOHIDEvent对象封装成UIEvent对象，发送给App进程的UIApplication对象处理。</p>
+</li>
+</ol>
+<h2 id="UIApplication收到触摸事件（UIEvent）后的处理流程"><a href="#UIApplication收到触摸事件（UIEvent）后的处理流程" class="headerlink" title="UIApplication收到触摸事件（UIEvent）后的处理流程"></a>UIApplication收到触摸事件（UIEvent）后的处理流程</h2><ol>
+<li><p>UIApplication对象通过 <code>hit-tesing</code> 机制查找最佳响应视图（<code>hit-tested view</code>）。</p>
+</li>
+<li><p>确定触摸事件的第一响应者（first-responder）——一般情况下，最佳响应视图（hit-tested view）将会是触摸事件的第一响应者（first-responder）。</p>
+<p> 具体地，根据最佳响应视图（<code>hit-tested view</code>）的类型和既定的UIConotrol、UIGestureRecognizer、 UIResponder的触摸事件响应优先级排名 ，确定第一响应者（first-responder）：</p>
+<ul>
+<li><p><code>hit-tested view</code>是UIControl类型，<code>hit-tested view</code>自身没有UIGestureRecognizer，则第一响应者是<code>hit-tested view</code></p>
+</li>
+<li><p><code>hit-tested view</code>是UIControl类型，<code>hit-tested view</code>自身有UIGestureRecognizer，则第一响应者是<code>hit-tested view</code>上的UIGestureRecognizer，第二响应者是<code>hit-tested view</code></p>
+</li>
+<li><p><code>hit-tested view</code>是UIResponder类型，<code>hit-tested view</code>自身和其后面的响应者视图上都没有UIGestureRecognizer，则第一响应者是<code>hit-tested view</code></p>
+</li>
+<li><p><code>hit-tested view</code>是UIResponder类型，<code>hit-tested view</code>自身或者和其后面的响应者视图上有UIGestureRecognizer，则第一响应者是<code>hit-tested view</code>上或者和其后面的响应者视图上的UIGestureRecognizer，第二响应者是<code>hit-tested view</code></p>
+<blockquote>
+<p>在进行<code>hit-tesing</code>过程中，<code>UIEvent</code>会收集这过程发现的<code>UIGestureRecognizer</code>到它的<code>_allTouchesMutable-_gestureRecognizers</code>中</p>
+<p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/_allTouchesMutable-_gestureRecognizers.png" alt="image"></p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>UIApplication对象通过<code>sendEvent:</code>把触摸事件（UIEvent）发送给第一响应者（first-responder）或者最佳响应视图（hit-tested view）；最佳响应视图（hit-tested view）收到事件后会沿着其响应链决策处理该触摸事件（UIEvent）。</p>
+<p> 具体地，UIApplication对象将事件通过<code>sendEvent:</code> 传递给事件所属的UIWindow对象，UIWindow对象根据第一响应者的类型，采用不同的逻辑使用 <code>sendEvent:</code>把触摸事件分发给发送给第一响应者（first-responder）或者最佳响应视图（hit-tested view）：</p>
+<ul>
+<li><p>若第一响应者（first-responder）是最佳响应视图（hit-tested view），则事件直接发送给最佳响应视图（hit-tested view）</p>
+</li>
+<li><p>若第一响应者（first-responder）UIGestureRecognizer，则最佳响应视图（hit-tested view）是第二响应者，然后事件会先发给UIGestureRecognizer，再发给最佳响应视图（hit-tested view）；UIGestureRecognizer收到事件后，会开始对事件进行识别，识别过程中，事件会继续分发给最佳响应视图（hit-tested view）；当UIGestureRecognizer识别出事件为其对应的手势后会触发<code>target-action</code>调用，并且事件将停止分发给最佳响应视图（hit-tested view）</p>
+<blockquote>
+<p>手势识别过程中或者识别成功后，可分别通过设置UIGestureRecognizer的<code>delaysTouchesBegan</code>属性和<code>cancelsTouchesInView</code>属性来控制是否分发事件给最佳响应视图（hit-tested view）</p>
+</blockquote>
+<p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/sendEvent.png" alt="image"></p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="hit-tesing-机制是什么"><a href="#hit-tesing-机制是什么" class="headerlink" title="hit-tesing 机制是什么"></a><code>hit-tesing</code> 机制是什么</h2><p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/hit-tesing.png" alt="image"></p>
+<ol>
+<li><p>当手指接触屏幕，UIApplication接收到手指的触摸事件之后，就会去调用UIWindow的<code>hitTest: withEvent:</code>方法</p>
+<blockquote>
+<p>如果存在多个UIWindow，则从KeyWindow开始遍历UIWindow数组</p>
+</blockquote>
+</li>
+<li><p>在<code>hitTest: withEvent:</code>方法中会调用<code>pointInside: withEvent:</code>去判断当前点击的point是否属于UIWindow范围内，如果是，就会以倒序的方式遍历它的子视图，即越后添加的视图，越先遍历</p>
+</li>
+<li><p>子视图也调用自身的<code>hitTest: withEvent:</code>方法，来查找最佳响应视图，若某个子视图就是最佳响应视图，则返回该子视图；若最终没有任何一个子视图是最佳响应视图，就返回nil</p>
+</li>
+</ol>
+<h2 id="hitTest-withEvent-方法的内部逻辑"><a href="#hitTest-withEvent-方法的内部逻辑" class="headerlink" title="hitTest: withEvent:方法的内部逻辑"></a><code>hitTest: withEvent:</code>方法的内部逻辑</h2><ol>
+<li><p>判断当前视图是否满足响应条件：</p>
+<ul>
+<li>可交互： <code>userInteractionEnabled = YES</code></li>
+<li>非隐藏：<code>hidden = NO</code></li>
+<li>透明度大于0：<code>alpha &gt; 0.01</code></li>
+<li>触摸点的位置在视图范围内：通过<code>pointInside: withEvent:</code>方法判断触摸点是否在视图的坐标范围内</li>
+</ul>
+</li>
+<li><p>若满足响应条件，则倒序遍历其子视图查找最佳响应视图，若存在更何时的子视图，就返回子视图，否则返回自身</p>
+</li>
+</ol>
+<p>具体代码逻辑如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">UIView</span> *)hitTest:(<span class="built_in">CGPoint</span>)point withEvent:(<span class="built_in">UIEvent</span> *)event &#123;</span><br><span class="line">    <span class="comment">//3种状态无法响应事件</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">self</span>.isUserInteractionEnabled || <span class="keyword">self</span>.isHidden || <span class="keyword">self</span>.alpha &lt;= <span class="number">0.01</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">     <span class="comment">//触摸点若不在当前视图上则无法响应事件</span></span><br><span class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> pointInside:point withEvent:event]) &#123;</span><br><span class="line">         <span class="comment">//从后往前遍历子视图数组</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">UIView</span> *subView <span class="keyword">in</span> [<span class="keyword">self</span>.subviews reverseObjectEnumerator]) &#123;</span><br><span class="line">            <span class="comment">// 坐标系的转换,把触摸点在当前视图上坐标转换为在子视图上的坐标</span></span><br><span class="line">            <span class="built_in">CGPoint</span> convertedPoint = [subView convertPoint:point fromView:<span class="keyword">self</span>];</span><br><span class="line">             <span class="comment">//询问子视图层级中的最佳响应视图</span></span><br><span class="line">            <span class="built_in">UIView</span> *hitTestView = [subView hitTest:convertedPoint withEvent:event];</span><br><span class="line">            <span class="keyword">if</span> (hitTestView) &#123;</span><br><span class="line">                 <span class="comment">//如果子视图中有更合适的就返回</span></span><br><span class="line">                <span class="keyword">return</span> hitTestView;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">         <span class="comment">//没有在子视图中找到更合适的响应视图，那么自身就是最合适的</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="响应链是什么"><a href="#响应链是什么" class="headerlink" title="响应链是什么"></a>响应链是什么</h2><p>响应链是一个以第一响应者对象为起点，以AppDelegate对象为终点，以响应者对象（UIResponder对象）的<code>nextResponder</code>属性作为连接上一个和下一个响应者对象工具的，一个单向的，响应者对象链条。</p>
+<blockquote>
+<p>每一个响应者对象（UIResponder对象）都有一个<code>nextResponder</code>属性，用于获取响应链中当前对象的下一个响应者。因此，一旦事件的最佳响应者确定了，这个事件所处的响应链就确定了。</p>
+</blockquote>
+<h2 id="响应者对象的nextResponder是什么"><a href="#响应者对象的nextResponder是什么" class="headerlink" title="响应者对象的nextResponder是什么"></a>响应者对象的<code>nextResponder</code>是什么</h2><p>不同响应者对象（<code>UIView</code>、<code>UIViewController</code>、<code>UIWindow</code>、<code>UIApplication</code>），其默认的<code>nextResponder</code>实现如下：</p>
+<ul>
+<li><p>UIView</p>
+<p>  若视图是控制器的根视图，则其<code>nextResponder</code>为控制器对象；否则，其<code>nextResponder</code>为父视图。</p>
+</li>
+<li><p>UIViewController</p>
+<p>  若控制器的视图是window的根视图，则其<code>nextResponder</code>为窗口对象；若控制器是从别的控制器present出来的，则其<code>nextResponder</code>为presenting view controller。</p>
+</li>
+<li><p>UIWindow</p>
+<p>  <code>nextResponder</code>为UIApplication对象。</p>
+</li>
+<li><p>UIApplication</p>
+<p>  若当前应用的app delegate是一个UIResponder对象，且不是UIView、UIViewController或app本身，则UIApplication的nextResponder为app delegate。</p>
+</li>
+</ul>
+<p>官网对于响应链的示例展示:</p>
+<p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/nextResponder.png" alt="image"></p>
+<h2 id="UIResponder类型响应者如何处理触摸事件？"><a href="#UIResponder类型响应者如何处理触摸事件？" class="headerlink" title="UIResponder类型响应者如何处理触摸事件？"></a>UIResponder类型响应者如何处理触摸事件？</h2><p>UIResponder类型响应者对于接收到的事件有3种操作：</p>
+<ul>
+<li>不拦截，默认操作：事件会自动沿着默认的响应链往下传递</li>
+<li>拦截，不再往下分发事件：重写 <code>touchesBegan:withEvent:</code> 进行事件处理，不调用父类的 <code>touchesBegan:withEvent:</code></li>
+<li>拦截，继续往下分发事件：重写 <code>touchesBegan:withEvent:</code> 进行事件处理，同时调用父类的 <code>touchesBegan:withEvent:</code> 将事件往下传递</li>
+</ul>
+<h2 id="UIControl类型响应者如何处理触摸事件？"><a href="#UIControl类型响应者如何处理触摸事件？" class="headerlink" title="UIControl类型响应者如何处理触摸事件？"></a>UIControl类型响应者如何处理触摸事件？</h2><p>UIControl是UIResponder的子类，其内部重写了touch相关的方法，当其收到触摸事件后，会对事件进行识别，若符合响应条件，会触发target-action进行响应：</p>
+<p>当UIControl监听到需要处理的交互事件时，会调用<code>sendAction:to:forEvent:</code> 将target、action以及event对象发送给全局应用，Application对象再通过 <code>sendAction:to:from:forEvent:</code> 向target发送action。</p>
+<blockquote>
+<p>注意：</p>
+<p>UIControl对象执行<code>addTarget:action:forControlEvents:</code> 时，若target传空，那么当事件发生时，UIApplication对象从<code>hited-view</code>开始沿着响应链从上往下寻找能响应action的对象。</p>
+</blockquote>
+<p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/sendAction.png" alt="image"></p>
+<h2 id="如何手动控制触摸事件的流向"><a href="#如何手动控制触摸事件的流向" class="headerlink" title="如何手动控制触摸事件的流向"></a>如何手动控制触摸事件的流向</h2><p>一般有2个方案：</p>
+<ol>
+<li>重写（Override）<code>hit-testing</code>的逻辑，具体地就是重写<code>UIResponder</code>子类的<code>hitTest: withEvent:</code>方法或者<code>pointInside: withEvent:</code>方法，控制返回的最佳响应视图</li>
+<li>重写（Override）触摸事件在响应链的传递逻辑，控制触摸事件的分发，具体地就是重写<code>UIResponder</code>子类的<code>touchesBegan:withEvent:</code>方法，根据业务需求增加响应逻辑和调用父类的<code>touchesBegan:withEvent:</code>方法，以控制是否把事件传递给<code>nextResponder</code></li>
+</ol>
+<blockquote>
+<p>题目变形：如何让多个视图响应触摸事件</p>
+</blockquote>
+<h2 id="如何扩大视图的点击范围"><a href="#如何扩大视图的点击范围" class="headerlink" title="如何扩大视图的点击范围"></a>如何扩大视图的点击范围</h2><p>重载视图的<code>hitTest: withEvent:</code>方法或者<code>pointInside: withEvent:</code>方法</p>
+<h2 id="如何让多个手势识别器并存"><a href="#如何让多个手势识别器并存" class="headerlink" title="如何让多个手势识别器并存"></a>如何让多个手势识别器并存</h2><p>重载手势识别器的UIGestureRecognizerDelegate的<code>gestureRecognizer:shouldRecognizeSimultaneouslyWithGestureRecognizer:</code>方法</p>
+<blockquote>
+<p>题目变形：解决右滑返回手势和UIScrollView中的手势冲突</p>
+</blockquote>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://juejin.im/entry/59a7b6e4f265da246f381d37" target="_blank" rel="noopener">《iOS触摸事件全家桶》</a></li>
+<li><a href="https://juejin.im/post/5d0e1e236fb9a07ee16931aa" target="_blank" rel="noopener">《iOS事件处理，看我就够了~》</a></li>
+<li><a href="https://juejin.im/post/6844903952773808136" target="_blank" rel="noopener">《【iOS面试粮食】UI视图—iOS事件的传递机制》</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBApp%EF%BC%88App%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%EF%BC%89/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBApp%EF%BC%88App%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%EF%BC%89/readme/" class="post-title-link" itemprop="url">当用户第一次点击App（App启动流程）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-07-27 10:10:01" itemprop="dateCreated datePublished" datetime="2020-07-27T10:10:01+08:00">2020-07-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%9F%A5%E8%AF%86%E5%A4%8D%E7%9B%98/" itemprop="url" rel="index"><span itemprop="name">知识复盘</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>当用户第一次点击iPhone手机屏幕上的一个App 图标时，该APP将会被iOS加载启动起来。</p>
+<p>下面将会讲述这加载启动背后的相关知识点，比如：</p>
+<ul>
+<li>App的启动类型</li>
+<li>App冷启动的完整过程</li>
+<li>App的冷启动优化手段</li>
+<li>可执行文件的介绍</li>
+</ul>
+<p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBApp%EF%BC%88App%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%EF%BC%89/readme/iOS-App-Launch.svg" alt="image"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/FP%E6%8E%A2%E7%B4%A2/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/FP%E6%8E%A2%E7%B4%A2/readme/" class="post-title-link" itemprop="url">FP探索</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-07-01 12:34:56" itemprop="dateCreated datePublished" datetime="2020-07-01T12:34:56+08:00">2020-07-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文主要是对计算机科学领域中的函数式编程（英语：Functional Programming）范式的理论、特性及特性的实现方案进行探索。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/FP%E6%8E%A2%E7%B4%A2/readme/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/" class="post-title-link" itemprop="url">Flr的产品观和开发观</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-06-04 12:34:56" itemprop="dateCreated datePublished" datetime="2020-06-04T12:34:56+08:00">2020-06-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BA%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">人文</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><img src="/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/flr.png" alt="Flr"></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><a href="https://blog.yorkfish.me/2020/Flr%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%87%BA%E8%89%B2%E7%9A%84Flutter%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/">Flr</a> 是我主导的和组织团队对外开源的第一款作品——一个用于帮助管理Flutter资源的开发工具系列产品，包括： </p>
+<ul>
+<li><a href="https://github.com/Fly-Mix/flr-as-plugin" target="_blank" rel="noopener">flr-as-plugin</a>：<code>Flr</code>的Android Studio插件版本</li>
+<li><a href="https://github.com/Fly-Mix/flr-vscode-extension" target="_blank" rel="noopener">flr-vscode-extension</a>：<code>Flr</code>的VSCode插件版本</li>
+<li><a href="https://github.com/Fly-Mix/flr-cli" target="_blank" rel="noopener">flr-cli</a>：<code>Flr</code>的命令行版本</li>
+</ul>
+<p>在这里，主要分享一下<code>Flr</code>背后的产品观和开发观。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/Future%E5%92%8CPromise%E7%9A%84%E5%8C%BA%E5%88%AB/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/Future%E5%92%8CPromise%E7%9A%84%E5%8C%BA%E5%88%AB/readme/" class="post-title-link" itemprop="url">Future和Promise的区别</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-05-31 10:10:01" itemprop="dateCreated datePublished" datetime="2020-05-31T10:10:01+08:00">2020-05-31</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Future模型和Promise模型是并发编程领域中的两种相近的异步编程模型，Future和Promise则是并发编程语言分别对Future模型和Promise模型进行实现后的产物。</p>
+<p>Future和Promise之间，既有相同之处，也有不同之处。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/Future%E5%92%8CPromise%E7%9A%84%E5%8C%BA%E5%88%AB/readme/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/Objective-C%E7%9A%84%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%9A[self%20class]%20%E4%B8%8E%20[super%20class]/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/Objective-C%E7%9A%84%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%9A%5Bself%20class%5D%20%E4%B8%8E%20%5Bsuper%20class%5D/readme/" class="post-title-link" itemprop="url">Objective-C的一道题：[self class] 与 [super class]</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-05-12 10:10:01" itemprop="dateCreated datePublished" datetime="2020-05-12T10:10:01+08:00">2020-05-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这是一道从此篇博客<a href="https://halfrost.com/objc_runtime_isa_class/" target="_blank" rel="noopener external nofollow noreferrer">《神经病院 Objective-C Runtime 入院第一天—— isa 和 Class》</a>看到的题目：</p>
+<blockquote>
+<p>问：下面代码输出什么?</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@implementation Son : Father</span><br><span class="line">- (id)init</span><br><span class="line">&#123;</span><br><span class="line">    self &#x3D; [super init];</span><br><span class="line">    if (self)</span><br><span class="line">    &#123;</span><br><span class="line">        NSLog(@&quot;%@&quot;, NSStringFromClass([self class]));</span><br><span class="line">        NSLog(@&quot;%@&quot;, NSStringFromClass([super class]));</span><br><span class="line">    &#125;</span><br><span class="line">return self;</span><br><span class="line">&#125;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>答案是： 输出的都是<code>Son</code>。</p>
+<p>对此，博客作者给出的理由是：</p>
+<blockquote>
+<p>self和super的区别：</p>
+<p>self是类的一个隐藏参数，每个方法的实现的第一个参数即为self。</p>
+<p>super并不是隐藏参数，它实际上只是一个”编译器标示符”，它负责告诉编译器，当调用方法时，去调用父类的方法，而不是本类中的方法。</p>
+<p>在调用[super class]的时候，runtime会去调用objc_msgSendSuper方法，而不是objc_msgSend</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">OBJC_EXPORT void objc_msgSendSuper(void &#x2F;* struct objc_super *super, SEL op, ... *&#x2F; )</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;&#x2F; Specifies the superclass of an instance. </span><br><span class="line">struct objc_super &#123;</span><br><span class="line">    &#x2F;&#x2F;&#x2F; Specifies an instance of a class.</span><br><span class="line">    __unsafe_unretained id receiver;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F;&#x2F; Specifies the particular superclass of the instance to message. </span><br><span class="line">#if !defined(__cplusplus)  &amp;&amp;  !__OBJC2__</span><br><span class="line">    &#x2F;* For compatibility with old objc-runtime.h header *&#x2F;</span><br><span class="line">    __unsafe_unretained Class class;</span><br><span class="line">#else</span><br><span class="line">    __unsafe_unretained Class super_class;</span><br><span class="line">#endif</span><br><span class="line">    &#x2F;* super_class is the first class to search *&#x2F;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在objc_msgSendSuper方法中，第一个参数是一个objc_super的结构体，这个结构体里面有两个变量，一个是接收消息的receiver，一个是<br>当前类的父类super_class。</p>
+<p>入院考试第一题错误的原因就在这里，误认为[super class]是调用的[super_class class]。</p>
+<p>objc_msgSendSuper的工作原理应该是这样的:<br>从objc_super结构体指向的superClass父类的方法列表开始查找selector，找到后以objc-&gt;receiver去调用父类的这个selector。注意，最后的调用者是objc-&gt;receiver，而不是super_class！</p>
+<p>那么objc_msgSendSuper最后就转变成</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 注意这里是从父类开始msgSend，而不是从本类开始，谢谢@Josscii 和他同事共同指点出此处描述的不妥。</span></span><br><span class="line">objc_msgSend(objc_super-&gt;receiver, <span class="keyword">@selector</span>(<span class="keyword">class</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">/// Specifies an instance of a class.  这是类的一个实例</span></span><br><span class="line">    __<span class="keyword">unsafe_unretained</span> <span class="keyword">id</span> receiver;   </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 由于是实例调用，所以是减号方法</span></span><br><span class="line">- (Class)<span class="keyword">class</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> object_getClass(<span class="keyword">self</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于找到了父类NSObject里面的class方法的IMP，又因为传入的入参objc_super-&gt;receiver = self。self就是son，调用class，所以父类的方法class执行IMP之后，输出还是son，最后输出两个都一样，都是输出son。</p>
+</blockquote>
+<p>其实，上述的解答只答对了一大半，还有一小半没正确。没正确的部分主要在于对<code>objc_msgSend</code>和<code>objc_msgSendSuper</code>的工作原理理解错误，以及对方法实现的函数原型的忽略。</p>
+<p>下面将会对此进行重新解答。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/Objective-C%E7%9A%84%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%9A%5Bself%20class%5D%20%E4%B8%8E%20%5Bsuper%20class%5D/readme/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

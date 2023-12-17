@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言文本宏（Text Macros）是Xcode隐藏的特性，直到Xcode 9.0后，苹果官方才开始允许开发者进行自定义文本宏。下面将会详细介绍文本宏的相关知识和应用场景。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Xcode 文本宏（Text Macros）的介绍和应用">
+<meta property="og:url" content="https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言文本宏（Text Macros）是Xcode隐藏的特性，直到Xcode 9.0后，苹果官方才开始允许开发者进行自定义文本宏。下面将会详细介绍文本宏的相关知识和应用场景。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/NSObjectObjective-C%E6%96%87%E4%BB%B6%E6%A8%A1%E6%9D%BF.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/%E6%96%87%E6%9C%AC%E5%AE%8F%E8%A7%A3%E9%87%8A%E7%A4%BA%E4%BE%8B.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/FILEHEADER%E7%A4%BA%E4%BE%8B.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/%E6%96%B0%E5%BB%BA%E6%96%87%E4%BB%B6%E7%A4%BA%E4%BE%8B.png">
+<meta property="article:published_time" content="2018-12-21T04:34:56.000Z">
+<meta property="article:modified_time" content="2018-12-21T04:34:56.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="2018">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/NSObjectObjective-C%E6%96%87%E4%BB%B6%E6%A8%A1%E6%9D%BF.png">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Xcode 文本宏（Text Macros）的介绍和应用 | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Xcode 文本宏（Text Macros）的介绍和应用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-12-21 12:34:56" itemprop="dateCreated datePublished" datetime="2018-12-21T12:34:56+08:00">2018-12-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>文本宏（<code>Text Macros</code>）是Xcode隐藏的特性，直到Xcode 9.0后，苹果官方才开始允许开发者进行自定义文本宏。下面将会详细介绍文本宏的相关知识和应用场景。</p>
+<a id="more"></a>
+
+<h2 id="什么是文本宏"><a href="#什么是文本宏" class="headerlink" title="什么是文本宏"></a>什么是文本宏</h2><p>文本宏（<code>Text Macro</code>）是一种可以就地展开（<code>expanded in-place</code>）为特定文本的符号。其常见于Xcode文件模板中，如图所示：</p>
+<p><img src="/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/NSObjectObjective-C%E6%96%87%E4%BB%B6%E6%A8%A1%E6%9D%BF.png" alt="NSObjectObjective-C文件模板"></p>
+<p>图中的<code>FILEHEADER</code>、<code>FILEBASENAME</code>、<code>FILEBASENAMEASIDENTIFIER</code>就是所说的文本宏。Xcode在使用文件模板创建文件时，会把文件模板中的文本宏，展开生成特定的文本，如使用<code>NSObjectObjective-C</code>文件模板创建一个文件名为<code>MyObject.m</code>的文件时，<code>FILEHEADER</code>会展开生成头部注释信息，<code>FILEBASENAME</code>会展开生成字符串<code>MyObject</code>，<code>FILEBASENAMEASIDENTIFIER</code>会展开生成字符串<code>MyObject</code>，如下图所示：</p>
+<p><img src="/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/%E6%96%87%E6%9C%AC%E5%AE%8F%E8%A7%A3%E9%87%8A%E7%A4%BA%E4%BE%8B.png" alt="文本宏解释示例"></p>
+<blockquote>
+<p><strong>延伸阅读</strong></p>
+<p>Xcode模板有文件模板和工程模板。模板文件按照开发平台存放，其中每个平台的模板位置如下：</p>
+<ul>
+<li>macOS平台模板：<code>/Applications/Xcode.app/Contents/Developer/Library/Xcode/Templates</code></li>
+<li>iOS平台模板：<code>/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Xcode/Templates</code></li>
+<li>tvOS平台模板：<code>/Applications/Xcode.app/Contents/D
+eveloper/Platforms/AppleTVOS.platform/Developer/Library/Xcode/Templates</code></li>
+<li>watchOS平台模板：<code>/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/Library/Xcode/Templates</code></li>
+</ul>
+</blockquote>
+<h2 id="公开可用的文本宏"><a href="#公开可用的文本宏" class="headerlink" title="公开可用的文本宏"></a>公开可用的文本宏</h2><p>当前Xcode在其官方文档公开给开发者可用的文本宏有以下几类：</p>
+<p><strong>时间类：</strong></p>
+<ul>
+<li><p>DATE</p>
+<blockquote>
+<p>当前的日期，如<code>2018/12/20</code>。</p>
+</blockquote>
+</li>
+<li><p>YEAR</p>
+<blockquote>
+<p>四位数字格式的当前年数，如<code>2018</code></p>
+</blockquote>
+</li>
+<li><p>TIME</p>
+<blockquote>
+<p>当前的时间，如<code>20:48</code></p>
+</blockquote>
+</li>
+</ul>
+<p><strong>开发环境类：</strong></p>
+<ul>
+<li><p>RUNNINGMACOSVERSION</p>
+<blockquote>
+<p>当前<code>macOS</code>系统的版本。</p>
+</blockquote>
+</li>
+<li><p>DEFAULTTOOLCHAINSWIFTVERSION</p>
+<blockquote>
+<p>当前工程使用的<code>Swift</code>版本。</p>
+</blockquote>
+</li>
+<li><p>FULLUSERNAME</p>
+<blockquote>
+<p>当前系统用户的全名。</p>
+</blockquote>
+</li>
+<li><p>USERNAME</p>
+<blockquote>
+<p>当前<code>macOS</code>用户的登录名。</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>开发工程配置类：</strong></p>
+<ul>
+<li><p>ORGANIZATIONNAME</p>
+<blockquote>
+<p>当前工程配置的公司名称。</p>
+</blockquote>
+</li>
+<li><p>WORKSPACENAME</p>
+<blockquote>
+<p>当前<code>Workspace</code>的名称。如果<code>Workspace</code>中只有一个 <code>Project</code>，那么这个宏的值便是当前打开的<code>Project</code>的名称。</p>
+</blockquote>
+</li>
+<li><p>PROJECTNAME</p>
+<blockquote>
+<p>当前工程的名称。</p>
+</blockquote>
+</li>
+<li><p>TARGETNAME</p>
+<blockquote>
+<p>当前<code>Target</code>的名称。</p>
+</blockquote>
+</li>
+<li><p>PACKAGENAME</p>
+<blockquote>
+<p>当前工程<code>Scheme</code>所设置的包名。</p>
+</blockquote>
+</li>
+<li><p>PACKAGENAMEASIDENTIFIER</p>
+<blockquote>
+<p>把不符合<code>C语言标识符规范</code>的字符替换为下划线（<code>_</code>）后的<code>PACKAGENAME</code>。</p>
+</blockquote>
+</li>
+<li><p>PRODUCTNAME</p>
+<blockquote>
+<p>当前工程<code>Scheme</code>设置的应用名称。</p>
+</blockquote>
+</li>
+<li><p>COPYRIGHT</p>
+<blockquote>
+<p>当前工程的版权信息，如<code>Copyright © 2018 YK-Unit. All rights reserved.</code>。</p>
+<p>需要注意的是，若当前Xcode工程没有配置公司名，该值会是一个空字符串。</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>文本文件信息类：</strong></p>
+<ul>
+<li><p>FILENAME</p>
+<blockquote>
+<p>当前文件的完整名称，包括扩展名。</p>
+</blockquote>
+</li>
+<li><p>FILEBASENAME</p>
+<blockquote>
+<p>删除掉扩展名后的<code>FILENAME</code>，如创建一个名为<code>MyObject.m</code>的文件，该值为<code>MyObject</code>。</p>
+</blockquote>
+</li>
+<li><p>FILEBASENAMEASIDENTIFIER</p>
+<blockquote>
+<p>把不符合<code>C语言标识符规范</code>的字符替换为下划线（<code>_</code>）后的<code>FILEBASENAME</code>，如创建一个名为<code>My-Object.m</code>的文件，该值为<code>My_Object</code>。</p>
+<p>注：<code>C语言标识符规范</code>只允许使用字母（<code>A-Z</code>, <code>a-z</code>）和数字（<code>0-9</code>）以及下划线（<code>_</code>），使用这个宏会把其他的字符自动替换成下划线。</p>
+</blockquote>
+</li>
+<li><p>FILEHEADER</p>
+<blockquote>
+<p>每个文本文件头部的文本。</p>
+<p>注：该文本宏其实是由多个文本宏组成，其首先是展开生成以下文本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;  ___FILENAME___</span><br><span class="line">&#x2F;&#x2F;  ___PACKAGENAME___</span><br><span class="line">&#x2F;&#x2F;</span><br><span class="line">&#x2F;&#x2F;  Created by ___FULLUSERNAME___ on ___DATE___.</span><br><span class="line">&#x2F;&#x2F;  ___COPYRIGHT___</span><br><span class="line">&#x2F;&#x2F;</span><br></pre></td></tr></table></figure>
+<p>之后Xcode再把上述的宏文本展开生成对应的文本，最后生成的就是我们日常看到的文件头部注释信息了。</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>其他：</strong></p>
+<ul>
+<li><p>NSHUMANREADABLECOPYRIGHTPLIST</p>
+<blockquote>
+<p><code>macOS app</code>工程的<code>target</code>中的<code>Info.plist</code> 文件中<code>人类可读的版权信息</code>条目的值，该值包括这个条目的<code>key</code>和<code>value</code>以及<code>XML</code>的分隔符，如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;key&gt;NSHumanReadableCopyright&lt;&#x2F;key&gt;</span><br><span class="line">&lt;string&gt;Copyright © 2017 Apple, Inc. All rights reserved.&lt;&#x2F;string&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+</blockquote>
+</li>
+<li><p>UUID</p>
+<blockquote>
+<p>使用这个宏的时候，会返回一个唯一<code>ID</code>。具体应用场景待探索。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="如何使用文本宏"><a href="#如何使用文本宏" class="headerlink" title="如何使用文本宏"></a>如何使用文本宏</h2><p>使用文本宏的方式很简单，只需要在文本宏之前和之后添加三条下划线（<code>_</code>）即可，如使用<code>FILENAME</code>文本宏：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">___FILENAME___</span><br></pre></td></tr></table></figure>
+
+<h2 id="如何格式化文本宏的值"><a href="#如何格式化文本宏的值" class="headerlink" title="如何格式化文本宏的值"></a>如何格式化文本宏的值</h2><p>文本宏展开生成的值，不一定符合开发要求，如创建文件时，开发者输入的文件名带有非法的字符。为此，Xcode通过提供修饰符（<code>modifier</code>）来对文本宏的值进行格式化。使用修饰符的方法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;MACRO&gt;:&lt;modifier&gt;[,&lt;modifier&gt;]…</span><br></pre></td></tr></table></figure>
+
+<p>文本宏和修饰符之间用分号（<code>:</code>）分隔。多个修饰符之间可以用逗号（<code>,</code>）分隔。</p>
+<p>把文本宏和特定的修饰符结合起来后，就可以修改文本宏的最终值，如下面这段宏可以删除掉的<code>FILENAME</code>的扩展名以及使用下划线（<code>_</code>）替换掉不符合<code>C标识符</code>的字符：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FILENAME:deletingPathExtension,identifier</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这时候的<code>FILENAME:deletingPathExtension,identifier</code>等同于<code>FILEBASENAMEASIDENTIFIER</code></p>
+</blockquote>
+<p>当前Xcode提供的修饰符有：</p>
+<ul>
+<li><p>identifier</p>
+<blockquote>
+<p>用下划线（<code>_</code>）替换所有不符合<code>C语言标识符规范</code>的字符。</p>
+<p>注：<code>C语言标识符规范</code>只允许使用字母（<code>A-Z</code>, <code>a-z</code>）和数字（<code>0-9</code>）以及下划线（<code>_</code>）</p>
+</blockquote>
+</li>
+<li><p>bundleIdentifier</p>
+<blockquote>
+<p>用连字符（<code>-</code>）替换所有不符合<code>bundle标识符规范</code>的字符。</p>
+<p>注：<code>bundle标识符规范</code>只允许使用字母（<code>A-Z</code>, <code>a-z</code>）和数字（<code>0-9</code>）以及连字符（<code>-</code>）。</p>
+</blockquote>
+</li>
+<li><p>rfc1034Identifier</p>
+<blockquote>
+<p>用连字符（<code>-</code>）替换所有不符合<a href="https://www.ietf.org/rfc/rfc1034.txt" target="_blank" rel="noopener external nofollow noreferrer"><code>rfc1034标识符规范</code></a>的字符</p>
+</blockquote>
+</li>
+<li><p>xml</p>
+<blockquote>
+<p>将一些特殊的<code>XML</code>字符用其转义字符替换。如，<code>&lt;</code>会被 <code>&amp;lt</code> 替换。</p>
+</blockquote>
+</li>
+<li><p>deletingLastPathComponent</p>
+<blockquote>
+<p>从展开的字符串中删除最后一个路径组件 (<code>path component</code>)。</p>
+</blockquote>
+</li>
+<li><p>deletingPathExtension</p>
+<blockquote>
+<p>从展开的字符串中删除扩展名。</p>
+</blockquote>
+</li>
+<li><p>deletingTrailingDot</p>
+<blockquote>
+<p>删除所有句子末尾的句点（<code>.</code>）</p>
+</blockquote>
+</li>
+<li><p>lastPathComponent</p>
+<blockquote>
+<p>仅返回字符最后一个路径组件。</p>
+</blockquote>
+</li>
+<li><p>pathExtension</p>
+<blockquote>
+<p>返回字符的扩展名。</p>
+</blockquote>
+</li>
+</ul>
+<p>​    </p>
+<h2 id="文本宏的应用"><a href="#文本宏的应用" class="headerlink" title="文本宏的应用"></a>文本宏的应用</h2><p>从Xcode 9.0开始，开发者可以自定义文本宏（覆盖已有的文本宏或者添加新的文本宏）。但是，实际开发中，文本宏的应用场景很少，目前暂时只发现了2个应用场景（若有其他场景，欢迎补充）：</p>
+<ul>
+<li>自定义文件头部注释</li>
+<li>给创建的类都添加统一前缀</li>
+</ul>
+<p>下面将会演示如何如何实现上述场景。</p>
+<p>但是，<strong>在这之前，开发者需要创建一个名为<code>IDETemplateMacros.plist</code>的文件，并把文件放置在下面文件目录列表中的一个</strong>：</p>
+<blockquote>
+<p>注意：</p>
+<ul>
+<li>不同位置具有不同的影响范围。</li>
+<li><code>IDETemplateMacros.plist</code>文件可以放置到以下几个位置中的任何一个。但是建议只放置在一个地方。</li>
+<li>当存在多个<code>IDETemplateMacros.plist</code>文件时，Xcode只会使用最先找到的<code>IDETemplateMacros.plist</code>。</li>
+</ul>
+</blockquote>
+<ul>
+<li><p><code>Project user data</code>位置:</p>
+<p>  <code>&lt;ProjectName&gt;.xcodeproj/xcuserdata/[username].xcuserdatad/IDETemplateMacros.plist</code></p>
+<p>  影响范围：对当前 Project 指定的用户（username）创建的文件有影响</p>
+</li>
+<li><p><code>Project shared data</code>位置:</p>
+<p>  <code>&lt;ProjectName&gt;.xcodeproj/xcshareddata/IDETemplateMacros.plist</code></p>
+<p>  影响范围：对当前 Project 的所有成员创建的文件有影响</p>
+</li>
+<li><p><code>Workspace user data</code>位置:</p>
+<p>  <code>&lt;WorkspaceName&gt;.xcworkspace/xcuserdata/[username].xcuserdatad/IDETemplateMacros.plist</code></p>
+<p>  影响范围：对当前的 Workspace 下的指定的用户（username）创建的文件有影响</p>
+</li>
+<li><p><code>Workspace shared data</code>位置:</p>
+<p>  <code>&lt;WorkspaceName&gt;.xcworkspace/xcshareddata/IDETemplateMacros.plist</code></p>
+<p>  影响范围：对当前 Workspace 下的所有成员创建的文件有影响</p>
+</li>
+<li><p><code>User Xcode data</code>位置:</p>
+<p>  <code>~/Library/Developer/Xcode/UserData/IDETemplateMacros.plist</code></p>
+<p>  影响范围：对当前 Xcode 创建的文件都有影响</p>
+</li>
+</ul>
+<h3 id="自定义文件头部注释"><a href="#自定义文件头部注释" class="headerlink" title="自定义文件头部注释"></a>自定义文件头部注释</h3><p>Xcode文件模板中，使用<code>FILEHEADER</code>文本宏来展开生成头部注释，所以只需要在<code>IDETemplateMacros.plist</code>中重定义<code>FILEHEADER</code>即可。编辑后的<code>IDETemplateMacros.plist</code>如下:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">plist</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//Apple//DTD PLIST 1.0//EN"</span> <span class="meta-string">"http://www.apple.com/DTDs/PropertyList-1.0.dtd"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">"1.0"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>FILEHEADER<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">string</span>&gt;</span></span><br><span class="line">//                         __   _,--="=--,_   __</span><br><span class="line">//                        /  \."    .-.    "./  \</span><br><span class="line">//                       /  ,/  _   : :   _  \/` \</span><br><span class="line">//                       \  `| /o\  :_:  /o\ |\__/</span><br><span class="line">//                        `-'| :="~` _ `~"=: |</span><br><span class="line">//                           \`     (_)     `/</span><br><span class="line">//                    .-"-.   \      |      /   .-"-.</span><br><span class="line">//.------------------&#123;     &#125;--|  /,.-'-.,\  |--&#123;     &#125;-----------------.</span><br><span class="line">// )                 (_)_)_)  \_/`~-===-~`\_/  (_(_(_)                (</span><br><span class="line">//                                                                     </span><br><span class="line">//		File Name:		___FILENAME___</span><br><span class="line">//		Product Name:	___PRODUCTNAME___</span><br><span class="line">//		Author:			___AUTHOR___</span><br><span class="line">//		Swift Version:	___DEFAULTTOOLCHAINSWIFTVERSION___</span><br><span class="line">//		Created Date:	___DATETIME___</span><br><span class="line">//		</span><br><span class="line">//		Copyright © ___YEAR___ ___ORGANIZATIONNAME___.</span><br><span class="line">//		All rights reserved.</span><br><span class="line">// )                                                                  (</span><br><span class="line">//'--------------------------------------------------------------------'</span><br><span class="line">	<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>AUTHOR<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">string</span>&gt;</span>___USERNAME___@___ORGANIZATIONNAME___<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>DATETIME<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">string</span>&gt;</span>___DATE___ ___TIME___<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：示例中不止是重定义<code>FILEHEADER</code>，还新增了新的文本宏<code>AUTHOR</code>和<code>DATETIME</code>。</p>
+</blockquote>
+<p>这时候使用Xcode创建的文本文件的头部注释如下：</p>
+<p><img src="/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/FILEHEADER%E7%A4%BA%E4%BE%8B.png" alt=""></p>
+<blockquote>
+<p>注释中的<code>dog</code>图形是使用命令行字符形状工具<a href="https://boxes.thomasjensen.com/" target="_blank" rel="noopener external nofollow noreferrer"><code>boxes</code></a>生成。</p>
+<p><code>boxes</code>支持创建各种字符形状，有兴趣的童鞋不妨去探索下。</p>
+</blockquote>
+<h3 id="给创建的类都添加统一前缀"><a href="#给创建的类都添加统一前缀" class="headerlink" title="给创建的类都添加统一前缀"></a>给创建的类都添加统一前缀</h3><p>Xcode文件模板中，使用<code>FILEBASENAMEASIDENTIFIER</code>文本宏来展开生成类名，所以只需要在<code>IDETemplateMacros.plist</code>中重定义<code>FILEBASENAMEASIDENTIFIER</code>即可。编辑后的<code>IDETemplateMacros.plist</code>如下:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">plist</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//Apple//DTD PLIST 1.0//EN"</span> <span class="meta-string">"http://www.apple.com/DTDs/PropertyList-1.0.dtd"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">"1.0"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>FILEBASENAMEASIDENTIFIER<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">string</span>&gt;</span>YK___FILENAME:deletingPathExtension,identifier___<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这时候使用Xcode创建的一个类时，类的前缀都是以<code>YK</code>开头，如图所示：</p>
+<p><img src="/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/%E6%96%B0%E5%BB%BA%E6%96%87%E4%BB%B6%E7%A4%BA%E4%BE%8B.png" alt=""></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://help.apple.com/xcode/mac/9.0/index.html" target="_blank" rel="noopener external nofollow noreferrer">《Xcode Help》</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/" title="Xcode 文本宏（Text Macros）的介绍和应用">https://blog.yorkfish.me/2018/Xcode 文本宏（Text Macros）的介绍和应用/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/2018/" rel="tag"># 2018</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/iOS%20WebView%E7%94%9F%E6%88%90%E9%95%BF%E6%88%AA%E5%9B%BE%E7%9A%84%E7%AC%AC%E4%B8%89%E7%A7%8D%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/readme/" rel="prev" title="iOS WebView生成长截图的第三种解决方案">
+      <i class="fa fa-chevron-left"></i> iOS WebView生成长截图的第三种解决方案
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/git%20submodule%E7%89%88%E6%9C%AC%E6%A3%80%E6%B5%8B%E5%B7%A5%E5%85%B7%EF%BC%9Agit_submodule_version_checker/readme/" rel="next" title="git submodule版本检测工具：git_submodule_version_checker">
+      git submodule版本检测工具：git_submodule_version_checker <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是文本宏"><span class="nav-number">2.</span> <span class="nav-text">什么是文本宏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#公开可用的文本宏"><span class="nav-number">3.</span> <span class="nav-text">公开可用的文本宏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何使用文本宏"><span class="nav-number">4.</span> <span class="nav-text">如何使用文本宏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何格式化文本宏的值"><span class="nav-number">5.</span> <span class="nav-text">如何格式化文本宏的值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文本宏的应用"><span class="nav-number">6.</span> <span class="nav-text">文本宏的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义文件头部注释"><span class="nav-number">6.1.</span> <span class="nav-text">自定义文件头部注释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#给创建的类都添加统一前缀"><span class="nav-number">6.2.</span> <span class="nav-text">给创建的类都添加统一前缀</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

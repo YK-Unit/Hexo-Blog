@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="腾讯提供的iOS SDK ——TencentOpenApi 是静态库，然后因为业务需求，需要把它转换为动态库（取名：DynamicTencentOpenApi）。在实际开发时，发现了一个奇怪的事情：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="private_external_symbol VS external_symbol">
+<meta property="og:url" content="https://blog.yorkfish.me/2017/private_external_symbol%20VS%20external_symbol/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="腾讯提供的iOS SDK ——TencentOpenApi 是静态库，然后因为业务需求，需要把它转换为动态库（取名：DynamicTencentOpenApi）。在实际开发时，发现了一个奇怪的事情：">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/private_external_symbol%20VS%20external_symbol/readme/DynamicTencentOpenApi-Project.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/private_external_symbol%20VS%20external_symbol/readme/TencentOAuth-Symbol.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/private_external_symbol%20VS%20external_symbol/readme/QQApiInterface-Symbol.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/private_external_symbol%20VS%20external_symbol/readme/N_PEXT%E5%92%8CN_EXT%E7%9A%84%E8%8C%83%E5%9B%B4.png">
+<meta property="article:published_time" content="2017-09-12T04:34:56.000Z">
+<meta property="article:modified_time" content="2017-09-12T04:34:56.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="2017">
+<meta property="article:tag" content="OS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2017/private_external_symbol%20VS%20external_symbol/readme/DynamicTencentOpenApi-Project.png">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2017/private_external_symbol%20VS%20external_symbol/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>private_external_symbol VS external_symbol | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2017/private_external_symbol%20VS%20external_symbol/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          private_external_symbol VS external_symbol
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-09-12 12:34:56" itemprop="dateCreated datePublished" datetime="2017-09-12T12:34:56+08:00">2017-09-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>腾讯提供的iOS SDK ——<a href="http://wiki.open.qq.com/wiki/mobile/SDK%E4%B8%8B%E8%BD%BD" target="_blank" rel="noopener external nofollow noreferrer">TencentOpenApi</a> 是静态库，然后因为业务需求，需要把它转换为动态库（取名：DynamicTencentOpenApi）。在实际开发时，发现了一个奇怪的事情：</p>
+<a id="more"></a>
+
+<p>整个工程如下：<br>（有兴趣的读者，可直接下载<a href="https://github.com/YK-Unit/DynamicTencentOpenApi" target="_blank" rel="noopener">该工程</a>，进行实验）</p>
+<p><img src="/2017/private_external_symbol%20VS%20external_symbol/readme/DynamicTencentOpenApi-Project.png" alt="DynamicTencentOpenApi Project.png"></p>
+<p>Demo 的测试 DynamicTencentOpenApi.Framework  的主要代码如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 测试TencentOAuth</span></span><br><span class="line"><span class="built_in">NSString</span> *version = [TencentOAuth sdkVersion];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"%@"</span>,version);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试QQApiInterface</span></span><br><span class="line"><span class="built_in">NSString</span> *qqInstallUrl = [QQApiInterface getQQInstallUrl];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"%@"</span>,qqInstallUrl);</span><br></pre></td></tr></table></figure>
+<p>运行编译工程的 DynamicTencentOpenApi Target 和 Demo Target，得到结果如下：</p>
+<ul>
+<li>DynamicTencentOpenApi.Framework 编译运行成功</li>
+<li>Demo 编译链接失败，报错误：<code>Undefined symbols for architecture x86_64: &quot;_OBJC_CLASS_$_QQApiInterface&quot;</code></li>
+</ul>
+<p>这里奇怪的地方在于：</p>
+<ul>
+<li>DynamicTencentOpenApi.Framework 编译运行成功</li>
+<li>Demo 编译链接时，TencentOAuth 的 symbol 能找到，QQApiInterface 的 symbol 却找不到？</li>
+</ul>
+<p>用 <a href="https://github.com/gdbinit/MachOView" target="_blank" rel="noopener">MachOView</a> 查看 DynamicTencentOpenApi.Framework 里的 binary 文件发现：</p>
+<p><img src="/2017/private_external_symbol%20VS%20external_symbol/readme/TencentOAuth-Symbol.png" alt="TencentOAuth Symbol.png"></p>
+<p><img src="/2017/private_external_symbol%20VS%20external_symbol/readme/QQApiInterface-Symbol.png" alt="QQApiInterface Symbol.png"></p>
+<ul>
+<li><code>_OBJC_CLASS_$_QQApiInterface</code> symbol 的类型是：<code>N_PEXT</code></li>
+<li><code>_OBJC_CLASS_$_TencentOAuth</code> symbol 的类型是：<code>N_EXT</code></li>
+</ul>
+<p><code>N_PEXT</code> 和 <code>N_EXT</code> 的区别是：</p>
+<blockquote>
+<p>N_PEXT (0x10)—If this bit is on, this symbol is marked as having limited global scope. When the file is fed to the static linker, it clears the N_EXT bit for each symbol with the N_PEXT bit set. (The ld option -keep_private_externs turns off this behavior.) With macOS GCC, you can use the <strong>private_extern</strong> function attribute to set this bit.</p>
+<p>N_EXT (0x01)—If this bit is on, this symbol is an external symbol, a symbol that is either defined outside this file or that is defined in this file but can be referenced by other files.</p>
+<p><a href="https://developer.apple.com/documentation/kernel/nlist_64" target="_blank" rel="noopener external nofollow noreferrer">https://developer.apple.com/documentation/kernel/nlist_64</a></p>
+</blockquote>
+<p>翻译过来，这2者的区别是：</p>
+<ul>
+<li><code>N_PEXT</code> ，意思是：private_extern。该类型的 symbol 在指定范围内可见</li>
+<li><code>N_EXT</code> ，意思是：extern。该类型的 symbol，在任何范围内均可见</li>
+</ul>
+<p>关于范围如图所示：</p>
+<p><img src="/2017/private_external_symbol%20VS%20external_symbol/readme/N_PEXT%E5%92%8CN_EXT%E7%9A%84%E8%8C%83%E5%9B%B4.png" alt="N_PEXT和N_EXT的范围.png"></p>
+<p>因此，在编译Demo-OC时，到链接阶段时，就找不到这个<code>_OBJC_CLASS_$_QQApiInterface</code> symbol，继而编译失败。</p>
+<p>那么如何解决这个问题呢？</p>
+<p>创建一个<code>QQApiInterface镜像类</code> ，镜像类 wrap <code>QQApiInterface</code>，对外提供和<code>QQApiInterface</code>一致的接口，在内则把对应的方法响应转发给<code>QQApiInterface</code>。具体可看例子中的镜像类 <a href="https://github.com/YK-Unit/DynamicTencentOpenApi/blob/master/DynamicTencentOpenApi/QQApiInterfaceMirror.m" target="_blank" rel="noopener">QQApiInterfaceMirror</a>。</p>
+<p>原来准备按照这个方案实现 DynamicTencentOpenApi ，但是后面发现，TencentOpenApi SDK 里不止 QQApiInterface 的 symbol 是<code>N_PEXT</code>类型，还有<code>QQApiTextObject</code>、<code>QQApiExtendObject</code>、<code>QQApiImageObject</code>、<code>QQApiWebImageObject</code> 等类的 symbol 都是<code>N_PEXT</code>类型的。考虑到开发成本（为这些类创建同等的镜像类）和维护成本（TencentOpenApi SDK 升级后，每个镜像类都得重新测试），最终是放弃把 TencentOpenApi 从静态库转换到动态库 DynamicTencentOpenApi。</p>
+<p>这种编译链接的错误（symbol的范围受限导致链接失败），相对来说，是比较少见的，因而花了很多时间去查，才找到了原因。希望这篇文章能让后面的来者可以避开此坑。enjoy~</p>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><ul>
+<li><a href="https://pewpewthespells.com/blog/convert_static_to_dynamic.html" target="_blank" rel="noopener external nofollow noreferrer">convert_static_to_dynamic</a></li>
+<li><a href="https://developer.apple.com/documentation/kernel/nlist_64" target="_blank" rel="noopener external nofollow noreferrer">https://developer.apple.com/documentation/kernel/nlist_64</a></li>
+<li><a href="https://developer.apple.com/library/content/documentation/DeveloperTools/Conceptual/CppRuntimeEnv/Articles/SymbolVisibility.html" target="_blank" rel="noopener external nofollow noreferrer">Controlling Symbol Visibility</a></li>
+<li><a href="https://stackoverflow.com/questions/32485110/how-to-use-static-library-in-embedded-private-frameworks-and-app-on-ios" target="_blank" rel="noopener">How to Use Static Library in Embedded Private Frameworks and App on iOS</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2017/private_external_symbol%20VS%20external_symbol/readme/" title="private_external_symbol VS external_symbol">https://blog.yorkfish.me/2017/private_external_symbol VS external_symbol/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/2017/" rel="tag"># 2017</a>
+              <a href="/tags/OS/" rel="tag"># OS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/Airbnb%20%E5%BC%80%E6%BA%90%E5%8A%A8%E7%94%BB%E5%BA%93%20Lottie%20%E4%BB%8B%E7%BB%8D%E4%BB%A5%E5%8F%8A%E8%AF%A6%E7%BB%86%E7%A4%BA%E4%BE%8B/readme/" rel="prev" title="Airbnb 开源动画库 Lottie 介绍以及详细示例">
+      <i class="fa fa-chevron-left"></i> Airbnb 开源动画库 Lottie 介绍以及详细示例
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/Swift%E7%9A%84%E5%AD%97%E9%9D%A2%E9%87%8F%E7%B1%BB%E5%9E%8B%EF%BC%88Literal%20Type%EF%BC%89%E5%92%8C%E5%AD%97%E9%9D%A2%E9%87%8F%E5%8D%8F%E8%AE%AE%EF%BC%88Literal%20Protocol%EF%BC%89/readme/" rel="next" title="Swift的字面量类型（Literal Type）和字面量协议（Literal Protocol）">
+      Swift的字面量类型（Literal Type）和字面量协议（Literal Protocol） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料："><span class="nav-number">1.</span> <span class="nav-text">参考资料：</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

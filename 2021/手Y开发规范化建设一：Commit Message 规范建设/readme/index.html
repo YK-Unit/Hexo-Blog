@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言我于2020年年中加入了手机YY iOS团队，那时发现团队成员在特性阶段所写的Commit Message比较随意；在集成阶段，则比较统一：   这里简要介绍一下手Y团队采用的Git分支管理模型和YY GitLab Server端对maint分支实施的Commit Message规范。 手Y团队采用的Git分支管理模型是一种基于主干的分支模型：master-maint-feature，其中：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="手Y开发规范化建设一：Commit Message 规范建设">
+<meta property="og:url" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言我于2020年年中加入了手机YY iOS团队，那时发现团队成员在特性阶段所写的Commit Message比较随意；在集成阶段，则比较统一：   这里简要介绍一下手Y团队采用的Git分支管理模型和YY GitLab Server端对maint分支实施的Commit Message规范。 手Y团队采用的Git分支管理模型是一种基于主干的分支模型：master-maint-feature，其中：">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/old-commit-msgs.awebp">
+<meta property="og:image" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/YYCommitMessageLint%E6%8E%A5%E5%85%A5iOS%E9%A1%B9%E7%9B%AE%E6%B5%81%E7%A8%8B%E5%9B%BE.awebp">
+<meta property="article:published_time" content="2021-07-04T02:10:01.000Z">
+<meta property="article:modified_time" content="2021-07-04T02:10:01.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="教程">
+<meta property="article:tag" content="2021">
+<meta property="article:tag" content="工程实践">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/old-commit-msgs.awebp">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>手Y开发规范化建设一：Commit Message 规范建设 | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          手Y开发规范化建设一：Commit Message 规范建设
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-07-04 10:10:01" itemprop="dateCreated datePublished" datetime="2021-07-04T10:10:01+08:00">2021-07-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我于2020年年中加入了手机YY iOS团队，那时发现团队成员在特性阶段所写的<code>Commit Message</code>比较随意；在集成阶段，则比较统一：</p>
+<p><img src="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/old-commit-msgs.awebp" alt="image.png"></p>
+<blockquote>
+<p>这里简要介绍一下手Y团队采用的<code>Git</code>分支管理模型和<code>YY GitLab Server</code>端对<code>maint</code>分支实施的<code>Commit Message</code>规范。</p>
+<p>手Y团队采用的<code>Git</code>分支管理模型是一种基于主干的分支模型：<code>master-maint-feature</code>，其中：</p>
+<ul>
+<li><code>master</code>分支是主干分支，用于存放对外发布的版本，永久存在，属于长生命周期</li>
+<li><code>maint</code>分支是集成分支，从<code>master</code>分支拉出，用于集成特性和发布版本，存在于集成阶段（在此阶段，团队成员都往该分支提交和只提交修复代码），属于中生命周期（版本发布后，合并回<code>master</code>分支，这之后一般还会存在一段时间）</li>
+<li><code>feature</code>分支是特性分支，从<code>master</code>分支拉出，用于开发特性，存在于特性阶段（在此阶段，团队成员都往该分支提交特性代码、修复代码等），属于短生命周期（特性集成之日，合并回<code>master</code>分支，然后被删除）</li>
+</ul>
+<p><code>YY GitLab Server</code>端对<code>maint</code>分支实施的<code>Commit Message</code>规范是，要求提交格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[bug id &lt;bugId&gt;] &lt;subject&gt; review by [&lt;reviewer&gt;]</span><br></pre></td></tr></table></figure>
+
+</blockquote>
+<p>为了使得手Y工程的<code>Commit Message</code>规范变得完整（任意阶段都有规范）和完善，从而帮助团队更好地发展和更好地维护工程，我根据团队实际情况和需求，制定和落地了一套合适手Y的新的<code>Commit Message</code>规范。截止到目前，该规范已经运行快一年，给团队和工程带来了显著的收益：</p>
+<ul>
+<li>帮助团队成员建立更好的规范意识</li>
+<li>帮助团队新成员更好地理解<code>Commit</code>和<code>历史代码</code></li>
+<li>帮助团队成员更快地对当前<code>Commit</code>进行<code>Code Review</code></li>
+<li>让工程变得更好维护</li>
+<li>其他等等</li>
+</ul>
+<p>新<code>Commit Message</code>规范在经过实践的验收后，作为一个负责的开发团队，我们觉得可以对外分享我们的这个新的<code>Commit Message</code>规范，以及分享我们如何去保障新<code>Commit Message</code>规范的实施。</p>
+<a id="more"></a>
+
+<h2 id="新-Commit-Message-规范"><a href="#新-Commit-Message-规范" class="headerlink" title="新 Commit Message 规范"></a>新 Commit Message 规范</h2><p>依据手Y的工作流和既存的<code>Commit Message</code>规范，新的<code>Commit Message</code>规范按照集成时间点前后分为2个版本：</p>
+<ul>
+<li><code>Feature Commit Message</code>规范：应用于<code>feature</code>分支（比如<code>yymobile_7.41_composite_feature</code>分支），功能特性研发阶段</li>
+<li><code>Maint  Commit Message</code>规范：应用于<code>maint</code>分支（比如<code>yymobile_7.41_maint</code>分支），功能特性集成阶段</li>
+</ul>
+<p>下面将会对这2个版本<code>Commit Message</code>规范进行详细的介绍。</p>
+<h3 id="Feature-Commit-Message-规范"><a href="#Feature-Commit-Message-规范" class="headerlink" title="Feature Commit Message 规范"></a>Feature Commit Message 规范</h3><p>在功能特性研发阶段，<code>Commit Message</code>由三部分组成：</p>
+<ol>
+<li><code>header</code>：必填；由<code>type</code>、<code>scope</code>、<code>subject</code>组成；用于描述<code>Commit</code>的简介内容（类型、来源或影响范围、概要）</li>
+<li><code>body</code>：选填；用于描述<code>Commit</code>的细节内容</li>
+<li><code>footer</code>：选填；用于描述<code>Commit</code>的补充内容</li>
+</ol>
+<p>具体格式如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;</span><br><span class="line"></span><br><span class="line">&lt;body&gt;</span><br><span class="line"></span><br><span class="line">&lt;footer&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>备注</strong>：header 中涉及到的括号<code>()</code>和冒号<code>:</code>均使用英文标点符号。</p>
+</blockquote>
+<p>下面将会对<code>Commit Message</code>中每个组成部分进行详细介绍。</p>
+<h4 id="type（必填）"><a href="#type（必填）" class="headerlink" title="type（必填）"></a>type（必填）</h4><p><code>type</code>用于描述<code>Commit</code>的类型，目前可选类型有以下几种：</p>
+<ul>
+<li><code>feat</code>：新特性开发；业务逻辑修改</li>
+<li><code>fix</code>：bug修复</li>
+<li><code>refactor</code>: 代码重构（不涉及业务逻辑）</li>
+<li><code>test</code>：测试相关的变动（比如新增测试用例）</li>
+<li><code>chore</code>：构建工具或者辅助工具升级；源自构建工具或者辅助工具的变动</li>
+<li><code>revert</code>：回滚操作</li>
+</ul>
+<p>开发者需要根据实际场景选择合适的<code>type</code>。</p>
+<blockquote>
+<p><strong>备注</strong>：每个类型的<code>Commit Message</code>示例请看下面的《Feature Commit Message 规范示例》</p>
+</blockquote>
+<h4 id="scope（必填）"><a href="#scope（必填）" class="headerlink" title="scope（必填）"></a>scope（必填）</h4><p><code>scope</code>用于描述<code>Commit</code>的来源或者影响范围。<code>scope</code>的描述格式建议为：</p>
+<ul>
+<li><code>&lt;需求名&gt;</code>：例如<code>【刘露】基础频道二期优化</code>；常用于<code>feat</code>场景</li>
+<li><code>&lt;bugId&gt;</code>：例如<code>IOSYY-38403</code>；常用于<code>fix</code>场景 </li>
+<li><code>&lt;模块名&gt;-&lt;页面名&gt;</code>：例如<code>关注tab-直播页</code>；常用于<code>feat/fix/refactor</code>场景</li>
+<li><code>&lt;工程相关&gt;</code>：例如<code>Fastlane</code>；常用于<code>chore</code>场景</li>
+</ul>
+<blockquote>
+<p><strong>提示</strong>：请根据<code>type</code>和实际场景选择合适的描述格式</p>
+</blockquote>
+<h4 id="subject（必填）"><a href="#subject（必填）" class="headerlink" title="subject（必填）"></a>subject（必填）</h4><p><code>subject</code>用于描述<code>Commit</code>的概要，具体要求如下：</p>
+<ul>
+<li>简要准确地描述本次提交的变动，<strong>字符数量不要超过 80</strong></li>
+<li><code>type</code>和<code>subject</code>之间以英文冒号<code>:</code>分隔</li>
+<li>不以标点结尾</li>
+</ul>
+<h4 id="body（选填）"><a href="#body（选填）" class="headerlink" title="body（选填）"></a>body（选填）</h4><p><code>subject</code>用于描述<code>Commit</code>的细节内容，具体要求如下：</p>
+<ul>
+<li>详细有条理地描述本次提交的变动，例如具体的逻辑变更、直接影响的范围、潜在的影响范围等</li>
+<li>可写多行，每行不超过72个中文字符，整体建议不要超过200个中文字符</li>
+</ul>
+<h4 id="footer（选填）"><a href="#footer（选填）" class="headerlink" title="footer（选填）"></a>footer（选填）</h4><p><code>footer</code>用于描述<code>Commit</code>的补充内容，例如关掉的<code>Issue</code>关联的<code>Isuue URL</code>、<code>Report ID</code>、<code>Crash ID</code>等信息，修复的<code>bug</code>关联的<code>Bug ID</code>、<code>Bug URL</code>、<code>备注 URL</code>等信息。</p>
+<h3 id="Feature-Commit-Message-规范示例"><a href="#Feature-Commit-Message-规范示例" class="headerlink" title="Feature Commit Message 规范示例"></a>Feature Commit Message 规范示例</h3><h4 id="feat-类日志示例"><a href="#feat-类日志示例" class="headerlink" title="feat 类日志示例"></a>feat 类日志示例</h4><ol>
+<li><p>示例一</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">feat(【刘露】基础频道二期优化): 【发现tab-发现页】新增开黑聊天专区入口模块</span><br><span class="line"> </span><br><span class="line">PM：刘露</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>示例二</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">feat(【刘露】基础频道二期优化): 【发现tab-发现页】修改显示开黑聊天专区入口的逻辑</span><br><span class="line"></span><br><span class="line">命中实验：yy_ios_741_jcpdyh 或者命中实验：yy_ios_741_jcpdyh_entrance 的时候都显示入口</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>示例三</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">feat(内存监控): MemoryDetector-YY SDK 由 v0.3.6 升级至 v0.3.7</span><br></pre></td></tr></table></figure>
+<h4 id="fix-类日志示例"><a href="#fix-类日志示例" class="headerlink" title="fix 类日志示例"></a>fix 类日志示例</h4></li>
+<li><p>示例一</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fix(IOSYY-38403): 【猜你喜欢新增标签】进入搜索界面时，猜你喜欢闪动了一下</span><br><span class="line"></span><br><span class="line">问题原因：子模块请求数据队列异步请求数据过程中，YYNewSearchDisplayViewController-viewWillAppear处让【热词】子模块请求数据并刷新TableView，导致部分提前收到数据的子模块（比如【猜你喜欢】子模块）提前渲染出UI来</span><br><span class="line">解决方案：子模块请求数据队列异步请求数据完毕后，YYNewSearchDisplayViewController-viewWillAppear处才允许让【热词】子模块请求数据</span><br><span class="line">影响范围：【搜索预览页】</span><br><span class="line">潜在影响范围：无</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>示例二</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fix(IOSYY-38411): #41712 问题复现 页面滑动时标签改变，不显示省略号</span><br><span class="line"></span><br><span class="line">问题原因：[label sizeToFit]在一些iOS版本上会破坏label实例的constraints（约束），导致显示异常</span><br><span class="line">解决方案：不要使用sizeToFit；另外，sizeToFit适用于没有使用约束的场景下，其和约束属于两种布局方案，前者是Frame布局，后者是约束布局</span><br><span class="line">影响范围：【关注tab-直播页-猜你喜欢新增标签】【搜索预览页-猜你喜欢模块-猜你喜欢新增标签】</span><br><span class="line">潜在影响范围：无</span><br><span class="line"></span><br><span class="line">更多Bug详情见 IOSYY-38411 下的备注：http://project.sysop.duowan.com/browse/IOSYY-38411?focusedCommentId=710520</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>示例三</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fix(YYMobileTarget): 修复工程的Signing配置</span><br><span class="line"></span><br><span class="line">发现工程的Signing配置被改为了Auto方式，现在修改为Manual方式</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h4 id="refactor-类日志示例"><a href="#refactor-类日志示例" class="headerlink" title="refactor 类日志示例"></a>refactor 类日志示例</h4><ol>
+<li><p>示例一</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">refactor(配置中心-直播间): 删除无用配置</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>示例二</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">refactor(礼物-付费礼物广播): 抽出礼物广播通用 GiftBroadcastModel</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h4 id="test-类日志示例"><a href="#test-类日志示例" class="headerlink" title="test 类日志示例"></a>test 类日志示例</h4><ol>
+<li><p>示例一</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test(UseCases): 新增使用错误密码登录的测试用例</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h4 id="chore-类日志示例"><a href="#chore-类日志示例" class="headerlink" title="chore 类日志示例"></a>chore 类日志示例</h4><ol>
+<li><p>示例一</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chore(CocoaPods): cocoapods-binary 由 v0.4.3 升级至 v0.4.4</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>示例二</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chore(Fastlane): 优化构建脚本</span><br></pre></td></tr></table></figure>
+<h4 id="revert-类日志示例"><a href="#revert-类日志示例" class="headerlink" title="revert 类日志示例"></a>revert 类日志示例</h4></li>
+<li><p>示例一</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">revert(YYProject): 回滚主工程移除 YYWidgetExtension Target 的操作</span><br><span class="line"> </span><br><span class="line">Revert "fix(YYProject): 暂时从主工程移除 YYWidgetExtension Target，以等待企业证书部署完毕，避免期间 CI 构建失败" </span><br><span class="line"> </span><br><span class="line">This reverts commit 22fd6f31.</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<h3 id="Maint-Commit-Message-规范"><a href="#Maint-Commit-Message-规范" class="headerlink" title="Maint Commit Message 规范"></a>Maint Commit Message 规范</h3><p>在功能特性集成阶段，<code>Commit Message</code>兼容既定规范（部署在<code>YY GitLab Server</code>端对<code>maint</code>分支实施的<code>Commit Message</code>规范），其由三部分组成：</p>
+<ol>
+<li><code>header</code>：必填；由<code>bugId</code>、<code>subject</code>、<code>reviewer</code>组成；用于描述<code>Commit</code>的简介内容（类型、影响范围、概要）</li>
+<li><code>body</code>：选填；用于描述<code>Commit</code>的细节内容</li>
+<li><code>footer</code>：选填；用于描述<code>Commit</code>的补充内容</li>
+</ol>
+<blockquote>
+<p>手Y团队规定，集成测试期间，原则上只修复Bug，禁止提交优化、重构功能。</p>
+</blockquote>
+<p>具体格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[bug id &lt;bugId&gt;] &lt;subject&gt; review by [&lt;reviewer&gt;]</span><br><span class="line"></span><br><span class="line">&lt;body&gt;</span><br><span class="line"></span><br><span class="line">&lt;footer&gt;</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li><code>bugId</code>：必填；用于描述<code>Commit</code>关联的 Bug ID</li>
+<li><code>subject</code>：必填；用于描述 Bug 的原因概要；<strong>字符数量不要超过 80</strong></li>
+<li><code>reviewer</code>：必填；用于描述帮你 Code Review 的同事的邮箱用户名</li>
+<li><code>body</code>：选填；定义和要求与《Feature Commit Message 规范》中的保持一致</li>
+<li><code>footer</code>：选填；定义和要求与《Feature Commit Message 规范》中的保持一致</li>
+</ul>
+<h3 id="Maint-Commit-Message-规范示例"><a href="#Maint-Commit-Message-规范示例" class="headerlink" title="Maint Commit Message 规范示例"></a>Maint Commit Message 规范示例</h3><ol>
+<li><p>示例一</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[bug id IOSYY-38898] 14系统手机热搜榜页面不显示顶部banner图片 review by [chenzhiying]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>示例二</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[bug id IOSYY-32551] 【崩溃系统提单_首报7.24.0-develop】 review by [chenjianfeng3] </span><br><span class="line">  </span><br><span class="line">This reverts commit e4fe6fb1.</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h2 id="新-Commit-Message-规范实施和保障"><a href="#新-Commit-Message-规范实施和保障" class="headerlink" title="新 Commit Message 规范实施和保障"></a>新 Commit Message 规范实施和保障</h2><p>新的<code>Commit Message</code>规范制定后，为了检验和保障实施的的效果，我们决定先在手Y工程上实施：通过以点带面，逐步帮助手Y团队成员建立<code>Commit Message</code>规范规范意识。</p>
+<p>为了保障实施的的效果，我同步研发了配套工具<code>YYCommitMessageLint</code>。为了保障实施落地时阻力达到最小，<code>YYCommitMessageLint</code>建立了一个目标：不对除手Y工程之外的项目造成约束影响，以及最大限度地方便手Y团队成员方便安装该工具。</p>
+<p>为了达到上述目标，<code>YYCommitMessageLint</code>设计成了一个<code>Pod</code>库，通过<code>CocoaPods</code>接入到手Y工程项目中。下图是<code>YYCommitMessageLint</code>接入iOS项目的流程图：</p>
+<p><img src="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/YYCommitMessageLint%E6%8E%A5%E5%85%A5iOS%E9%A1%B9%E7%9B%AE%E6%B5%81%E7%A8%8B%E5%9B%BE.awebp" alt="YYCommitMessageLint接入iOS项目流程图.png"></p>
+<p><code>YYCommitMessageLint</code>接入iOS项目的具体步骤如下：</p>
+<ol>
+<li><p>编辑<code>Podfile</code>，添加<code>YYCommitMessageLint</code>的依赖声明代码</p>
+  <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">## 这是一个虚拟target，专门用于安装通过CocoaPods方式接入工程的构建工具、辅助工具</span></span><br><span class="line">abstract_target <span class="string">'YYChoreBox'</span> <span class="keyword">do</span></span><br><span class="line">  pod <span class="string">'YYCommitMessageLint'</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编辑<code>Podfile</code>，添加同步<code>YYCommitMessageLint</code>的函数定义</p>
+  <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">syncCommitMessageLint</span><span class="params">()</span></span></span><br><span class="line">  src_root = Dir.pwd</span><br><span class="line">  pods_root = <span class="string">"<span class="subst">#&#123;src_root&#125;</span>/Pods"</span></span><br><span class="line">  lint_dir = <span class="string">"<span class="subst">#&#123;pods_root&#125;</span>/YYCommitMessageLint"</span></span><br><span class="line">  <span class="keyword">if</span> Dir.exists?(lint_dir)</span><br><span class="line">    cmd = <span class="string">"cd <span class="subst">#&#123;lint_dir&#125;</span>/tools/ &amp;&amp; sh <span class="subst">#&#123;lint_dir&#125;</span>/tools/setup_single.sh <span class="subst">#&#123;src_root&#125;</span>"</span></span><br><span class="line">    system(cmd)</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编辑<code>Podfile</code>，在<code>Pod</code>的<code>pre_install</code>回调函数中执行<code>syncCommitMessageLint</code></p>
+  <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pre_install <span class="keyword">do</span> <span class="params">|installer|</span></span><br><span class="line">   syncCommitMessageLint()</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="YYCommitMessageLint的局限性"><a href="#YYCommitMessageLint的局限性" class="headerlink" title="YYCommitMessageLint的局限性"></a><code>YYCommitMessageLint</code>的局限性</h3><p><code>YYCommitMessageLint</code>适合应用于单个工程场景——这是它的优点也是它的缺点。因此，若你期望它的作用范围由“点”扩展到“面”时，就需要另外的改造方案了——今年开春以来，手Y开始着手业务组件化，我们希望那些业务组件工程也被纳入新<code>Commit Message</code>规范的约束范围内（事实上除了<code>Commit Message</code>规范，还新增了其他规范），为此，我开始设计实现了新的方案——这个方案将会在下一期进行分享，敬请期待。</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/" title="手Y开发规范化建设一：Commit Message 规范建设">https://blog.yorkfish.me/2021/手Y开发规范化建设一：Commit Message 规范建设/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/%E6%95%99%E7%A8%8B/" rel="tag"># 教程</a>
+              <a href="/tags/2021/" rel="tag"># 2021</a>
+              <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" rel="tag"># 工程实践</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/" rel="prev" title="手Y工程实践之Podfile.lock管理新方案">
+      <i class="fa fa-chevron-left"></i> 手Y工程实践之Podfile.lock管理新方案
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/" rel="next" title="手Y开发规范化建设二：手Y业务工程规范建设">
+      手Y开发规范化建设二：手Y业务工程规范建设 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新-Commit-Message-规范"><span class="nav-number">2.</span> <span class="nav-text">新 Commit Message 规范</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Feature-Commit-Message-规范"><span class="nav-number">2.1.</span> <span class="nav-text">Feature Commit Message 规范</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#type（必填）"><span class="nav-number">2.1.1.</span> <span class="nav-text">type（必填）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#scope（必填）"><span class="nav-number">2.1.2.</span> <span class="nav-text">scope（必填）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#subject（必填）"><span class="nav-number">2.1.3.</span> <span class="nav-text">subject（必填）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#body（选填）"><span class="nav-number">2.1.4.</span> <span class="nav-text">body（选填）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#footer（选填）"><span class="nav-number">2.1.5.</span> <span class="nav-text">footer（选填）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Feature-Commit-Message-规范示例"><span class="nav-number">2.2.</span> <span class="nav-text">Feature Commit Message 规范示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#feat-类日志示例"><span class="nav-number">2.2.1.</span> <span class="nav-text">feat 类日志示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#fix-类日志示例"><span class="nav-number">2.2.2.</span> <span class="nav-text">fix 类日志示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#refactor-类日志示例"><span class="nav-number">2.2.3.</span> <span class="nav-text">refactor 类日志示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#test-类日志示例"><span class="nav-number">2.2.4.</span> <span class="nav-text">test 类日志示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#chore-类日志示例"><span class="nav-number">2.2.5.</span> <span class="nav-text">chore 类日志示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#revert-类日志示例"><span class="nav-number">2.2.6.</span> <span class="nav-text">revert 类日志示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maint-Commit-Message-规范"><span class="nav-number">2.3.</span> <span class="nav-text">Maint Commit Message 规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maint-Commit-Message-规范示例"><span class="nav-number">2.4.</span> <span class="nav-text">Maint Commit Message 规范示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新-Commit-Message-规范实施和保障"><span class="nav-number">3.</span> <span class="nav-text">新 Commit Message 规范实施和保障</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#YYCommitMessageLint的局限性"><span class="nav-number">3.1.</span> <span class="nav-text">YYCommitMessageLint的局限性</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

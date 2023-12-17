@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言这是一道从此篇博客《神经病院 Objective-C Runtime 入院第一天—— isa 和 Class》看到的题目：  问：下面代码输出什么? 123456789101112@implementation Son : Father- (id)init&amp;#123;    self &#x3D; [super init];    if (self)    &amp;#123;        NSLo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Objective-C的一道题：[self class] 与 [super class]">
+<meta property="og:url" content="https://blog.yorkfish.me/2020/Objective-C%E7%9A%84%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%9A[self%20class]%20%E4%B8%8E%20[super%20class]/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言这是一道从此篇博客《神经病院 Objective-C Runtime 入院第一天—— isa 和 Class》看到的题目：  问：下面代码输出什么? 123456789101112@implementation Son : Father- (id)init&amp;#123;    self &#x3D; [super init];    if (self)    &amp;#123;        NSLo">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-05-12T02:10:01.000Z">
+<meta property="article:modified_time" content="2020-05-12T02:10:01.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="2020">
+<meta property="article:tag" content="基础理论">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2020/Objective-C%E7%9A%84%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%9A[self%20class]%20%E4%B8%8E%20[super%20class]/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Objective-C的一道题：[self class] 与 [super class] | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/Objective-C%E7%9A%84%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%9A[self%20class]%20%E4%B8%8E%20[super%20class]/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Objective-C的一道题：[self class] 与 [super class]
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-05-12 10:10:01" itemprop="dateCreated datePublished" datetime="2020-05-12T10:10:01+08:00">2020-05-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这是一道从此篇博客<a href="https://halfrost.com/objc_runtime_isa_class/" target="_blank" rel="noopener external nofollow noreferrer">《神经病院 Objective-C Runtime 入院第一天—— isa 和 Class》</a>看到的题目：</p>
+<blockquote>
+<p>问：下面代码输出什么?</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@implementation Son : Father</span><br><span class="line">- (id)init</span><br><span class="line">&#123;</span><br><span class="line">    self &#x3D; [super init];</span><br><span class="line">    if (self)</span><br><span class="line">    &#123;</span><br><span class="line">        NSLog(@&quot;%@&quot;, NSStringFromClass([self class]));</span><br><span class="line">        NSLog(@&quot;%@&quot;, NSStringFromClass([super class]));</span><br><span class="line">    &#125;</span><br><span class="line">return self;</span><br><span class="line">&#125;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>答案是： 输出的都是<code>Son</code>。</p>
+<p>对此，博客作者给出的理由是：</p>
+<blockquote>
+<p>self和super的区别：</p>
+<p>self是类的一个隐藏参数，每个方法的实现的第一个参数即为self。</p>
+<p>super并不是隐藏参数，它实际上只是一个”编译器标示符”，它负责告诉编译器，当调用方法时，去调用父类的方法，而不是本类中的方法。</p>
+<p>在调用[super class]的时候，runtime会去调用objc_msgSendSuper方法，而不是objc_msgSend</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">OBJC_EXPORT void objc_msgSendSuper(void &#x2F;* struct objc_super *super, SEL op, ... *&#x2F; )</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;&#x2F; Specifies the superclass of an instance. </span><br><span class="line">struct objc_super &#123;</span><br><span class="line">    &#x2F;&#x2F;&#x2F; Specifies an instance of a class.</span><br><span class="line">    __unsafe_unretained id receiver;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F;&#x2F; Specifies the particular superclass of the instance to message. </span><br><span class="line">#if !defined(__cplusplus)  &amp;&amp;  !__OBJC2__</span><br><span class="line">    &#x2F;* For compatibility with old objc-runtime.h header *&#x2F;</span><br><span class="line">    __unsafe_unretained Class class;</span><br><span class="line">#else</span><br><span class="line">    __unsafe_unretained Class super_class;</span><br><span class="line">#endif</span><br><span class="line">    &#x2F;* super_class is the first class to search *&#x2F;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在objc_msgSendSuper方法中，第一个参数是一个objc_super的结构体，这个结构体里面有两个变量，一个是接收消息的receiver，一个是<br>当前类的父类super_class。</p>
+<p>入院考试第一题错误的原因就在这里，误认为[super class]是调用的[super_class class]。</p>
+<p>objc_msgSendSuper的工作原理应该是这样的:<br>从objc_super结构体指向的superClass父类的方法列表开始查找selector，找到后以objc-&gt;receiver去调用父类的这个selector。注意，最后的调用者是objc-&gt;receiver，而不是super_class！</p>
+<p>那么objc_msgSendSuper最后就转变成</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 注意这里是从父类开始msgSend，而不是从本类开始，谢谢@Josscii 和他同事共同指点出此处描述的不妥。</span></span><br><span class="line">objc_msgSend(objc_super-&gt;receiver, <span class="keyword">@selector</span>(<span class="keyword">class</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">/// Specifies an instance of a class.  这是类的一个实例</span></span><br><span class="line">    __<span class="keyword">unsafe_unretained</span> <span class="keyword">id</span> receiver;   </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 由于是实例调用，所以是减号方法</span></span><br><span class="line">- (Class)<span class="keyword">class</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> object_getClass(<span class="keyword">self</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于找到了父类NSObject里面的class方法的IMP，又因为传入的入参objc_super-&gt;receiver = self。self就是son，调用class，所以父类的方法class执行IMP之后，输出还是son，最后输出两个都一样，都是输出son。</p>
+</blockquote>
+<p>其实，上述的解答只答对了一大半，还有一小半没正确。没正确的部分主要在于对<code>objc_msgSend</code>和<code>objc_msgSendSuper</code>的工作原理理解错误，以及对方法实现的函数原型的忽略。</p>
+<p>下面将会对此进行重新解答。</p>
+<a id="more"></a>
+
+<h2 id="新解"><a href="#新解" class="headerlink" title="新解"></a>新解</h2><p>Objective-C 是一门基于消息转发机制的动态编程语言，所有的方法调用都会转换为消息发送。所以，<code>[self class]</code>和<code>[super class]</code>会被编译器分别转换为<code>objc_msgSend(self, @selector(class))</code>和<code>objc_msgSendSuper(objc_super, @selector(class))</code>。</p>
+<blockquote>
+<p>具体地是转换为以下的C++ 代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// [self class]</span></span><br><span class="line">((Class (*)(id, SEL))(<span class="keyword">void</span> *)objc_msgSend)((id)self, sel_registerName(<span class="string">"class"</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// [super class]</span></span><br><span class="line">((Class (*)(__rw_objc_super *, SEL))(<span class="keyword">void</span> *)objc_msgSendSuper)((__rw_objc_super)&#123;(id)self, (id)class_getSuperclass(objc_getClass(<span class="string">"Son"</span>))&#125;, sel_registerName(<span class="string">"class"</span>));</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>执行<code>clang -rewrite-objc xx.m -o xx.cpp</code>即可转换。</p>
+</blockquote>
+</blockquote>
+<p><code>objc_msgSend</code>会根据<code>SEL</code>从当前对象开始查找对应的方法实现，查找到方法实现后，就会直接跳转到方法实现。</p>
+<p><code>objc_msgSendSuper</code>会根据<code>SEL</code>从当前对象的父类开始查找对应的方法实现，查找到方法实现后，就会直接跳转到方法实现。</p>
+<blockquote>
+<p><code>objc_msgSend</code>的具体工作原理请看下面代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;********************************************************************</span><br><span class="line"> *</span><br><span class="line"> * id objc_msgSend(id self, SEL _cmd, ...);</span><br><span class="line"> * IMP objc_msgLookup(id self, SEL _cmd, ...);</span><br><span class="line"> * </span><br><span class="line"> * objc_msgLookup ABI:</span><br><span class="line"> * IMP returned in r12</span><br><span class="line"> * Forwarding returned in Z flag</span><br><span class="line"> * r9 reserved for our use but not used</span><br><span class="line"> *</span><br><span class="line"> ********************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">	ENTRY _objc_msgSend</span><br><span class="line">	</span><br><span class="line">	cbz	r0, LNilReceiver_f</span><br><span class="line"></span><br><span class="line">	ldr	r9, [r0]		&#x2F;&#x2F; r9 &#x3D; self-&gt;isa</span><br><span class="line">	GetClassFromIsa			&#x2F;&#x2F; r9 &#x3D; class</span><br><span class="line">	CacheLookup NORMAL, _objc_msgSend</span><br><span class="line">	&#x2F;&#x2F; cache hit, IMP in r12, eq already set for nonstret forwarding</span><br><span class="line">	bx	r12			&#x2F;&#x2F; call imp</span><br><span class="line"></span><br><span class="line">	CacheLookup2 NORMAL, _objc_msgSend</span><br><span class="line">	&#x2F;&#x2F; cache miss</span><br><span class="line">	ldr	r9, [r0]		&#x2F;&#x2F; r9 &#x3D; self-&gt;isa</span><br><span class="line">	GetClassFromIsa			&#x2F;&#x2F; r9 &#x3D; class</span><br><span class="line">	b	__objc_msgSend_uncached</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>objc_msgSendSuper</code>的具体工作原理请看下面代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;********************************************************************</span><br><span class="line"> * id objc_msgSendSuper(struct objc_super *super, SEL op, ...)</span><br><span class="line"> *</span><br><span class="line"> * struct objc_super &#123;</span><br><span class="line"> *     id receiver;</span><br><span class="line"> *     Class cls;	&#x2F;&#x2F; the class to search</span><br><span class="line"> * &#125;</span><br><span class="line"> ********************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">	ENTRY _objc_msgSendSuper</span><br><span class="line">	</span><br><span class="line">	ldr	r9, [r0, #CLASS]	&#x2F;&#x2F; r9 &#x3D; struct super-&gt;class</span><br><span class="line">	CacheLookup NORMAL, _objc_msgSendSuper</span><br><span class="line">	&#x2F;&#x2F; cache hit, IMP in r12, eq already set for nonstret forwarding</span><br><span class="line">	ldr	r0, [r0, #RECEIVER]	&#x2F;&#x2F; load real receiver</span><br><span class="line">	bx	r12			&#x2F;&#x2F; call imp</span><br><span class="line"></span><br><span class="line">	CacheLookup2 NORMAL, _objc_msgSendSuper</span><br><span class="line">	&#x2F;&#x2F; cache miss</span><br><span class="line">	ldr	r9, [r0, #CLASS]	&#x2F;&#x2F; r9 &#x3D; struct super-&gt;class</span><br><span class="line">	ldr	r0, [r0, #RECEIVER]	&#x2F;&#x2F; load real receiver</span><br><span class="line">	b	__objc_msgSend_uncached</span><br><span class="line">	</span><br><span class="line">	END_ENTRY _objc_msgSendSuper</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，Objective-C根据方法的调用者和方法的返回结果，提供了不同的消息发送函数，具体如下：</p>
+<ul>
+<li>调用者是对象的父类（an object’s superclass, using the super keyword），返回结果类型为结构体数据类型（ data structures return types）的消息使用<code>objc_msgSendSuper_stret</code>发送</li>
+<li>调用者是对象的父类（an object’s superclass, using the super keyword）的消息使用<code>objc_msgSendSuper</code>发送</li>
+<li>调用者是对象的（an object），返回结果类型为结构体数据类型（ data structures return types）的消息使用<code>objc_msgSend_stret</code>发送</li>
+<li>调用者是对象的（an object），返回结果类型为浮点数类型（ some float return types）的消息使用<code>objc_msgSend_fpret</code>发送</li>
+<li>调用者是对象的（an object），返回结果为复杂浮点数类型（some complex float return types）的消息使用<code>objc_msgSend_fp2ret</code>发送</li>
+<li>剩余消息使用<code>objc_msgSend</code>发送</li>
+</ul>
+<p>其中，关于<code>objc_msgSend_fpret</code>和<code>objc_msgSend_fp2ret</code>的更多细节，请看下面引自源代码中的注释：</p>
+<blockquote>
+<p> Floating-point-returning Messaging Primitives</p>
+<p> Use these functions to call methods that return floating-point values<br> on the stack.<br> Consult your local function call ABI documentation for details.</p>
+<p> arm:    objc_msgSend_fpret not used<br> i386:   objc_msgSend_fpret used for <code>float</code>, <code>double</code>, <code>long double</code>.<br> x86-64: objc_msgSend_fpret used for <code>long double</code>.</p>
+<p> arm:    objc_msgSend_fp2ret not used<br> i386:   objc_msgSend_fp2ret not used<br> x86-64: objc_msgSend_fp2ret used for <code>_Complex long double</code>.</p>
+<p> These functions must be cast to an appropriate function pointer type<br> before being called. </p>
+</blockquote>
+</blockquote>
+<p>由于<code>class</code>方法在<code>NSObject</code>处，最终<code>objc_msgSend(self, @selector(class))</code>和<code>objc_msgSendSuper(objc_super, @selector(class))</code>查找到是同一个方法实现。</p>
+<p>在Objective-C 中，方法实现的函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// A pointer to the function of a method implementation. </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> !OBJC_OLD_DISPATCH_PROTOTYPES</span></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*IMP)</span><span class="params">(<span class="keyword">void</span> <span class="comment">/* id, SEL, ... */</span> )</span></span>; </span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="keyword">typedef</span> id _Nullable (*IMP)(id _Nonnull, SEL _Nonnull, ...); </span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p><code>IMP</code>为方法实现的函数原型，其有2个固定的参数：<code>id</code>和<code>SEL</code>，其中<code>id</code>是运行时接收消息（即进行方法调用）的对象实例。</p>
+<p><code>objc_msgSend(self, @selector(class))</code>和<code>objc_msgSendSuper(objc_super, @selector(class))</code>传递给<code>class</code>这个方法的<code>IMP</code>的参数<code>id</code>都是同一个对象实例，所以最终二者的输出是相同的。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://github.com/0xxd0/objc4" target="_blank" rel="noopener">objc-runtime源码</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2020/Objective-C%E7%9A%84%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%9A[self%20class]%20%E4%B8%8E%20[super%20class]/readme/" title="Objective-C的一道题：[self class] 与 [super class]">https://blog.yorkfish.me/2020/Objective-C的一道题：[self class] 与 [super class]/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/2020/" rel="tag"># 2020</a>
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/" rel="tag"># 基础理论</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/OOP%EF%BC%9A%E6%96%B9%E6%B3%95%EF%BC%88method%EF%BC%89%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%88function%EF%BC%89%E7%9A%84%E5%8C%BA%E5%88%AB/readme/" rel="prev" title="OOP：方法（method）和函数（function）的区别">
+      <i class="fa fa-chevron-left"></i> OOP：方法（method）和函数（function）的区别
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/Future%E5%92%8CPromise%E7%9A%84%E5%8C%BA%E5%88%AB/readme/" rel="next" title="Future和Promise的区别">
+      Future和Promise的区别 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新解"><span class="nav-number">2.</span> <span class="nav-text">新解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

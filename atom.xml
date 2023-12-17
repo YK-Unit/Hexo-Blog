@@ -1,0 +1,707 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>YorkFish Blog</title>
+  <icon>https://blog.yorkfish.me/icon.png</icon>
+  <subtitle>KISS</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://blog.yorkfish.me/"/>
+  <updated>2021-12-13T02:10:01.000Z</updated>
+  <id>https://blog.yorkfish.me/</id>
+  
+  <author>
+    <name>YorkFish</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>手Y开发规范化建设二：手Y业务工程规范建设</title>
+    <link href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/"/>
+    <id>https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%BA%8C%EF%BC%9A%E6%89%8BY%E4%B8%9A%E5%8A%A1%E5%B7%A5%E7%A8%8B%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/</id>
+    <published>2021-12-13T02:10:01.000Z</published>
+    <updated>2021-12-13T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;这篇文章既是对上篇&lt;a href=&quot;https://juejin.cn/post/6980910026151952391&quot; target=&quot;_blank&quot; rel=&quot;noopener external nofollow noreferrer&quot;&gt;《手Y开发规范化建设一：Commit Message 规范建设》&lt;/a&gt;在文章结尾抛出的问题的解答，也是对外分享已经在手Y业务团队落地实施5个月（自2021年8月初开始）了的《手Y业务工程规范》的建设经验。&lt;/p&gt;
+&lt;h2 id=&quot;业务背景&quot;&gt;&lt;a href=&quot;#业务背景&quot; class=&quot;headerlink&quot; title=&quot;业务背景&quot;&gt;&lt;/a&gt;业务背景&lt;/h2&gt;&lt;p&gt;截止到目前，手Y业务组件数量已经达到30+。伴随着业务的进一步复杂化，团队中出现了不少有碍代码质量、影响效率的问题，比如：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;部分手Y业务组件随便引入体积超标图片资源，引起手Y和联运SDK体积劣化&lt;/li&gt;
+&lt;li&gt;部分已做二进制化的手Y业务组件不正确设置代码文件的&lt;code&gt;Target Membership&lt;/code&gt;，导致构建的二进制产物丢失头文件或者符号，阻塞了手Y的正常开发和构建&lt;/li&gt;
+&lt;li&gt;部分手Y业务组件不规范使用&lt;code&gt;API&lt;/code&gt;，导致手Y运行时异常&lt;/li&gt;
+&lt;li&gt;手Y业务组件提交的 commit 日志格式各异&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;为进一步提升手Y的代码质量，提高团队的协作开发效率，我制定了《手Y业务工程规范》来引导团队成员规范开发。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="iOS" scheme="https://blog.yorkfish.me/tags/iOS/"/>
+    
+      <category term="教程" scheme="https://blog.yorkfish.me/tags/%E6%95%99%E7%A8%8B/"/>
+    
+      <category term="2021" scheme="https://blog.yorkfish.me/tags/2021/"/>
+    
+      <category term="工程实践" scheme="https://blog.yorkfish.me/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>手Y开发规范化建设一：Commit Message 规范建设</title>
+    <link href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/"/>
+    <id>https://blog.yorkfish.me/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/</id>
+    <published>2021-07-04T02:10:01.000Z</published>
+    <updated>2021-07-04T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;我于2020年年中加入了手机YY iOS团队，那时发现团队成员在特性阶段所写的&lt;code&gt;Commit Message&lt;/code&gt;比较随意；在集成阶段，则比较统一：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/old-commit-msgs.awebp&quot; alt=&quot;image.png&quot;&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;这里简要介绍一下手Y团队采用的&lt;code&gt;Git&lt;/code&gt;分支管理模型和&lt;code&gt;YY GitLab Server&lt;/code&gt;端对&lt;code&gt;maint&lt;/code&gt;分支实施的&lt;code&gt;Commit Message&lt;/code&gt;规范。&lt;/p&gt;
+&lt;p&gt;手Y团队采用的&lt;code&gt;Git&lt;/code&gt;分支管理模型是一种基于主干的分支模型：&lt;code&gt;master-maint-feature&lt;/code&gt;，其中：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;master&lt;/code&gt;分支是主干分支，用于存放对外发布的版本，永久存在，属于长生命周期&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;maint&lt;/code&gt;分支是集成分支，从&lt;code&gt;master&lt;/code&gt;分支拉出，用于集成特性和发布版本，存在于集成阶段（在此阶段，团队成员都往该分支提交和只提交修复代码），属于中生命周期（版本发布后，合并回&lt;code&gt;master&lt;/code&gt;分支，这之后一般还会存在一段时间）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;feature&lt;/code&gt;分支是特性分支，从&lt;code&gt;master&lt;/code&gt;分支拉出，用于开发特性，存在于特性阶段（在此阶段，团队成员都往该分支提交特性代码、修复代码等），属于短生命周期（特性集成之日，合并回&lt;code&gt;master&lt;/code&gt;分支，然后被删除）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;YY GitLab Server&lt;/code&gt;端对&lt;code&gt;maint&lt;/code&gt;分支实施的&lt;code&gt;Commit Message&lt;/code&gt;规范是，要求提交格式如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[bug id &amp;lt;bugId&amp;gt;] &amp;lt;subject&amp;gt; review by [&amp;lt;reviewer&amp;gt;]&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;/blockquote&gt;
+&lt;p&gt;为了使得手Y工程的&lt;code&gt;Commit Message&lt;/code&gt;规范变得完整（任意阶段都有规范）和完善，从而帮助团队更好地发展和更好地维护工程，我根据团队实际情况和需求，制定和落地了一套合适手Y的新的&lt;code&gt;Commit Message&lt;/code&gt;规范。截止到目前，该规范已经运行快一年，给团队和工程带来了显著的收益：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;帮助团队成员建立更好的规范意识&lt;/li&gt;
+&lt;li&gt;帮助团队新成员更好地理解&lt;code&gt;Commit&lt;/code&gt;和&lt;code&gt;历史代码&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;帮助团队成员更快地对当前&lt;code&gt;Commit&lt;/code&gt;进行&lt;code&gt;Code Review&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;让工程变得更好维护&lt;/li&gt;
+&lt;li&gt;其他等等&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;新&lt;code&gt;Commit Message&lt;/code&gt;规范在经过实践的验收后，作为一个负责的开发团队，我们觉得可以对外分享我们的这个新的&lt;code&gt;Commit Message&lt;/code&gt;规范，以及分享我们如何去保障新&lt;code&gt;Commit Message&lt;/code&gt;规范的实施。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="iOS" scheme="https://blog.yorkfish.me/tags/iOS/"/>
+    
+      <category term="教程" scheme="https://blog.yorkfish.me/tags/%E6%95%99%E7%A8%8B/"/>
+    
+      <category term="2021" scheme="https://blog.yorkfish.me/tags/2021/"/>
+    
+      <category term="工程实践" scheme="https://blog.yorkfish.me/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>手Y工程实践之Podfile.lock管理新方案</title>
+    <link href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/"/>
+    <id>https://blog.yorkfish.me/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/</id>
+    <published>2021-03-07T02:10:01.000Z</published>
+    <updated>2021-03-07T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h2&gt;&lt;p&gt;在iOS工程接入&lt;code&gt;CocoaPods&lt;/code&gt;做依赖管理后，开发者对&lt;code&gt;Podfile.lock&lt;/code&gt;的管理主要有以下两种方案：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;不把&lt;code&gt;Podfile.lock&lt;/code&gt;纳入版本管理&lt;/li&gt;
+&lt;li&gt;把&lt;code&gt;Podfile.lock&lt;/code&gt;纳入版本管理&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;这两种方案各有优劣和各有适用场景：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;第1种方案不强制团队成员使用统一版本的&lt;code&gt;CocoaPods&lt;/code&gt;，对团队成员较为友好，但是无法保证团队成员在本地安装的依赖是一致的；其适合个人或者前期对规范不作要求、规模很小的团队&lt;/li&gt;
+&lt;li&gt;第2种方案能保证团队成员在本地安装的依赖是一致的，但是却要强制团队成员使用统一版本的&lt;code&gt;CocoaPods&lt;/code&gt;；其适合对规范有要求的团队&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;在我加入手Y团队之前，手Y团队选用的是第1种方案。基于第1种方案的选择，为了能保证团队成员在本地安装的依赖是一致的，手Y团队又做了以下的解决措施：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Podfile里的每个库都声明一个具名的固定版本号，如&lt;code&gt;pod &amp;#39;yyabtestsdk&amp;#39;, &amp;#39;2.1.0-dev.2&amp;#39;&lt;/code&gt;、&lt;code&gt;pod &amp;#39;yybaseapisdk&amp;#39;, :git=&amp;gt;&amp;#39;https://xxx/yybaseapisdk-ios.git&amp;#39;, :tag =&amp;gt; &amp;#39;7.46.0-dev.8&amp;#39;&lt;/code&gt;。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;随着团队的变大（现在iOS业务端已有40+人），这种方案的弊端逐渐暴露：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;无法百分百确保编译运行阶段，团队成员的本地安装的依赖是一致的&lt;/p&gt;
+&lt;p&gt;这个弊端对应的场景是：有人更新了&lt;code&gt;Podfile&lt;/code&gt;，安装了&lt;code&gt;非BreakingChanges&lt;/code&gt;的、新版本的依赖库，并进行了代码推送；其他人拉取代码后，若不手动执行一次&lt;code&gt;Pod install/update&lt;/code&gt;，其本地安装的依赖是落后的，并且在编译运行阶段，由于代码兼容，若非出现严重bug，其不会发现其本地依赖需要更新。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;因本地依赖的版本不正确导致编译失败的时机延迟发生到了编译中后期&lt;/p&gt;
+&lt;p&gt;这个弊端对应的场景是：有人更新了&lt;code&gt;Podfile&lt;/code&gt;，安装了&lt;code&gt;BreakingChanges&lt;/code&gt;的、新版本的依赖库，并进行了代码推送；其他人拉取代码后，若不手动执行一次&lt;code&gt;Pod install/update&lt;/code&gt;，其本地安装的依赖是落后的，然后其进行编译时，由于代码不兼容，会发现编译失败了——但是这时候编译失败的时机常常是发生在编译中后期——在让开发者至少等待了十几分钟后才抛出编译失败的错误——这相当影响开发者的心情和工作效率。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;对于&lt;code&gt;BreakingChanges&lt;/code&gt;的疑问可看下文的《Q&amp;amp;A》&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;为了解决这些弊端，有必要考虑重新把&lt;code&gt;Podfile.lock&lt;/code&gt;纳入版本管理。那有没有一种方案，能同时获得上述第1种方案和第2种方案的收益呢？具体是，希望有一种方案能满足以下的需求：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;保证团队成员本地安装的依赖是一致的&lt;/li&gt;
+&lt;li&gt;允许团队成员不使用统一版本的&lt;code&gt;CocoaPods&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;把因本地依赖的版本不正确导致编译失败的时机从编译中后期提前到编译前，帮助提升开发效率&lt;/li&gt;
+&lt;li&gt;新方案对当前团队成员是零负担（不强制团队成员做不必要的事、不耗费团队成员不必要的注意力和精力）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;为此，我制定了一个新的&lt;code&gt;Podfile.lock&lt;/code&gt;管理方案，下面将会做具体的介绍。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="iOS" scheme="https://blog.yorkfish.me/tags/iOS/"/>
+    
+      <category term="教程" scheme="https://blog.yorkfish.me/tags/%E6%95%99%E7%A8%8B/"/>
+    
+      <category term="2021" scheme="https://blog.yorkfish.me/tags/2021/"/>
+    
+      <category term="工程实践" scheme="https://blog.yorkfish.me/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>当第一张图片加载渲染时（渲染原理+图片解码）</title>
+    <link href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/"/>
+    <id>https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/</id>
+    <published>2020-08-05T02:10:01.000Z</published>
+    <updated>2020-08-05T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;h2 id=&quot;UIImage和UIImageView&quot;&gt;&lt;a href=&quot;#UIImage和UIImageView&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="知识复盘" scheme="https://blog.yorkfish.me/categories/%E7%9F%A5%E8%AF%86%E5%A4%8D%E7%9B%98/"/>
+    
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+      <category term="EveryThingFromTheFirstClick(iOS Version)" scheme="https://blog.yorkfish.me/tags/EveryThingFromTheFirstClick-iOS-Version/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>当用户第一次点击UIView（关于iOS硬件事件的那些事）</title>
+    <link href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/"/>
+    <id>https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/</id>
+    <published>2020-07-29T02:10:01.000Z</published>
+    <updated>2020-07-29T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="知识复盘" scheme="https://blog.yorkfish.me/categories/%E7%9F%A5%E8%AF%86%E5%A4%8D%E7%9B%98/"/>
+    
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+      <category term="EveryThingFromTheFirstClick(iOS Version)" scheme="https://blog.yorkfish.me/tags/EveryThingFromTheFirstClick-iOS-Version/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>当用户第一次点击App（App启动流程）</title>
+    <link href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBApp%EF%BC%88App%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%EF%BC%89/readme/"/>
+    <id>https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBApp%EF%BC%88App%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%EF%BC%89/readme/</id>
+    <published>2020-07-27T02:10:01.000Z</published>
+    <updated>2020-07-27T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;当用户第一次点击iPhone手机屏幕上的一个App
+        
+      
+    
+    </summary>
+    
+    
+      <category term="知识复盘" scheme="https://blog.yorkfish.me/categories/%E7%9F%A5%E8%AF%86%E5%A4%8D%E7%9B%98/"/>
+    
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+      <category term="EveryThingFromTheFirstClick(iOS Version)" scheme="https://blog.yorkfish.me/tags/EveryThingFromTheFirstClick-iOS-Version/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>FP探索</title>
+    <link href="https://blog.yorkfish.me/2020/FP%E6%8E%A2%E7%B4%A2/readme/"/>
+    <id>https://blog.yorkfish.me/2020/FP%E6%8E%A2%E7%B4%A2/readme/</id>
+    <published>2020-07-01T04:34:56.000Z</published>
+    <updated>2020-07-01T04:34:56.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;本文主要是对计算机科学领域中的函数式编程（英语：Functional Programming）范式的理论、特性及特性的实现方案进行探索。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+      <category term="基础理论" scheme="https://blog.yorkfish.me/tags/%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
+    
+      <category term="Review" scheme="https://blog.yorkfish.me/tags/Review/"/>
+    
+      <category term="非终稿" scheme="https://blog.yorkfish.me/tags/%E9%9D%9E%E7%BB%88%E7%A8%BF/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Flr的产品观和开发观</title>
+    <link href="https://blog.yorkfish.me/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/"/>
+    <id>https://blog.yorkfish.me/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/</id>
+    <published>2020-06-04T04:34:56.000Z</published>
+    <updated>2020-06-04T04:34:56.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/flr.png&quot; alt=&quot;Flr&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://blog.yorkfish.me/2020/Flr%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%87%BA%E8%89%B2%E7%9A%84Flutter%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B/2020/Flr%E7%9A%84%E4%BA%A7%E5%93%81%E8%A7%82%E5%92%8C%E5%BC%80%E5%8F%91%E8%A7%82/readme/&quot;&gt;Flr&lt;/a&gt; 是我主导的和组织团队对外开源的第一款作品——一个用于帮助管理Flutter资源的开发工具系列产品，包括： &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/Fly-Mix/flr-as-plugin&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;flr-as-plugin&lt;/a&gt;：&lt;code&gt;Flr&lt;/code&gt;的Android Studio插件版本&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/Fly-Mix/flr-vscode-extension&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;flr-vscode-extension&lt;/a&gt;：&lt;code&gt;Flr&lt;/code&gt;的VSCode插件版本&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/Fly-Mix/flr-cli&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;flr-cli&lt;/a&gt;：&lt;code&gt;Flr&lt;/code&gt;的命令行版本&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在这里，主要分享一下&lt;code&gt;Flr&lt;/code&gt;背后的产品观和开发观。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="人文" scheme="https://blog.yorkfish.me/categories/%E4%BA%BA%E6%96%87/"/>
+    
+    
+      <category term="人文" scheme="https://blog.yorkfish.me/tags/%E4%BA%BA%E6%96%87/"/>
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Future和Promise的区别</title>
+    <link href="https://blog.yorkfish.me/2020/Future%E5%92%8CPromise%E7%9A%84%E5%8C%BA%E5%88%AB/readme/"/>
+    <id>https://blog.yorkfish.me/2020/Future%E5%92%8CPromise%E7%9A%84%E5%8C%BA%E5%88%AB/readme/</id>
+    <published>2020-05-31T02:10:01.000Z</published>
+    <updated>2020-05-31T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;Future模型和Promise模型是并发编程领域中的两种相近的异步编程模型，Future和Promise则是并发编程语言分别对Future模型和Promise模型进行实现后的产物。&lt;/p&gt;
+&lt;p&gt;Future和Promise之间，既有相同之处，也有不同之处。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+      <category term="基础理论" scheme="https://blog.yorkfish.me/tags/%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Objective-C的一道题：[self class] 与 [super class]</title>
+    <link href="https://blog.yorkfish.me/2020/Objective-C%E7%9A%84%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%9A[self%20class]%20%E4%B8%8E%20[super%20class]/readme/"/>
+    <id>https://blog.yorkfish.me/2020/Objective-C%E7%9A%84%E4%B8%80%E9%81%93%E9%A2%98%EF%BC%9A[self%20class]%20%E4%B8%8E%20[super%20class]/readme/</id>
+    <published>2020-05-12T02:10:01.000Z</published>
+    <updated>2020-05-12T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;这是一道从此篇博客&lt;a href=&quot;https://halfrost.com/objc_runtime_isa_class/&quot; target=&quot;_blank&quot; rel=&quot;noopener external nofollow noreferrer&quot;&gt;《神经病院 Objective-C Runtime 入院第一天—— isa 和 Class》&lt;/a&gt;看到的题目：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;问：下面代码输出什么?&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@implementation Son : Father&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;- (id)init&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    self &amp;#x3D; [super init];&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    if (self)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        NSLog(@&amp;quot;%@&amp;quot;, NSStringFromClass([self class]));&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        NSLog(@&amp;quot;%@&amp;quot;, NSStringFromClass([super class]));&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;return self;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;@end&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;答案是： 输出的都是&lt;code&gt;Son&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;对此，博客作者给出的理由是：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;self和super的区别：&lt;/p&gt;
+&lt;p&gt;self是类的一个隐藏参数，每个方法的实现的第一个参数即为self。&lt;/p&gt;
+&lt;p&gt;super并不是隐藏参数，它实际上只是一个”编译器标示符”，它负责告诉编译器，当调用方法时，去调用父类的方法，而不是本类中的方法。&lt;/p&gt;
+&lt;p&gt;在调用[super class]的时候，runtime会去调用objc_msgSendSuper方法，而不是objc_msgSend&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;OBJC_EXPORT void objc_msgSendSuper(void &amp;#x2F;* struct objc_super *super, SEL op, ... *&amp;#x2F; )&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#x2F;&amp;#x2F;&amp;#x2F; Specifies the superclass of an instance. &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;struct objc_super &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#x2F;&amp;#x2F;&amp;#x2F; Specifies an instance of a class.&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    __unsafe_unretained id receiver;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#x2F;&amp;#x2F;&amp;#x2F; Specifies the particular superclass of the instance to message. &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;#if !defined(__cplusplus)  &amp;amp;&amp;amp;  !__OBJC2__&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#x2F;* For compatibility with old objc-runtime.h header *&amp;#x2F;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    __unsafe_unretained Class class;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;#else&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    __unsafe_unretained Class super_class;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;#endif&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#x2F;* super_class is the first class to search *&amp;#x2F;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;在objc_msgSendSuper方法中，第一个参数是一个objc_super的结构体，这个结构体里面有两个变量，一个是接收消息的receiver，一个是&lt;br&gt;当前类的父类super_class。&lt;/p&gt;
+&lt;p&gt;入院考试第一题错误的原因就在这里，误认为[super class]是调用的[super_class class]。&lt;/p&gt;
+&lt;p&gt;objc_msgSendSuper的工作原理应该是这样的:&lt;br&gt;从objc_super结构体指向的superClass父类的方法列表开始查找selector，找到后以objc-&amp;gt;receiver去调用父类的这个selector。注意，最后的调用者是objc-&amp;gt;receiver，而不是super_class！&lt;/p&gt;
+&lt;p&gt;那么objc_msgSendSuper最后就转变成&lt;/p&gt;
+&lt;figure class=&quot;highlight objectivec&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// 注意这里是从父类开始msgSend，而不是从本类开始，谢谢@Josscii 和他同事共同指点出此处描述的不妥。&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;objc_msgSend(objc_super-&amp;gt;receiver, &lt;span class=&quot;keyword&quot;&gt;@selector&lt;/span&gt;(&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt;))&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;/// Specifies an instance of a class.  这是类的一个实例&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    __&lt;span class=&quot;keyword&quot;&gt;unsafe_unretained&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;id&lt;/span&gt; receiver;   &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// 由于是实例调用，所以是减号方法&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;- (Class)&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; object_getClass(&lt;span class=&quot;keyword&quot;&gt;self&lt;/span&gt;);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;由于找到了父类NSObject里面的class方法的IMP，又因为传入的入参objc_super-&amp;gt;receiver = self。self就是son，调用class，所以父类的方法class执行IMP之后，输出还是son，最后输出两个都一样，都是输出son。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;其实，上述的解答只答对了一大半，还有一小半没正确。没正确的部分主要在于对&lt;code&gt;objc_msgSend&lt;/code&gt;和&lt;code&gt;objc_msgSendSuper&lt;/code&gt;的工作原理理解错误，以及对方法实现的函数原型的忽略。&lt;/p&gt;
+&lt;p&gt;下面将会对此进行重新解答。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="iOS" scheme="https://blog.yorkfish.me/tags/iOS/"/>
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+      <category term="基础理论" scheme="https://blog.yorkfish.me/tags/%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>OOP：方法（method）和函数（function）的区别</title>
+    <link href="https://blog.yorkfish.me/2020/OOP%EF%BC%9A%E6%96%B9%E6%B3%95%EF%BC%88method%EF%BC%89%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%88function%EF%BC%89%E7%9A%84%E5%8C%BA%E5%88%AB/readme/"/>
+    <id>https://blog.yorkfish.me/2020/OOP%EF%BC%9A%E6%96%B9%E6%B3%95%EF%BC%88method%EF%BC%89%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%88function%EF%BC%89%E7%9A%84%E5%8C%BA%E5%88%AB/readme/</id>
+    <published>2020-05-05T02:10:01.000Z</published>
+    <updated>2020-05-05T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;在面向对象领域中，方法（method）和函数（function）有什么区别和关联呢？&lt;/p&gt;
+&lt;h2 id=&quot;方法和函数的区别&quot;&gt;&lt;a href=&quot;#方法和函数的区别&quot; class=&quot;headerlink&quot; title=&quot;方法和函数的区别&quot;&gt;&lt;/a&gt;方法和函数的区别&lt;/h2&gt;&lt;p&gt;在面向对象领域中，方法和函数的区别是：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;定义不一样&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;函数是指一段可以直接被其名称调用的代码块&lt;/li&gt;
+&lt;li&gt;方法指的是一段被它关联的对象通过它的名字调用的代码块&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;与对象的关系不一样&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;函数独立于对象&lt;/li&gt;
+&lt;li&gt;方法依附在对象之上，可以在代码块内直接处理对象上的成员数据&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;传递的数据（比如参数）不一样&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;传递给函数的数据都是明文明确的&lt;/li&gt;
+&lt;li&gt;传递给方法的数据有部分是隐式的，其中隐式部分的数据主要是调用该方法的对象实例&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;可访问范围不一样&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;一般来说（在不考虑module、package等作用域的设计情况下），函数的可访问范围是全局性的，即可以在代码的任何地方访问到&lt;/li&gt;
+&lt;li&gt;方法的可访问范围由其访问修饰符决定，基本上其范围都局限在所依赖的对象内&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+      <category term="基础理论" scheme="https://blog.yorkfish.me/tags/%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>为何重启个人博客？</title>
+    <link href="https://blog.yorkfish.me/2020/%E4%B8%BA%E4%BD%95%E9%87%8D%E5%90%AF%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%EF%BC%9F/readme/"/>
+    <id>https://blog.yorkfish.me/2020/%E4%B8%BA%E4%BD%95%E9%87%8D%E5%90%AF%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%EF%BC%9F/readme/</id>
+    <published>2020-05-01T02:10:01.000Z</published>
+    <updated>2020-05-01T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;为何重启个人博客？&lt;/p&gt;
+&lt;p&gt;这个问题很早就想发文表达了，如今时机终于到了——在这个人博客重建完毕的时候，可以好好的来对此说说了。&lt;/p&gt;
+&lt;p&gt;重启个人博客的念头源自18年8月简书创作平台发的一则公告：&lt;/p&gt;
+&lt;p&gt;&lt;img
+        
+      
+    
+    </summary>
+    
+    
+      <category term="人文" scheme="https://blog.yorkfish.me/categories/%E4%BA%BA%E6%96%87/"/>
+    
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Why has Class-MetaClass design in Objective-C？</title>
+    <link href="https://blog.yorkfish.me/2020/Why%20has%20Class-MetaClass%20design%20in%20Objective-C%EF%BC%9F/readme/"/>
+    <id>https://blog.yorkfish.me/2020/Why%20has%20Class-MetaClass%20design%20in%20Objective-C%EF%BC%9F/readme/</id>
+    <published>2020-04-25T02:10:01.000Z</published>
+    <updated>2020-04-25T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;为什么Objective-C中有Class和MetaClass这种设计？&lt;/p&gt;
+&lt;p&gt;这个问题某日在&lt;a href=&quot;https://juejin.im/entry/59bb8b895188257e70531bf9&quot; target=&quot;_blank&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="iOS" scheme="https://blog.yorkfish.me/tags/iOS/"/>
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+      <category term="基础理论" scheme="https://blog.yorkfish.me/tags/%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Windows与Unix/Linux的区别</title>
+    <link href="https://blog.yorkfish.me/2020/Windows%E4%B8%8EUnix:Linux%E7%9A%84%E5%8C%BA%E5%88%AB/readme/"/>
+    <id>https://blog.yorkfish.me/2020/Windows%E4%B8%8EUnix:Linux%E7%9A%84%E5%8C%BA%E5%88%AB/readme/</id>
+    <published>2020-04-22T02:10:01.000Z</published>
+    <updated>2020-04-22T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;在产品层面，Windows与Unix-Linux的区别&quot;&gt;&lt;a href=&quot;#在产品层面，Windows与Unix-Linux的区别&quot; class=&quot;headerlink&quot; title=&quot;在产品层面，Windows与Unix/Linux的区别&quot;&gt;&lt;/a&gt;在产品层面，Windows与Unix/Linux的区别&lt;/h2&gt;&lt;p&gt;在产品层面上，Windows与Unix/Linux的区别主要体现在二者服务的对象和应用场景上：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Windows系统的服务对象主要是（或者说优先是）个人计算机用户，主要用于为个人计算机用户提供办公（如文档编写、画图）、娱乐（上网浏览、视频播放）、沟通（IM聊天）等服务。&lt;/li&gt;
+&lt;li&gt;Unix/Linux系统服务对象主要是（或者说优先是）企业用户，主要为企业用户提供计算任务的服务，如网络访问服务、数据生成、数据存储等。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在人机关联层面上，，Windows与Unix/Linux的区别主要体现在二者与人和机器的关联程度上：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Windows系统更靠近人这一端，其优先考虑人的操作行为，并在系统设计上优先考虑适应人的操作行为，从而为人操作机器时提供良好的短时延服务&lt;/li&gt;
+&lt;li&gt;Unix/Linux系统更靠近机器这一端，其优先考虑的是多个计算任务的运行，然后在系统设计上优先考虑CPU运行多个计算任务的高效性，从而为客户端提供最大的数据吞吐&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在桌面系统层面上，Windows是一个桌面系统，Unix/Linux则不是一个桌面系统。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/2020/Windows%E4%B8%8EUnix:Linux%E7%9A%84%E5%8C%BA%E5%88%AB/readme/Linux-VS-Windows.png&quot; alt=&quot;Linux-VS-Windows&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="人文" scheme="https://blog.yorkfish.me/categories/%E4%BA%BA%E6%96%87/"/>
+    
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>同步(synchronous)/异步(asynchronous)调用和阻塞(blocking)/非阻塞(non-blocking)调用</title>
+    <link href="https://blog.yorkfish.me/2020/%E5%90%8C%E6%AD%A5(synchronous):%E5%BC%82%E6%AD%A5(asynchronous)%E8%B0%83%E7%94%A8%E5%92%8C%E9%98%BB%E5%A1%9E(blocking):%E9%9D%9E%E9%98%BB%E5%A1%9E(non-blocking)%E8%B0%83%E7%94%A8/readme/"/>
+    <id>https://blog.yorkfish.me/2020/%E5%90%8C%E6%AD%A5(synchronous):%E5%BC%82%E6%AD%A5(asynchronous)%E8%B0%83%E7%94%A8%E5%92%8C%E9%98%BB%E5%A1%9E(blocking):%E9%9D%9E%E9%98%BB%E5%A1%9E(non-blocking)%E8%B0%83%E7%94%A8/readme/</id>
+    <published>2020-04-16T02:10:01.000Z</published>
+    <updated>2020-04-16T02:10:01.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;本文主要介绍同步(synchronous)/异步(asynchronous)调用和阻塞(blocking)/非阻塞(non-blocking)调用的概念以及在现实中会出现的组合场景。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="OS" scheme="https://blog.yorkfish.me/tags/OS/"/>
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+      <category term="基础理论" scheme="https://blog.yorkfish.me/tags/%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Flr：一个出色的Flutter资源管理工具</title>
+    <link href="https://blog.yorkfish.me/2020/Flr%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%87%BA%E8%89%B2%E7%9A%84Flutter%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/readme/"/>
+    <id>https://blog.yorkfish.me/2020/Flr%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%87%BA%E8%89%B2%E7%9A%84Flutter%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/readme/</id>
+    <published>2020-02-23T04:34:56.000Z</published>
+    <updated>2020-02-23T04:34:56.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;/2020/Flr%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%87%BA%E8%89%B2%E7%9A%84Flutter%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/readme/flr.png&quot; alt=&quot;Flr&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;作为一名Flutter开发者，如果你正在烦恼如何简单快捷地在&lt;code&gt;pubspec.yaml&lt;/code&gt;中为多张图片、文本、字体资源添加声明，如果你正在烦恼如何简单安全地在代码中引用资源，那么现在你可以很简单地解决这些问题了——只要你使用了&lt;code&gt;Flr&lt;/code&gt;。&lt;/p&gt;
+&lt;h2 id=&quot;Flr简介&quot;&gt;&lt;a href=&quot;#Flr简介&quot; class=&quot;headerlink&quot; title=&quot;Flr简介&quot;&gt;&lt;/a&gt;Flr简介&lt;/h2&gt;&lt;p&gt;&lt;code&gt;Flr&lt;/code&gt;，读作&lt;code&gt;Flutter-R&lt;/code&gt;，是一个由网易严选智造团队研发的，用于管理Flutter资源的开发工具。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Flr&lt;/code&gt;可以帮助Flutter开发者在修改项目资源后，自动为资源添加声明到&lt;code&gt;pubspec.yaml&lt;/code&gt;以及生成&lt;code&gt;r.g.dart&lt;/code&gt;文件。借助&lt;code&gt;r.g.dart&lt;/code&gt;，Flutter开发者可以在代码中通过资源ID函数的方式应用资源，例如：&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="iOS" scheme="https://blog.yorkfish.me/tags/iOS/"/>
+    
+      <category term="大前端" scheme="https://blog.yorkfish.me/tags/%E5%A4%A7%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="Flutter" scheme="https://blog.yorkfish.me/tags/Flutter/"/>
+    
+      <category term="2020" scheme="https://blog.yorkfish.me/tags/2020/"/>
+    
+      <category term="Android" scheme="https://blog.yorkfish.me/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Flutter：网易智造APP的JSON和模型类相互转换方案</title>
+    <link href="https://blog.yorkfish.me/2019/Flutter%EF%BC%9A%E7%BD%91%E6%98%93%E6%99%BA%E9%80%A0APP%E7%9A%84JSON%E5%92%8C%E6%A8%A1%E5%9E%8B%E7%B1%BB%E7%9B%B8%E4%BA%92%E8%BD%AC%E6%8D%A2%E6%96%B9%E6%A1%88/readme/"/>
+    <id>https://blog.yorkfish.me/2019/Flutter%EF%BC%9A%E7%BD%91%E6%98%93%E6%99%BA%E9%80%A0APP%E7%9A%84JSON%E5%92%8C%E6%A8%A1%E5%9E%8B%E7%B1%BB%E7%9B%B8%E4%BA%92%E8%BD%AC%E6%8D%A2%E6%96%B9%E6%A1%88/readme/</id>
+    <published>2019-12-26T04:34:56.000Z</published>
+    <updated>2019-12-26T04:34:56.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;为减少手写实现JSON和模型类相互转换的序列化、反序列化代码，我们使用了官方推荐的&lt;a href=&quot;https://github.com/dart-lang/json_serializable&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;json_serializable&lt;/a&gt;方案。&lt;/p&gt;
+&lt;p&gt;同时为了解决&lt;code&gt;json_serializable&lt;/code&gt;方案需要手动写为模型类写&lt;code&gt;from/to json&lt;/code&gt;的代码的问题，我们引入了代码片段的解决方案。&lt;/p&gt;
+&lt;p&gt;下面将会对该方案进行具体描述。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;该方案同时适用于VSCode和Android Studio；&lt;/li&gt;
+&lt;li&gt;下文在描述该方案时，只介绍了VSCode端的实施步骤；&lt;/li&gt;
+&lt;li&gt;在Android Studio落地该方案时，只需要把涉及VSCode端的实施对等转换为Android Studio端的实施即可：比如“为VSCode添加代码片段”转换为“为Android Studio添加代码片段”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="2019" scheme="https://blog.yorkfish.me/tags/2019/"/>
+    
+      <category term="大前端&quot;" scheme="https://blog.yorkfish.me/tags/%E5%A4%A7%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="Flutter" scheme="https://blog.yorkfish.me/tags/Flutter/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>git submodule版本检测工具：git_submodule_version_checker</title>
+    <link href="https://blog.yorkfish.me/2019/git%20submodule%E7%89%88%E6%9C%AC%E6%A3%80%E6%B5%8B%E5%B7%A5%E5%85%B7%EF%BC%9Agit_submodule_version_checker/readme/"/>
+    <id>https://blog.yorkfish.me/2019/git%20submodule%E7%89%88%E6%9C%AC%E6%A3%80%E6%B5%8B%E5%B7%A5%E5%85%B7%EF%BC%9Agit_submodule_version_checker/readme/</id>
+    <published>2019-09-23T04:34:56.000Z</published>
+    <updated>2019-09-23T04:34:56.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h2&gt;&lt;p&gt;最近项目由于一些特殊需要，使用了git的submodules工具来引入一个子项目到主项目中。然而考虑submodules工具在团队协作开发的过程中，容易出现子项目版本不一致的问题，于是研发了&lt;a href=&quot;https://github.com/YK-Unit/git_submodule_version_checker&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;git_submodule_version_checker&lt;/a&gt;这款工具来解决。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;1、关于git的submodules工具的介绍可以点击阅读&lt;a href=&quot;https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E5%AD%90%E6%A8%A1%E5%9D%97&quot; target=&quot;_blank&quot; rel=&quot;noopener external nofollow noreferrer&quot;&gt;《Git 工具 - 子模块》&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;2、关于git的submodules工具的优缺点，有兴趣的请直接Google吧，目前网上已经很多资料了。总得来说，其最大的（可能也是唯一的）优点是：允许开发者将一个子项目的git仓库作为主项目git 仓库的子目录，并让子项目保持提交的独立；而其突出的缺点主要有以下几个：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;主项目仓库不记录子项目仓库的文件变动，只记录子项目仓库的commitId，在这个背景下，团队协作开发过程中容易产生子项目版本不一致的问题，具体表现如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;团队协作开发时，若有成员更新了子项目，但是你&lt;code&gt;git pull&lt;/code&gt;后，却没有运行&lt;code&gt;git submodule update --remote&lt;/code&gt;更新子项目本地仓库，那么你极有可能再次把旧的子项目版本信息（子项目仓库依然指向一个旧的commitId）提交至主项目&lt;/li&gt;
+&lt;li&gt;团队协作开发时，若你在本地改动了子项目，并在主项目中提交并推送了子项目版本信息，但却没有推送子项目仓库上的改动，这时其他成员在拉取更新后，运行&lt;code&gt;git submodule update&lt;/code&gt;时，会遇到“找不到所引用的子模块提交”的错误提示&lt;ul&gt;
+&lt;li&gt;每次更新子项目仓库，子项目仓库都会回到游离状态，在这个背景下， 会产生的问题有：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;若你已经切换到指定分支，在更新后，需要手动切换分支；&lt;/li&gt;
+&lt;li&gt;若你对子项目做了修改，但是忘记了提交，这时候执行更新，会导致修改被丢失；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;子项目仓库总是需要手动更新（不过可以通过自动化工具编写帮助解决此问题）&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="iOS" scheme="https://blog.yorkfish.me/tags/iOS/"/>
+    
+      <category term="大前端" scheme="https://blog.yorkfish.me/tags/%E5%A4%A7%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="2019" scheme="https://blog.yorkfish.me/tags/2019/"/>
+    
+      <category term="Android" scheme="https://blog.yorkfish.me/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Xcode 文本宏（Text Macros）的介绍和应用</title>
+    <link href="https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/"/>
+    <id>https://blog.yorkfish.me/2018/Xcode%20%E6%96%87%E6%9C%AC%E5%AE%8F%EF%BC%88Text%20Macros%EF%BC%89%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%BA%94%E7%94%A8/readme/</id>
+    <published>2018-12-21T04:34:56.000Z</published>
+    <updated>2018-12-21T04:34:56.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;文本宏（&lt;code&gt;Text Macros&lt;/code&gt;）是Xcode隐藏的特性，直到Xcode 9.0后，苹果官方才开始允许开发者进行自定义文本宏。下面将会详细介绍文本宏的相关知识和应用场景。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="iOS" scheme="https://blog.yorkfish.me/tags/iOS/"/>
+    
+      <category term="2018" scheme="https://blog.yorkfish.me/tags/2018/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iOS WebView生成长截图的第三种解决方案</title>
+    <link href="https://blog.yorkfish.me/2018/iOS%20WebView%E7%94%9F%E6%88%90%E9%95%BF%E6%88%AA%E5%9B%BE%E7%9A%84%E7%AC%AC%E4%B8%89%E7%A7%8D%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/readme/"/>
+    <id>https://blog.yorkfish.me/2018/iOS%20WebView%E7%94%9F%E6%88%90%E9%95%BF%E6%88%AA%E5%9B%BE%E7%9A%84%E7%AC%AC%E4%B8%89%E7%A7%8D%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/readme/</id>
+    <published>2018-09-15T04:34:56.000Z</published>
+    <updated>2018-09-15T04:34:56.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;由于项目需要，新近实现了一个长截图库 &lt;a href=&quot;https://github.com/YK-Unit/SnapshotKit&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;SnapshotKit&lt;/a&gt;。其中，需要支持 &lt;code&gt;UIWebView&lt;/code&gt;、&lt;code&gt;WKWebView&lt;/code&gt; 组件生成长截图。为了实现这个特性，查阅了很多资料，同时也做了不同的新奇思路尝试，最终实现了一个新的、取巧的技术方案。&lt;/p&gt;
+&lt;p&gt;以下主要总结了在“WebView生成长截图”需求方面，“网上已有方案”和“我的全新方案”的各自实现要点和优缺点。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="技术" scheme="https://blog.yorkfish.me/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="iOS" scheme="https://blog.yorkfish.me/tags/iOS/"/>
+    
+      <category term="2018" scheme="https://blog.yorkfish.me/tags/2018/"/>
+    
+  </entry>
+  
+</feed>

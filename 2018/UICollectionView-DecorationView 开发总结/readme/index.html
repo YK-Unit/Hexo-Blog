@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言在项目新版本中，要实现类似以下的效果：给每个section区域添加一个卡片装饰背景以及一个袖标装饰图标（卡片在所有的cell下，袖标在cell上面）。   这可以通过UICollectionView 的 DecorationView 特性来达到以上效果。本文主要是总结 DecorationView 的实现、重用机制和存在的坑。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UICollectionView-DecorationView 开发总结">
+<meta property="og:url" content="https://blog.yorkfish.me/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言在项目新版本中，要实现类似以下的效果：给每个section区域添加一个卡片装饰背景以及一个袖标装饰图标（卡片在所有的cell下，袖标在cell上面）。   这可以通过UICollectionView 的 DecorationView 特性来达到以上效果。本文主要是总结 DecorationView 的实现、重用机制和存在的坑。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/%E6%95%88%E6%9E%9C-1.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/%E6%95%88%E6%9E%9C-2.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/bug%E7%A4%BA%E4%BE%8B.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/UICollectionView%E7%9A%84%E9%87%8D%E7%94%A8%E9%98%9F%E5%88%97%E5%B1%9E%E6%80%A7.png">
+<meta property="article:published_time" content="2018-05-20T04:34:56.000Z">
+<meta property="article:modified_time" content="2018-05-20T04:34:56.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="2018">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/%E6%95%88%E6%9E%9C-1.png">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>UICollectionView-DecorationView 开发总结 | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          UICollectionView-DecorationView 开发总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-05-20 12:34:56" itemprop="dateCreated datePublished" datetime="2018-05-20T12:34:56+08:00">2018-05-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在项目新版本中，要实现类似以下的效果：给每个<code>section</code>区域添加一个卡片装饰背景以及一个袖标装饰图标（卡片在所有的<code>cell</code>下，袖标在<code>cell</code>上面）。</p>
+<p><img src="/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/%E6%95%88%E6%9E%9C-1.png" alt="效果-1.png"></p>
+<p><img src="/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/%E6%95%88%E6%9E%9C-2.png" alt="效果-2.png"></p>
+<p>这可以通过<code>UICollectionView</code> 的 <code>DecorationView</code> 特性来达到以上效果。本文主要是总结 <code>DecorationView</code> 的实现、重用机制和存在的坑。</p>
+<a id="more"></a>
+
+<h2 id="DecorationView-的实现（包括坑）"><a href="#DecorationView-的实现（包括坑）" class="headerlink" title="DecorationView 的实现（包括坑）"></a>DecorationView 的实现（包括坑）</h2><h3 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h3><ol>
+<li>继承 <code>UICollectionViewLayoutAttributes</code>，实现用于描述装饰视图的布局属性的类，如描述卡片装饰视图的<code>SectionCardDecorationCollectionViewLayoutAttributes</code></li>
+<li>继承 <code>UICollectionReusableView</code>，实现自己的装饰视图，如卡片装饰视图 <code>SectionCardDecorationReusableView</code></li>
+<li>继承 <code>UICollectionViewFlowLayout</code>，实现自己的布局计算：主要是注册自定义的装饰视图和计算管理这些装饰视图的布局属性。如 <code>SectionCardDecorationCollectionViewLayout</code></li>
+<li>继承 <code>UICollectionView</code>，override <code>layoutSubviews</code> 方法，解决装饰视图的一个坑（关于此坑，请看文章具体描述）</li>
+</ol>
+<h3 id="核心代码"><a href="#核心代码" class="headerlink" title="核心代码"></a>核心代码</h3><p><strong>1. 自定义装饰图的布局属性</strong></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// section卡片装饰图的布局属性</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SectionCardDecorationCollectionViewLayoutAttributes</span>: <span class="title">UICollectionViewLayoutAttributes</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//背景色</span></span><br><span class="line">    <span class="keyword">var</span> backgroundColor = <span class="type">UIColor</span>.white</span><br><span class="line"></span><br><span class="line">    <span class="comment">//所定义属性的类型需要遵从 NSCopying 协议</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">copy</span><span class="params">(with zone: NSZone? = <span class="literal">nil</span>)</span></span> -&gt; <span class="type">Any</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> copy = <span class="keyword">super</span>.copy(with: zone) <span class="keyword">as</span>! <span class="type">SectionCardDecorationCollectionViewLayoutAttributes</span></span><br><span class="line">        copy.backgroundColor = <span class="keyword">self</span>.backgroundColor</span><br><span class="line">        <span class="keyword">return</span> copy</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//所定义属性的类型还要实现相等判断方法（isEqual）</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">isEqual</span><span class="params">(<span class="number">_</span> object: <span class="keyword">Any</span>?)</span></span> -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> rhs = object <span class="keyword">as</span>? <span class="type">SectionCardDecorationCollectionViewLayoutAttributes</span> <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> !<span class="keyword">self</span>.backgroundColor.isEqual(rhs.backgroundColor) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.isEqual(object)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>2. 自定义装饰图</strong></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// Section卡片装饰视图</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SectionCardDecorationReusableView</span>: <span class="title">UICollectionReusableView</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">init</span>(frame: <span class="type">CGRect</span>) &#123;</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>(frame: frame)</span><br><span class="line">        <span class="keyword">self</span>.customInit()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>(coder aDecoder: <span class="type">NSCoder</span>) &#123;</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>(coder: aDecoder)!</span><br><span class="line">        <span class="keyword">self</span>.customInit()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">customInit</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.backgroundColor = <span class="type">UIColor</span>.white</span><br><span class="line"></span><br><span class="line">        <span class="keyword">self</span>.layer.cornerRadius = <span class="number">6.0</span></span><br><span class="line">        <span class="keyword">self</span>.layer.borderColor = <span class="type">UIColor</span>.clear.cgColor</span><br><span class="line">        <span class="keyword">self</span>.layer.borderWidth = <span class="number">1.0</span></span><br><span class="line">        <span class="comment">// SketchShadow: color-(0,0,0,0.17),x-0,y-1,blur-2,spread-0</span></span><br><span class="line">        <span class="keyword">self</span>.layer.shadowColor = <span class="type">UIColor</span>.black.cgColor</span><br><span class="line">        <span class="keyword">self</span>.layer.shadowOpacity = <span class="number">0.17</span></span><br><span class="line">        <span class="keyword">self</span>.layer.shadowOffset = <span class="type">CGSize</span>.<span class="keyword">init</span>(width: <span class="number">0</span>, height: <span class="number">1.0</span>)</span><br><span class="line">        <span class="keyword">self</span>.layer.shadowRadius = <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//通过apply方法让自定义属性生效</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">apply</span><span class="params">(<span class="number">_</span> layoutAttributes: UICollectionViewLayoutAttributes)</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.apply(layoutAttributes)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> attr = layoutAttributes <span class="keyword">as</span>? <span class="type">SectionCardDecorationCollectionViewLayoutAttributes</span> <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">self</span>.backgroundColor = attr.backgroundColor</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="type">SectionCardDecorationViewKind</span> = <span class="string">"SectionCardDecorationReuseIdentifier"</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 自定义 <code>UICollectionViewFlowLayout</code></strong></p>
+<blockquote>
+<p>自定义 <code>UICollectionViewFlowLayout</code>，主要是实现自己的布局计算。主要的计算操作有：</p>
+<ul>
+<li>初始化时进行装饰视图的注册操作（对应 <code>setup</code> 方法）</li>
+<li>override <code>prepare</code> 方法，计算生成装饰视图的布局属性</li>
+<li>override <code>layoutAttributesForElements</code> 方法，返回可视范围下装饰视图的布局属性</li>
+</ul>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 卡片式背景CollectionViewLayout</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SectionCardDecorationCollectionViewLayout</span>: <span class="title">UICollectionViewFlowLayout</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//保存所有自定义的section背景的布局属性</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> cardDecorationViewAttrs: [<span class="type">Int</span>:<span class="type">UICollectionViewLayoutAttributes</span>] = [:]</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> armbandDecorationViewAttrs: [<span class="type">Int</span>:<span class="type">UICollectionViewLayoutAttributes</span>] = [:]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">weak</span> <span class="keyword">var</span> decorationDelegate: <span class="type">SectionCardDecorationCollectionViewLayoutDelegate?</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">init</span>() &#123;</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>()</span><br><span class="line">        setup()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>?(coder aDecoder: <span class="type">NSCoder</span>) &#123;</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>(coder: aDecoder)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">awakeFromNib</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.awakeFromNib()</span><br><span class="line"></span><br><span class="line">        setup()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//初始化时进行一些注册操作</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">setup</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="comment">//注册DecorationView</span></span><br><span class="line">        <span class="keyword">self</span>.register(<span class="type">SectionCardDecorationReusableView</span>.<span class="keyword">self</span>,</span><br><span class="line">                      forDecorationViewOfKind: <span class="type">SectionCardDecorationViewKind</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">self</span>.register(<span class="type">SectionCardArmbandDecorationReusableView</span>.<span class="keyword">self</span>,</span><br><span class="line">                      forDecorationViewOfKind: <span class="type">SectionCardArmbandDecorationViewKind</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">prepare</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.prepare()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果collectionView当前没有分区，则直接退出</span></span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> numberOfSections = <span class="keyword">self</span>.collectionView?.numberOfSections</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> flowLayoutDelegate: <span class="type">UICollectionViewDelegateFlowLayout?</span> = <span class="keyword">self</span>.collectionView?.delegate <span class="keyword">as</span>? <span class="type">UICollectionViewDelegateFlowLayout</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 不存在cardDecorationDelegate就退出</span></span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> strongCardDecorationDelegate = decorationDelegate <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 删除旧的装饰视图的布局数据</span></span><br><span class="line">        <span class="keyword">self</span>.cardDecorationViewAttrs.removeAll()</span><br><span class="line">        <span class="keyword">self</span>.armbandDecorationViewAttrs.removeAll()</span><br><span class="line"></span><br><span class="line">        <span class="comment">//分别计算每个section的装饰视图的布局属性</span></span><br><span class="line">        <span class="keyword">for</span> section <span class="keyword">in</span> <span class="number">0</span>..&lt;numberOfSections &#123;</span><br><span class="line">            <span class="comment">//获取该section下第一个，以及最后一个item的布局属性</span></span><br><span class="line">            <span class="keyword">guard</span> <span class="keyword">let</span> numberOfItems = <span class="keyword">self</span>.collectionView?.numberOfItems(inSection: section),</span><br><span class="line">                numberOfItems &gt; <span class="number">0</span>,</span><br><span class="line">                <span class="keyword">let</span> firstItem = <span class="keyword">self</span>.layoutAttributesForItem(at:</span><br><span class="line">                    <span class="type">IndexPath</span>(item: <span class="number">0</span>, section: section)),</span><br><span class="line">                <span class="keyword">let</span> lastItem = <span class="keyword">self</span>.layoutAttributesForItem(at:</span><br><span class="line">                    <span class="type">IndexPath</span>(item: numberOfItems - <span class="number">1</span>, section: section))</span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//获取该section的内边距</span></span><br><span class="line">            <span class="keyword">var</span> sectionInset = <span class="keyword">self</span>.sectionInset</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> inset = flowLayoutDelegate?.collectionView?(<span class="keyword">self</span>.collectionView!,</span><br><span class="line">                                                              layout: <span class="keyword">self</span>, insetForSectionAt: section) &#123;</span><br><span class="line">                sectionInset = inset</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//计算得到该section实际的位置</span></span><br><span class="line">            <span class="keyword">var</span> sectionFrame = firstItem.frame.union(lastItem.frame)</span><br><span class="line">            <span class="comment">//计算得到该section实际的尺寸</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">self</span>.scrollDirection == .horizontal &#123;</span><br><span class="line">                sectionFrame.origin.x -= sectionInset.<span class="keyword">left</span></span><br><span class="line">                sectionFrame.origin.y = sectionInset.top</span><br><span class="line">                sectionFrame.size.width += sectionInset.<span class="keyword">left</span> + sectionInset.<span class="keyword">right</span></span><br><span class="line">                sectionFrame.size.height = <span class="keyword">self</span>.collectionView!.frame.height</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                sectionFrame.origin.x = sectionInset.<span class="keyword">left</span></span><br><span class="line">                sectionFrame.origin.y -= sectionInset.top</span><br><span class="line">                sectionFrame.size.width = <span class="keyword">self</span>.collectionView!.frame.width</span><br><span class="line">                sectionFrame.size.height += sectionInset.top + sectionInset.bottom</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 想判断卡片是否可见</span></span><br><span class="line">            <span class="keyword">let</span> cardDisplayed = strongCardDecorationDelegate.collectionView(<span class="keyword">self</span>.collectionView!, layout: <span class="keyword">self</span>, decorationDisplayedForSectionAt: section)</span><br><span class="line">            <span class="keyword">guard</span> cardDisplayed == <span class="literal">true</span> <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 计算卡片装饰图的属性</span></span><br><span class="line">            <span class="keyword">let</span> cardDecorationInset = strongCardDecorationDelegate.collectionView(<span class="keyword">self</span>.collectionView!, layout: <span class="keyword">self</span>, decorationInsetForSectionAt: section)</span><br><span class="line">            <span class="comment">//计算得到cardDecoration该实际的尺寸</span></span><br><span class="line">            <span class="keyword">var</span> cardDecorationFrame = sectionFrame</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">self</span>.scrollDirection == .horizontal &#123;</span><br><span class="line">                cardDecorationFrame.origin.x = sectionFrame.origin.x + cardDecorationInset.<span class="keyword">left</span></span><br><span class="line">                cardDecorationFrame.origin.y = cardDecorationInset.top</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                cardDecorationFrame.origin.x = cardDecorationInset.<span class="keyword">left</span></span><br><span class="line">                cardDecorationFrame.origin.y = sectionFrame.origin.y + cardDecorationInset.top</span><br><span class="line">            &#125;</span><br><span class="line">            cardDecorationFrame.size.width = sectionFrame.size.width - (cardDecorationInset.<span class="keyword">left</span> + cardDecorationInset.<span class="keyword">right</span>)</span><br><span class="line">            cardDecorationFrame.size.height = sectionFrame.size.height - (cardDecorationInset.top + cardDecorationInset.bottom)</span><br><span class="line"></span><br><span class="line">            <span class="comment">//根据上面的结果计算卡片装饰图的布局属性</span></span><br><span class="line">            <span class="keyword">let</span> cardAttr = <span class="type">SectionCardDecorationCollectionViewLayoutAttributes</span>(</span><br><span class="line">                forDecorationViewOfKind: <span class="type">SectionCardDecorationViewKind</span>,</span><br><span class="line">                with: <span class="type">IndexPath</span>(item: <span class="number">0</span>, section: section))</span><br><span class="line">            cardAttr.frame = cardDecorationFrame</span><br><span class="line"></span><br><span class="line">            <span class="comment">// zIndex用于设置front-to-back层级；值越大，优先布局在上层；cell的zIndex为0</span></span><br><span class="line">            cardAttr.zIndex = -<span class="number">1</span></span><br><span class="line">            <span class="comment">//通过代理方法获取该section卡片装饰图使用的颜色</span></span><br><span class="line">            <span class="keyword">let</span> backgroundColor = strongCardDecorationDelegate.collectionView(<span class="keyword">self</span>.collectionView!, layout: <span class="keyword">self</span>, decorationColorForSectionAt: section)</span><br><span class="line">            cardAttr.backgroundColor = backgroundColor</span><br><span class="line"></span><br><span class="line">            <span class="comment">//将该section的卡片装饰图的布局属性保存起来</span></span><br><span class="line">            <span class="keyword">self</span>.cardDecorationViewAttrs[section] = cardAttr</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 先判断袖标是否可见</span></span><br><span class="line">            <span class="keyword">let</span> armbandDisplayed = strongCardDecorationDelegate.collectionView(<span class="keyword">self</span>.collectionView!, layout: <span class="keyword">self</span>, armbandDecorationDisplayedForSectionAt: section)</span><br><span class="line">            <span class="keyword">guard</span> armbandDisplayed == <span class="literal">true</span> <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 如果袖标图片名称为nil，就跳过</span></span><br><span class="line">            <span class="keyword">guard</span> <span class="keyword">let</span> imageName = strongCardDecorationDelegate.collectionView(<span class="keyword">self</span>.collectionView!, layout: <span class="keyword">self</span>, armbandDecorationImageForSectionAt: section) <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 计算袖标装饰图的属性</span></span><br><span class="line">            <span class="keyword">var</span> armbandDecorationInset = cardDecorationInset</span><br><span class="line">            armbandDecorationInset.<span class="keyword">left</span> = <span class="number">1</span></span><br><span class="line">            armbandDecorationInset.top = <span class="number">18</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> topOffset = strongCardDecorationDelegate.collectionView(<span class="keyword">self</span>.collectionView!, layout: <span class="keyword">self</span>, armbandDecorationTopOffsetForSectionAt: section) &#123;</span><br><span class="line">                armbandDecorationInset.top = topOffset</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//计算得到armbandDecoration该实际的尺寸</span></span><br><span class="line">            <span class="keyword">var</span> armbandDecorationFrame = sectionFrame</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">self</span>.scrollDirection == .horizontal &#123;</span><br><span class="line">                armbandDecorationFrame.origin.x = sectionFrame.origin.x + armbandDecorationInset.<span class="keyword">left</span></span><br><span class="line">                armbandDecorationFrame.origin.y = armbandDecorationInset.top</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                armbandDecorationFrame.origin.x = armbandDecorationInset.<span class="keyword">left</span></span><br><span class="line">                armbandDecorationFrame.origin.y = sectionFrame.origin.y + armbandDecorationInset.top</span><br><span class="line">            &#125;</span><br><span class="line">            armbandDecorationFrame.size.width = <span class="number">80</span></span><br><span class="line">            armbandDecorationFrame.size.height = <span class="number">53</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 根据上面的结果计算袖标装饰视图的布局属性</span></span><br><span class="line">            <span class="keyword">let</span> armbandAttr = <span class="type">SectionCardArmbandDecorationCollectionViewLayoutAttributes</span>(</span><br><span class="line">                forDecorationViewOfKind: <span class="type">SectionCardArmbandDecorationViewKind</span>,</span><br><span class="line">                with: <span class="type">IndexPath</span>(item: <span class="number">0</span>, section: section))</span><br><span class="line">            armbandAttr.frame = armbandDecorationFrame</span><br><span class="line">            armbandAttr.zIndex = <span class="number">1</span></span><br><span class="line">            armbandAttr.imageName = imageName</span><br><span class="line">            <span class="comment">//将该section的袖标装饰视图的布局属性保存起来</span></span><br><span class="line">            <span class="keyword">self</span>.armbandDecorationViewAttrs[section] = armbandAttr</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//返回rect范围下父类的所有元素的布局属性以及子类自定义装饰视图的布局属性</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">layoutAttributesForElements</span><span class="params">(<span class="keyword">in</span> rect: CGRect)</span></span></span><br><span class="line">        -&gt; [<span class="type">UICollectionViewLayoutAttributes</span>]? &#123;</span><br><span class="line">            <span class="keyword">var</span> attrs = <span class="keyword">super</span>.layoutAttributesForElements(<span class="keyword">in</span>: rect)</span><br><span class="line">            attrs?.append(contentsOf: <span class="keyword">self</span>.cardDecorationViewAttrs.values.<span class="built_in">filter</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> rect.intersects($<span class="number">0</span>.frame)</span><br><span class="line">            &#125;)</span><br><span class="line">            attrs?.append(contentsOf: <span class="keyword">self</span>.armbandDecorationViewAttrs.values.<span class="built_in">filter</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> rect.intersects($<span class="number">0</span>.frame)</span><br><span class="line">            &#125;)</span><br><span class="line">            <span class="keyword">return</span> attrs</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//返回对应于indexPath的位置的装饰视图的布局属性</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">layoutAttributesForDecorationView</span><span class="params">(ofKind elementKind: String,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                    at indexPath: IndexPath)</span></span> -&gt; <span class="type">UICollectionViewLayoutAttributes?</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> section = indexPath.section</span><br><span class="line">        <span class="keyword">if</span> elementKind == <span class="type">SectionCardDecorationViewKind</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">self</span>.cardDecorationViewAttrs[section]</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> elementKind == <span class="type">SectionCardArmbandDecorationViewKind</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">self</span>.armbandDecorationViewAttrs[section]</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.layoutAttributesForDecorationView(ofKind: elementKind,</span><br><span class="line">                                                       at: indexPath)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 自定义 <code>UICollectionView</code>，解决装饰视图的坑</strong></p>
+<blockquote>
+<p>在描述这个坑前，需要先普及一个知识点：如何控制<code>UICollectionView</code>的子视图的层级关系，如让卡片装饰视图居于cell下面？</p>
+<p>答案是：使用<code>UICollectionViewLayoutAttributes</code> 的 <code>zIndex</code> 属性。  <code>UICollectionView</code>进行布局时，会依据子视图的布局属性的 <code>zIndex</code> 的值的大小来控制子视图的 <strong>front-to-back</strong> 层级关系（在前或者在后）。cell 的布局属性的 <code>zIndex</code> 的值为0，所以若要卡片装饰视图在 cell 下面，只要设置其布局属性的 <code>zIndex</code> 的值小于0即可。</p>
+<p>在知道这个知识点后，让我来具体描述一下的 <code>UICollectionView</code> 的在装饰视图的坑：在iOS10+上，<code>zIndex</code> 会随机失效。具体表现为，卡片装饰视图的布局属性的 <code>zIndex</code> 设置为 -1，比 cell 的小，理论上进行布局时，卡片装饰视图应该总是在 cell 下面；但是实际上，当你的 <code>UICollectionView</code> 比较复杂时，会 <strong>随机</strong> 出现某些 cell 布局在了卡片装饰视图下面，如图所示（由于这个“随机问题”只出现在具体的项目中，不出现在Demo中，为了方便说明问题，特意“手动”实现这种“随机问题”的效果来生成截图😂）：</p>
+<p><img src="/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/bug%E7%A4%BA%E4%BE%8B.png" alt="bug示例.png"></p>
+<p>对于这个“随机”问题，国外论坛也有对应的<a href="https://github.com/lionheart/openradar-mirror/issues/15453" target="_blank" rel="noopener">讨论</a>。</p>
+<p>在该讨论的帖子下，有开发者建议通过设置 <code>cell.layer.zPosition</code> 来解决，但是我在尝试后，发现这个方法无效。最后，我使用了另一个方法来解决：自定义 <code>UICollectionView</code>，override <code>layoutSubviews</code> 方法，手动调整装饰视图和cell的层级关系。</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CardCollectionView</span>: <span class="title">UICollectionView</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">layoutSubviews</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.layoutSubviews()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> sectionCardViews: [<span class="type">UIView</span>] = []</span><br><span class="line"></span><br><span class="line">        <span class="keyword">self</span>.subviews.forEach &#123; (subview) <span class="keyword">in</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> decorationView = subview <span class="keyword">as</span>? <span class="type">SectionCardDecorationReusableView</span> &#123;</span><br><span class="line">                sectionCardViews.append(decorationView)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        sectionCardViews.forEach &#123; (decorationView) <span class="keyword">in</span></span><br><span class="line">            <span class="keyword">self</span>.sendSubview(toBack: decorationView)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="DecorationView-的重用机制"><a href="#DecorationView-的重用机制" class="headerlink" title="DecorationView 的重用机制"></a>DecorationView 的重用机制</h2><p>在 <code>UICollectionView</code> 里，DecorationView 的重用机制和 Cell 的重用机制是一致的：使用前，先注册（只不过 DecorationView 的注册是由<code>UICollectionViewFlowLayout</code>来发起——实际还是 UICollectionView 进行最终的注册操作）；使用时，由<code>UICollectionView</code>根据上下文创建新的 DecorationView 或者返回旧的 DecorationView。</p>
+<p>那么以上结论的依据是什么呢？请看下面的<code>UICollectionView</code>的重用队列属性即可知道：</p>
+<p><img src="/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/UICollectionView%E7%9A%84%E9%87%8D%E7%94%A8%E9%98%9F%E5%88%97%E5%B1%9E%E6%80%A7.png" alt="UICollectionView的重用队列属性.png"></p>
+<p>在 <code>UICollectionView</code> 里面有2种视图类型的重用队列，分别是 Cell 类型（对应<code>cellReuseQueues</code>） 和 Supplementary 类型（对应<code>supplementaryReuseQueues</code>）。这2种类型的重用机制是一样的。其中，DecorationView 是 SupplementaryView 的一种。</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>最后，附上Demo代码。具体，请点击这个 <a href="https://github.com/YK-Unit/DecorationViewDemo" target="_blank" rel="noopener">repo</a>。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2018/UICollectionView-DecorationView%20%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/readme/" title="UICollectionView-DecorationView 开发总结">https://blog.yorkfish.me/2018/UICollectionView-DecorationView 开发总结/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/2018/" rel="tag"># 2018</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/Gambler's%20Ruin%20Problem%EF%BC%88%E8%B5%8C%E5%BE%92%E7%A0%B4%E4%BA%A7%E9%97%AE%E9%A2%98%EF%BC%89%E7%A0%94%E7%A9%B6%E6%80%BB%E7%BB%93/readme/" rel="prev" title="Gambler's Ruin Problem（赌徒破产问题）研究总结">
+      <i class="fa fa-chevron-left"></i> Gambler's Ruin Problem（赌徒破产问题）研究总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/iOS%20WebView%E7%94%9F%E6%88%90%E9%95%BF%E6%88%AA%E5%9B%BE%E7%9A%84%E7%AC%AC%E4%B8%89%E7%A7%8D%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/readme/" rel="next" title="iOS WebView生成长截图的第三种解决方案">
+      iOS WebView生成长截图的第三种解决方案 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DecorationView-的实现（包括坑）"><span class="nav-number">2.</span> <span class="nav-text">DecorationView 的实现（包括坑）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实现原理"><span class="nav-number">2.1.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#核心代码"><span class="nav-number">2.2.</span> <span class="nav-text">核心代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DecorationView-的重用机制"><span class="nav-number">3.</span> <span class="nav-text">DecorationView 的重用机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结语"><span class="nav-number">4.</span> <span class="nav-text">结语</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言在合并分支时（如合并develop分支到master分支），我们可以有以下命令的选择：  git merge &#x2F;&#x2F; 等同于 git merge --ff git merge --no-ff git rebase  那么，这三者之间有哪些区别呢？对此，我将会通过下面的实验进行比较说明：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="『 merge --ff』 VS 『 merge --no-ff 』 VS『 rebase 』">
+<meta property="og:url" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言在合并分支时（如合并develop分支到master分支），我们可以有以下命令的选择：  git merge &#x2F;&#x2F; 等同于 git merge --ff git merge --no-ff git rebase  那么，这三者之间有哪些区别呢？对此，我将会通过下面的实验进行比较说明：">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/%E5%88%86%E6%94%AF%E5%90%88%E5%B9%B6%E5%AE%9E%E9%AA%8C%E8%AF%B4%E6%98%8E%E5%9B%BE.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/%E5%90%88%E5%B9%B6%E5%89%8D.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/merge-ff.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/merge-no-ff.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/rebase.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/%E5%90%88%E5%B9%B6%E5%89%8D-2.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/merge-ff-2.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/merge-no-ff-2.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/rebase-2.png">
+<meta property="article:published_time" content="2017-05-20T04:34:56.000Z">
+<meta property="article:modified_time" content="2017-05-20T04:34:56.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="2017">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/%E5%88%86%E6%94%AF%E5%90%88%E5%B9%B6%E5%AE%9E%E9%AA%8C%E8%AF%B4%E6%98%8E%E5%9B%BE.png">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>『 merge --ff』 VS 『 merge --no-ff 』 VS『 rebase 』 | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          『 merge --ff』 VS 『 merge --no-ff 』 VS『 rebase 』
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-05-20 12:34:56" itemprop="dateCreated datePublished" datetime="2017-05-20T12:34:56+08:00">2017-05-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在合并分支时（如合并develop分支到master分支），我们可以有以下命令的选择：</p>
+<ul>
+<li><code>git merge // 等同于 git merge --ff</code></li>
+<li><code>git merge --no-ff</code></li>
+<li><code>git rebase</code></li>
+</ul>
+<p>那么，这三者之间有哪些区别呢？对此，我将会通过下面的实验进行比较说明：</p>
+<p><img src="/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/%E5%88%86%E6%94%AF%E5%90%88%E5%B9%B6%E5%AE%9E%E9%AA%8C%E8%AF%B4%E6%98%8E%E5%9B%BE.png" alt="分支合并实验说明图.png"></p>
+<a id="more"></a>
+
+<h2 id="实验说明"><a href="#实验说明" class="headerlink" title="实验说明"></a>实验说明</h2><p>在日常开发中，合并的两个分支（下面将会以日常用到的master分支和develop分支这2个分支进行举例），存在这2个情形：</p>
+<ul>
+<li>master分支和develop分支无分叉：只有develop分支有更新</li>
+<li>master分支和develop分支有分叉：两个分支均有更新</li>
+</ul>
+<p>接下来的实验就是：分别在这两个情形下，分别通过 <code>git merge --ff</code> 、<code>git merge --no-ff</code> 、<code>git rebase</code> 命令把develop分支合并到master分支，然后比较合并后的master的commit-tree。</p>
+<p><code>merge --ff</code> 、<code>merge --no-ff</code> 、<code>rebase</code> 各自合并的步骤如下：</p>
+<ul>
+<li><p>使用 <code>merge --ff</code>合并的步骤</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout master</span><br><span class="line">git merge develop  // 等同 git merge --ff develop</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用 <code>merge --no-ff</code> 合并的步骤</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout master</span><br><span class="line">git merge --no-ff develop</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用 <code>rebase</code> 合并的步骤</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git checkout develop</span><br><span class="line">git rebase master</span><br><span class="line">git checkout master</span><br><span class="line">git merge develop</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h2><h3 id="分支无分叉的场景下："><a href="#分支无分叉的场景下：" class="headerlink" title="分支无分叉的场景下："></a>分支无分叉的场景下：</h3><p>合并前：</p>
+<p><img src="/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/%E5%90%88%E5%B9%B6%E5%89%8D.png" alt="合并前.png"></p>
+<p>分别执行merge/rebase后的情况对比：</p>
+<ul>
+<li><p>应用<code>git merge --ff</code></p>
+<p>  <img src="/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/merge-ff.png" alt="merge-ff.png"></p>
+</li>
+<li><p>应用<code>git merge --no-ff</code></p>
+<p>  <img src="/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/merge-no-ff.png" alt="merge-no-ff.png"></p>
+</li>
+<li><p>应用<code>git rebase</code></p>
+<p>  <img src="/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/rebase.png" alt="rebase.png"></p>
+</li>
+</ul>
+<h3 id="分支有分叉的场景下："><a href="#分支有分叉的场景下：" class="headerlink" title="分支有分叉的场景下："></a>分支有分叉的场景下：</h3><p>合并前：</p>
+<p><img src="/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/%E5%90%88%E5%B9%B6%E5%89%8D-2.png" alt="合并前.png"></p>
+<p>分别执行merge/rebase后的情况对比：</p>
+<ul>
+<li><p>应用<code>git merge --ff</code></p>
+<p>  <img src="/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/merge-ff-2.png" alt="merge-ff.png"> </p>
+</li>
+<li><p>应用<code>git merge --no-ff</code></p>
+<p>  <img src="/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/merge-no-ff-2.png" alt="merge-no-ff.png"></p>
+</li>
+<li><p>应用<code>git rebase</code></p>
+<p>  <img src="/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/rebase-2.png" alt="rebase.png"></p>
+</li>
+</ul>
+<h2 id="实验结论"><a href="#实验结论" class="headerlink" title="实验结论"></a>实验结论</h2><p>通过结果图的对比，可以得到以下结论：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="left">git merge –ff</th>
+<th align="left">git merge –no-ff</th>
+<th align="left">git rebase</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分支无分叉</td>
+<td align="left">把develop上新的commit嫁接到master的最后commit上，效果等同于rebase，让master的commit-tree保持线性</td>
+<td align="left">生成一个新的commit用于记录这个合并操作</td>
+<td align="left">把develop上新的commit嫁接到master的最后一个commit上，让master的commit-tree保持线性</td>
+</tr>
+<tr>
+<td>分支有分叉</td>
+<td align="left">合并时，由于存在冲突，生成一个新的commit用于记录此冲突，效果等同于 merge –no-ff</td>
+<td align="left">生成一个新的commit用于记录这个合并操作</td>
+<td align="left">通过rebase，把develop上新的commit嫁接到master的最后一个commit上，让master的commit-tree保持线性</td>
+</tr>
+</tbody></table>
+<h2 id="怎么选择"><a href="#怎么选择" class="headerlink" title="怎么选择"></a>怎么选择</h2><p>通过合并结果对比可以知道，在合并时，我们就只需要『merge –no-ff 』和 『rebase』之间做选择即可。那么在日常开发中怎么选择呢？根据你的合并目的来：</p>
+<table>
+<thead>
+<tr>
+<th>合并目的</th>
+<th align="center">需要记录此次合并，如合并release分支</th>
+<th align="center">希望commit-tree整洁和成线性，如合并feature分支</th>
+<th align="center">对commit-tree无要求，适合初学者</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>合并命令</td>
+<td align="center">git merge –no-ff</td>
+<td align="center">git rebase</td>
+<td align="center">git merge</td>
+</tr>
+</tbody></table>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.idaima.com/article/6773" target="_blank" rel="noopener external nofollow noreferrer">https://www.idaima.com/article/6773</a><br><a href="http://www.jianshu.com/p/73ea5aca8bf3" target="_blank" rel="noopener external nofollow noreferrer">http://www.jianshu.com/p/73ea5aca8bf3</a><br><a href="http://www.jianshu.com/p/0613d8249863" target="_blank" rel="noopener external nofollow noreferrer">http://www.jianshu.com/p/0613d8249863</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/" title="『 merge --ff』 VS 『 merge --no-ff 』 VS『 rebase 』">https://blog.yorkfish.me/2017/『 merge --ff』 VS 『 merge --no-ff 』 VS『 rebase 』/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/2017/" rel="tag"># 2017</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AASSH-Key/readme/" rel="prev" title="配置多个SSH-Key">
+      <i class="fa fa-chevron-left"></i> 配置多个SSH-Key
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/Unicode%E5%92%8CUTF-8%E3%80%81UTF-16/readme/" rel="next" title="Unicode和UTF-8、UTF-16">
+      Unicode和UTF-8、UTF-16 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验说明"><span class="nav-number">2.</span> <span class="nav-text">实验说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验结果"><span class="nav-number">3.</span> <span class="nav-text">实验结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分支无分叉的场景下："><span class="nav-number">3.1.</span> <span class="nav-text">分支无分叉的场景下：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分支有分叉的场景下："><span class="nav-number">3.2.</span> <span class="nav-text">分支有分叉的场景下：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验结论"><span class="nav-number">4.</span> <span class="nav-text">实验结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#怎么选择"><span class="nav-number">5.</span> <span class="nav-text">怎么选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

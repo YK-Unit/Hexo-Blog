@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言Unicode 和 UTF-8 、UTF-16是什么关系呢？这是我最近好奇的一个问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unicode和UTF-8、UTF-16">
+<meta property="og:url" content="https://blog.yorkfish.me/2017/Unicode%E5%92%8CUTF-8%E3%80%81UTF-16/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言Unicode 和 UTF-8 、UTF-16是什么关系呢？这是我最近好奇的一个问题。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2017/Unicode%E5%92%8CUTF-8%E3%80%81UTF-16/readme/Unicode%E7%BC%96%E7%A0%81%E7%A9%BA%E9%97%B4.png">
+<meta property="article:published_time" content="2017-06-05T04:34:56.000Z">
+<meta property="article:modified_time" content="2017-06-05T04:34:56.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="2017">
+<meta property="article:tag" content="OS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2017/Unicode%E5%92%8CUTF-8%E3%80%81UTF-16/readme/Unicode%E7%BC%96%E7%A0%81%E7%A9%BA%E9%97%B4.png">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2017/Unicode%E5%92%8CUTF-8%E3%80%81UTF-16/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Unicode和UTF-8、UTF-16 | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2017/Unicode%E5%92%8CUTF-8%E3%80%81UTF-16/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Unicode和UTF-8、UTF-16
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-06-05 12:34:56" itemprop="dateCreated datePublished" datetime="2017-06-05T12:34:56+08:00">2017-06-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Unicode 和 UTF-8 、UTF-16是什么关系呢？这是我最近好奇的一个问题。</p>
+<a id="more"></a>
+
+<h2 id="Unicode"><a href="#Unicode" class="headerlink" title="Unicode"></a>Unicode</h2><p>Unicode 是计算机科学领域里的一项业界标准，包括字符集（包含来自世界各国各地的文字字符）和编码方案（将每个字符唯一映射到一个二进制编码）。</p>
+<h3 id="Unicode-编码方式"><a href="#Unicode-编码方式" class="headerlink" title="Unicode 编码方式"></a>Unicode 编码方式</h3><p>Unicode 的基本元素是<em>码位（code point）</em>，共包含1114112个码位。码位通过使用数值表示，数值格式为：<em>U+hhhh</em>，其中每个<em>h</em>代表一个十六进制数字。</p>
+<p>Unicode 的所有码位组成了一个编码空间。在Unicode编码空间，Unicode码位分为17组编排，每组称为<strong>平面</strong>（Plane），而每平面拥有65536个码位。如下图所示：</p>
+<p><img src="/2017/Unicode%E5%92%8CUTF-8%E3%80%81UTF-16/readme/Unicode%E7%BC%96%E7%A0%81%E7%A9%BA%E9%97%B4.png" alt="Unicode 编码空间.png"></p>
+<p>Unicode 遵守既定规则把世界上的字符一一映射到码位中。被使用的码位，其码点值就是对应字符的Unicode编码。如， <a href="http://unicode.org/cldr/utility/character.jsp?a=A" target="_blank" rel="noopener external nofollow noreferrer">U+0041</a> 表示拉丁字母 “A”；<a href="http://unicode.org/cldr/utility/character.jsp?a=40000&B1=Show" target="_blank" rel="noopener external nofollow noreferrer">U+40000</a> 由于没使用，不表示任何字符。</p>
+<p>截止目前，才128237 个码位被使用——编码空间的 12% 被赋值，在后面还有很多空间可应对新出现的字符。</p>
+<h3 id="Unicode-实现方式"><a href="#Unicode-实现方式" class="headerlink" title="Unicode 实现方式"></a>Unicode 实现方式</h3><p>Unicode 规定了字符的编码，但是没有规定如何实现字符的编码。实现编码的方式称为<strong>Unicode 转换格式</strong>（Unicode Transformation Format，简称为UTF）。</p>
+<p>Unicode 编码范围从 U+0000 到 U+10FFFF。对于计算机而言，实现Unicode 编码的最简单方式是使用32-bit表示。但是每个字符使用4个字节表示会造成浪费。当你处理大量文本的时候，使用 32-bit 存储 Unicode 字符会占用大量额外存储、内存、带宽等，因为大多字符的第1和第2个字节都是0。</p>
+<p>在日常，Unicode编码的实现方式主要有：UTF-8、UTF-16。</p>
+<h2 id="UTF-8"><a href="#UTF-8" class="headerlink" title="UTF-8"></a>UTF-8</h2><p>UTF-8是一种可变长度字符编码方式，以8-bit 为单元，使用1至4个字节为每个字符编码。</p>
+<p>UTF-8编码规则如下：</p>
+<table>
+<thead>
+<tr>
+<th>Unicode编码范围 （十六进制）</th>
+<th>UTF-8编码占用字节</th>
+<th>UTF-8 编码（二进制）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>U+0000 - U+007F</td>
+<td>1</td>
+<td>0xxxxxxx</td>
+</tr>
+<tr>
+<td>U+0080 - U+07FF</td>
+<td>2</td>
+<td>110xxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td>U+0800 - U+FFFF</td>
+<td>3</td>
+<td>1110xxxx 10xxxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td>U+10000 - U+10FFFF</td>
+<td>4</td>
+<td>11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>根据字符所在编码范围，确定其所占字节数</p>
+</li>
+<li><p>单字节的字符，字节的第一位设为0</p>
+</li>
+<li><p>n个字节的字符(n&gt;1)，第一个字节的前n位设为1，第n+1位设为0，后面字节的前两位都设为10，这n个字节的其余空位填充该字符unicode码，高位用0补足</p>
+</li>
+</ul>
+<p>下面，以汉字<a href="http://unicode.org/cldr/utility/character.jsp?a=9C7C&B1=Show" target="_blank" rel="noopener external nofollow noreferrer">“鱼”</a>为例，演示如何实现UTF-8编码。</p>
+<p>“鱼”的Unicode编码是<code>9C7C</code>（<code>1001 1100 0111 1100</code>），根据上表，<code>9C7C</code> 的UTF-8编码需要占用3个字节，其格式为<code>1110xxxx 10xxxxxx 10xxxxxx</code>。然后，<strong>从“鱼”的最后一个二进制位开始，依次从后向前填入格式中的<code>x</code>，多出的位补<code>0</code></strong>。这样，就得到“鱼”的UTF-8编码：<code>11101001 10110001 10111100</code>，转换为十六进制就是：<code>E9B1BC</code></p>
+<h2 id="UTF-16"><a href="#UTF-16" class="headerlink" title="UTF-16"></a>UTF-16</h2><p>UTF-16是一种可变长度字符编码方式，以16-bit 为单元，使用2个或4个字节为每个字符编码。</p>
+<p>UTF-16的编码规则如下：</p>
+<table>
+<thead>
+<tr>
+<th>Unicode编码范围 （十六进制）</th>
+<th>UTF-16编码占用字节</th>
+<th>UTF-16 编码（二进制）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>U+0000 - U+FFFF</td>
+<td>2</td>
+<td>xxxxxxxx xxxxxxxx</td>
+</tr>
+<tr>
+<td>U+10000 - U+10FFFF</td>
+<td>4</td>
+<td>110110yyyyyyyyyy 110111xxxxxxxxxx</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>把字符的Unicode编码记作 U</p>
+</li>
+<li><p>若U &lt; 0x10000，字符的UTF-16编码就是U对应的16位二进制：xxxxxxxx xxxxxxxx </p>
+</li>
+<li><p>若U ≥ 0x10000，则把字符拆分为2部分（U+10000 ~ U+10FFFF的空间大小是2^20），前十位映射到U+D800<del>U+DBFF，后十位映射到U+DC00</del>U+DFFF。具体拆分计算如下：</p>
+<ul>
+<li>计算U’=U-0x10000，</li>
+<li>将U’写成二进制形式：yyyy yyyy yyxx xxxx xxxx，</li>
+<li>按照<code>110110yyyyyyyyyy 110111xxxxxxxxxx</code>格式填入，即得到U的UTF-16编码（二进制）：110110yyyyyyyyyy 110111xxxxxxxxxx</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<ul>
+<li>在基本平面（0x0000<del>0xFFFF）内，U+D800</del>U+DFFF是一个空段，即这些码位不对应任何字符</li>
+<li>辅助平面（0x10000~0x10FFFF）的字符位共有2^20个</li>
+<li>U+D800<del>U+DBFF，空间大小是2^10；U+DC00</del>U+DFFF，空间大小是2^10。二者组合起来，正好可以表示辅助平面的字符。即：辅助平面的字符可以拆分为两个基本平面的字符表示——字符前10位映射在U+D800到U+DBFF，后10位映射在U+DC00到U+DFFF</li>
+</ul>
+</blockquote>
+<p>下面，以汉字<a href="http://unicode.org/cldr/utility/character.jsp?a=9C7C&B1=Show" target="_blank" rel="noopener external nofollow noreferrer">“鱼”</a>和字符<a href="http://unicode.org/cldr/utility/character.jsp?a=1D300&B1=Show" target="_blank" rel="noopener external nofollow noreferrer">“𝌀”</a>为例，演示如何实现UTF-16编码。</p>
+<p>“鱼”的Unicode编码是<code>9C7C</code>，根据上表，<code>9C7C &lt; 0x10000</code> ，其UTF-16编码就是其Unicode编码：<code>1001 1100 0111 1100</code>，即0x9C7C。</p>
+<p>“𝌀”的Unicode编码是<code>1D300</code>，根据上表，<code>1D300 &gt; 0x10000</code>，然后减去0x10000，得到0xD300，按<code>yyyy yyyy yyxx xxxx xxxx</code>格式写成二进制是：<code>0000 1101 0011 0000 0000</code>，然后按照<code>110110yyyyyyyyyy 110111xxxxxxxxxx</code>格式填入，得到“𝌀”的UTF-16编码（二进制）：<code>1101100000110100 1101111100000000</code>，即<code>0xD834 0xDF00</code>。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>回到先前的疑问：Unicode 和 UTF-8 、UTF-16是什么关系呢？</p>
+<p>打个比喻，它们理论和实现的关系：Unicode制定了的理论，UTF-8和UTF-16是具体的实现方案。</p>
+<p>而更形象的比喻则是：Unicode相当于中文, UTF-8、 UTF-16等相当于 行书、 楷书、草书等各种书写方式。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://zh.wikipedia.org/wiki/Unicode" target="_blank" rel="noopener external nofollow noreferrer">https://zh.wikipedia.org/wiki/Unicode</a><br><a href="https://zh.wikipedia.org/wiki/UTF-8" target="_blank" rel="noopener external nofollow noreferrer">https://zh.wikipedia.org/wiki/UTF-8</a><br><a href="https://zh.wikipedia.org/wiki/UTF-16" target="_blank" rel="noopener external nofollow noreferrer">https://zh.wikipedia.org/wiki/UTF-16</a><br><a href="http://www.ruanyifeng.com/blog/2014/12/unicode.html" target="_blank" rel="noopener external nofollow noreferrer">http://www.ruanyifeng.com/blog/2014/12/unicode.html</a><br><a href="http://blog.jobbole.com/111261/" target="_blank" rel="noopener external nofollow noreferrer">http://blog.jobbole.com/111261/</a><br><a href="http://blog.csdn.net/softman11/article/details/6124345" target="_blank" rel="noopener external nofollow noreferrer">http://blog.csdn.net/softman11/article/details/6124345</a><br><a href="https://www.zhihu.com/question/23374078" target="_blank" rel="noopener external nofollow noreferrer">https://www.zhihu.com/question/23374078</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2017/Unicode%E5%92%8CUTF-8%E3%80%81UTF-16/readme/" title="Unicode和UTF-8、UTF-16">https://blog.yorkfish.me/2017/Unicode和UTF-8、UTF-16/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/2017/" rel="tag"># 2017</a>
+              <a href="/tags/OS/" rel="tag"># OS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/%E3%80%8E%20merge%20--ff%E3%80%8F%20VS%20%E3%80%8E%20merge%20--no-ff%20%E3%80%8F%20VS%E3%80%8E%20rebase%20%E3%80%8F/readme/" rel="prev" title="『 merge --ff』 VS 『 merge --no-ff 』 VS『 rebase 』">
+      <i class="fa fa-chevron-left"></i> 『 merge --ff』 VS 『 merge --no-ff 』 VS『 rebase 』
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/Airbnb%20%E5%BC%80%E6%BA%90%E5%8A%A8%E7%94%BB%E5%BA%93%20Lottie%20%E4%BB%8B%E7%BB%8D%E4%BB%A5%E5%8F%8A%E8%AF%A6%E7%BB%86%E7%A4%BA%E4%BE%8B/readme/" rel="next" title="Airbnb 开源动画库 Lottie 介绍以及详细示例">
+      Airbnb 开源动画库 Lottie 介绍以及详细示例 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unicode"><span class="nav-number">2.</span> <span class="nav-text">Unicode</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Unicode-编码方式"><span class="nav-number">2.1.</span> <span class="nav-text">Unicode 编码方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unicode-实现方式"><span class="nav-number">2.2.</span> <span class="nav-text">Unicode 实现方式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UTF-8"><span class="nav-number">3.</span> <span class="nav-text">UTF-8</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UTF-16"><span class="nav-number">4.</span> <span class="nav-text">UTF-16</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结论"><span class="nav-number">5.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

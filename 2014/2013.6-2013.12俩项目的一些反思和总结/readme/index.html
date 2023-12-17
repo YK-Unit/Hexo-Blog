@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="从2013.6月中旬到2013.12月，连续参与设计和开发了两个产品（一个是掌拍，另一个是网球圈），并独立完成了这两个产品的 iOS 客户端开发，期间可谓获益良多，一番反省总结归纳，得益主要在『沟通』『产品设计』『技术』这三方面。 沟通如何才能有效地沟通呢？  就事论事，理性讨论，拒绝个人情绪，特别是不良情绪。  以『发现问题，解决问题』为沟通目的。  坚决把讨论的问题限定在指定范围内，拒绝越界、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2013.6-2013.12俩项目的一些反思和总结">
+<meta property="og:url" content="https://blog.yorkfish.me/2014/2013.6-2013.12%E4%BF%A9%E9%A1%B9%E7%9B%AE%E7%9A%84%E4%B8%80%E4%BA%9B%E5%8F%8D%E6%80%9D%E5%92%8C%E6%80%BB%E7%BB%93/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="从2013.6月中旬到2013.12月，连续参与设计和开发了两个产品（一个是掌拍，另一个是网球圈），并独立完成了这两个产品的 iOS 客户端开发，期间可谓获益良多，一番反省总结归纳，得益主要在『沟通』『产品设计』『技术』这三方面。 沟通如何才能有效地沟通呢？  就事论事，理性讨论，拒绝个人情绪，特别是不良情绪。  以『发现问题，解决问题』为沟通目的。  坚决把讨论的问题限定在指定范围内，拒绝越界、">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2014-03-26T07:39:13.000Z">
+<meta property="article:modified_time" content="2014-03-26T07:39:13.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="2014">
+<meta property="article:tag" content="人文">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2014/2013.6-2013.12%E4%BF%A9%E9%A1%B9%E7%9B%AE%E7%9A%84%E4%B8%80%E4%BA%9B%E5%8F%8D%E6%80%9D%E5%92%8C%E6%80%BB%E7%BB%93/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>2013.6-2013.12俩项目的一些反思和总结 | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2014/2013.6-2013.12%E4%BF%A9%E9%A1%B9%E7%9B%AE%E7%9A%84%E4%B8%80%E4%BA%9B%E5%8F%8D%E6%80%9D%E5%92%8C%E6%80%BB%E7%BB%93/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2013.6-2013.12俩项目的一些反思和总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2014-03-26 15:39:13" itemprop="dateCreated datePublished" datetime="2014-03-26T15:39:13+08:00">2014-03-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BA%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">人文</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>从2013.6月中旬到2013.12月，连续参与设计和开发了两个产品（一个是<a href="https://itunes.apple.com/cn/app/zhang-pai/id696406058?mt=8" target="_blank" rel="noopener external nofollow noreferrer">掌拍</a>，另一个是<a href="https://itunes.apple.com/us/app/wang-qiu-quan/id747600291?ls=1&mt=8" target="_blank" rel="noopener external nofollow noreferrer">网球圈</a>），并独立完成了这两个产品的 iOS 客户端开发，期间可谓获益良多，一番反省总结归纳，得益主要在『沟通』『产品设计』『技术』这三方面。</p>
+<h2 id="沟通"><a href="#沟通" class="headerlink" title="沟通"></a>沟通</h2><p>如何才能有效地沟通呢？</p>
+<ol>
+<li><p>就事论事，理性讨论，拒绝个人情绪，特别是不良情绪。</p>
+</li>
+<li><p>以『发现问题，解决问题』为沟通目的。</p>
+</li>
+<li><p>坚决把讨论的问题限定在指定范围内，拒绝越界、跑题！</p>
+</li>
+<li><p>准备充分，准备好：『问题』、『论据』、『解决方案』（至少得清楚自己想讨论的是什么问题）。</p>
+</li>
+</ol>
+<p>以上就是我在参与第一个产品开发时，和负责人『吵架』n 次，失败 n 次后得到的经验和教训。此人是搞营销运维的，口头能力甚强，好几次和他讨论问题的时候，就被他用『偷换概念』+『跑题』这两招击败o(╯□╰)o；然后有几次是被他的市场经验打败（这招『扬长避短』甚是好用的，→_→）。。。</p>
+<p>而最重要的教训就是发现一旦带着个人情绪进行讨论的时候，很容易擦枪走火，问题不但没解决，还让彼此都不爽。影响工作~~囧rz</p>
+<h2 id="产品设计"><a href="#产品设计" class="headerlink" title="产品设计"></a>产品设计</h2><p>产品设计方面的感悟主要是：</p>
+<ol>
+<li><p>从『问题』本身出发（由于想解决一个这么样的问题，所以才做了这么样的一个产品）。</p>
+</li>
+<li><p>做你需要的而不是做你想要的（focus on what you need rather than what you want）。</p>
+</li>
+<li><p><code>为产品设计一套完整的（最好是完善甚至是完美的）『游戏规则』。</code>如果规则模糊不清晰，一来会导致业务流程上产生 bug，二来不利于开发人员的开发。</p>
+<p> PS：<code>但是规则对用户而言应该是是友善的、简单可行的。</code></p>
+</li>
+<li><p>先确定业务，再确定功能，继而确定界面，最后根据业务、功能、界面UI等需求确定技术方案。</p>
+</li>
+<li><p><code>『和谐』</code>。产品（主要指客户端）应该有统一的风格，一是 UI 的风格一致，如 颜色、色调、背景图、指示器、文字字体等各种元素应该有一致的风格；二是交互方式的风格一致，如统一使用一种方式（点击或者滑动）来切换视图，各种交互语言（UI 中的文本语言以及提示用户操作、网络超时、任务失败等各种提示语）的风格要一致。</p>
+</li>
+<li><p><code>『理所当然』</code>。让用户使用你的产品的时候会觉得『理所当然，就该如此』，像在网速快的时候，一些交互操作应该可以考虑不提示用户交互的进度吧？</p>
+</li>
+</ol>
+<a id="more"></a>
+
+<h2 id="技术"><a href="#技术" class="headerlink" title="技术"></a>技术</h2><p>技术方面的收获主要是：</p>
+<ol>
+<li><p>更清楚了解 MVC 架构。</p>
+</li>
+<li><p>对 CoreData 的设计和使用的认知有了质的提升，特别是对 CoreData 的 Relationships（关系）、<a href="https://developer.apple.com/library/ios/documentation/cocoa/Conceptual/CoreData/Articles/cdMOM.html" target="_blank" rel="noopener external nofollow noreferrer">Entity Inheritance</a>（实体继承）、Multithreading（多线程）这三方面有了深入的认识。</p>
+</li>
+<li><p>模块化设计的意识有了长进，如网球圈客户端设计时，有意识地设计一个单独模块管理定位。</p>
+</li>
+<li><p>界面中需要经常更新的一些元素不要写或写死在 xib/storyboard 中，尽量使用 code 来控制，以及根据返回的数据逐步显示对应的界面元素。</p>
+</li>
+</ol>
+<h2 id="其它反思"><a href="#其它反思" class="headerlink" title="其它反思"></a>其它反思</h2><ol>
+<li><p>以史为鉴，从别人的错误中学习，防止跌入同一个陷阱。</p>
+<p> 像在做掌拍这个产品的时候，跟电信的领导有过接触，发现他们会由于知识的盲点而造成无知，继而提出乱七八糟的想法和需求。不过，想来，自己也常由于知识的盲点而造成无知，所以保持开阔视野，吸收学习新知识才是王道啊。</p>
+</li>
+<li><p><code>保持高工作效率的最好方法是：保持大脑和身体的活力性！</code></p>
+<p> <code>a. 每天开始工作前，定制好一天的工作目标和工作量。</code></p>
+<p> <code>b. 养成良好的工作规律，如 code 两小时，break 半小时，周而复始。</code></p>
+<p> <code>c. 拒绝非必要性的加班，坚拒长时间性的加班。</code></p>
+</li>
+<li><p>提升产品的价值需要整个团队的团结协助和坦诚，特别是队员们的坦诚：因为队员们在开发该产品的过程<br>中产生的有关该产品的感觉是很有讨论价值的，也特别有助于产品的改进。得知以及讨论他们的感觉认知后，才可<br>让他们认可产品（因为产品的设计从此也有了他们的身影所在），而只有队员们认可了产品，队员们才会有动力和激情做到极致。</p>
+</li>
+</ol>
+<p/>
+<p align="right">2013-12-03于华工信元南区</p>
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2014/2013.6-2013.12%E4%BF%A9%E9%A1%B9%E7%9B%AE%E7%9A%84%E4%B8%80%E4%BA%9B%E5%8F%8D%E6%80%9D%E5%92%8C%E6%80%BB%E7%BB%93/readme/" title="2013.6-2013.12俩项目的一些反思和总结">https://blog.yorkfish.me/2014/2013.6-2013.12俩项目的一些反思和总结/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/2014/" rel="tag"># 2014</a>
+              <a href="/tags/%E4%BA%BA%E6%96%87/" rel="tag"># 人文</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2014/Compile%20WebRTC%20for%20iOS%20on%20Mac%20OS%20X/readme/" rel="prev" title="Compile WebRTC for iOS on Mac OS X">
+      <i class="fa fa-chevron-left"></i> Compile WebRTC for iOS on Mac OS X
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2014/CoreData%EF%BC%9AEntity%20Inheritance/readme/" rel="next" title="CoreData: Entity Inheritance">
+      CoreData: Entity Inheritance <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#沟通"><span class="nav-number">1.</span> <span class="nav-text">沟通</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#产品设计"><span class="nav-number">2.</span> <span class="nav-text">产品设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术"><span class="nav-number">3.</span> <span class="nav-text">技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它反思"><span class="nav-number">4.</span> <span class="nav-text">其它反思</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言UIImage和UIImageViewUIImage 和 UIImageView 的角色类似于 MVC 架构模式中的数据和视图，如下图所示。  UIImage 是 iOS 中处理图像的高级类。创建一个 UIImage 实例只会加载 Data Buffer，将图像显示到屏幕上才会触发解码，也就是 Data Buffer 解码为 Image Buffer。Image Buffer 也关联在 UII">
+<meta property="og:type" content="article">
+<meta property="og:title" content="当第一张图片加载渲染时（渲染原理+图片解码）">
+<meta property="og:url" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言UIImage和UIImageViewUIImage 和 UIImageView 的角色类似于 MVC 架构模式中的数据和视图，如下图所示。  UIImage 是 iOS 中处理图像的高级类。创建一个 UIImage 实例只会加载 Data Buffer，将图像显示到屏幕上才会触发解码，也就是 Data Buffer 解码为 Image Buffer。Image Buffer 也关联在 UII">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/UIIamgeView-Model.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/UIView-Render.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/layer-tree.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/UIKit.png">
+<meta property="article:published_time" content="2020-08-05T02:10:01.000Z">
+<meta property="article:modified_time" content="2020-08-05T02:10:01.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="2020">
+<meta property="article:tag" content="EveryThingFromTheFirstClick(iOS Version)">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/UIIamgeView-Model.png">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>当第一张图片加载渲染时（渲染原理+图片解码） | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          当第一张图片加载渲染时（渲染原理+图片解码）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-08-05 10:10:01" itemprop="dateCreated datePublished" datetime="2020-08-05T10:10:01+08:00">2020-08-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%9F%A5%E8%AF%86%E5%A4%8D%E7%9B%98/" itemprop="url" rel="index"><span itemprop="name">知识复盘</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="UIImage和UIImageView"><a href="#UIImage和UIImageView" class="headerlink" title="UIImage和UIImageView"></a>UIImage和UIImageView</h2><p>UIImage 和 UIImageView 的角色类似于 MVC 架构模式中的数据和视图，如下图所示。</p>
+<p><img src="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/UIIamgeView-Model.png" alt="image"></p>
+<p>UIImage 是 iOS 中处理图像的高级类。创建一个 UIImage 实例只会加载 Data Buffer，将图像显示到屏幕上才会触发解码，也就是 Data Buffer 解码为 Image Buffer。Image Buffer 也关联在 UIImage 上。</p>
+<blockquote>
+<ul>
+<li><p>Data Buffer 是存储在内存中的原始数据，图像可以使用不同的格式保存，如 jpg、png。Data Buffer 的信息不能用来描述图像的像素信息。</p>
+</li>
+<li><p>Image Buffer 是图像在内存中的存在方式，其中每个元素描述了一个像素点。Image Buffer 的大小和图像的大小成正比。</p>
+</li>
+</ul>
+</blockquote>
+<p>参考资料：</p>
+<ul>
+<li><a href="https://blog.jamchenjun.com/2018/08/22/image-and-graphics-best-practices.html" target="_blank" rel="noopener external nofollow noreferrer">《iOS 图像解码和最佳实践》</a></li>
+</ul>
+<h2 id="UIImage解码"><a href="#UIImage解码" class="headerlink" title="UIImage解码"></a>UIImage解码</h2><p>在iOS中，UIImage解码分为2种：</p>
+<ul>
+<li><p>隐式解码</p>
+<p>  将图像显示到屏幕上会触发隐式解码。（必须同时满足图像被设置到 UIImageView 中、UIImageView 添加到视图，才会触发图像解码。)</p>
+  <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">UIImageView</span> *imageView = [[<span class="built_in">UIImageView</span> alloc] init];</span><br><span class="line">[<span class="keyword">self</span>.view addSubview:imageView];</span><br><span class="line">[imageView setImage:image];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>手动解码</p>
+<p>  使用iOS提供的图形框架（UIKit、Core Graphics、Image I/O等）提供的API进行手动解码</p>
+</li>
+</ul>
+<p>参考资料：</p>
+<ul>
+<li><a href="https://www.jianshu.com/p/de7b6aede888" target="_blank" rel="noopener external nofollow noreferrer">《iOS的5种图片缩略技术以及性能探讨》</a><h2 id="UIImage优化实践"><a href="#UIImage优化实践" class="headerlink" title="UIImage优化实践"></a>UIImage优化实践</h2></li>
+</ul>
+<ol>
+<li><p>减少内存占用</p>
+<p> 当实际显示的图片尺寸小于图片真实大小时，对图片进行向下采样，生成缩略图供UI层使用。</p>
+</li>
+<li><p>优化 CPU 使用</p>
+<p> 建立后台线程，在CPU空闲阶段（监听Runloop状态，进入休眠状态时，主线程变空闲）对图片进行提前解码。</p>
+</li>
+</ol>
+<h2 id="UIView的渲染"><a href="#UIView的渲染" class="headerlink" title="UIView的渲染"></a>UIView的渲染</h2><p>基于Core Animation的视图渲染流水线</p>
+<p><img src="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/UIView-Render.png" alt="image"></p>
+<ol>
+<li><p>Commit Transaction</p>
+<ul>
+<li><p>Layout（布局）：Set up the views</p>
+<p>  执行细节：调用<code>layoutSubviews</code>（若重写了）；创建View和执行<code>addSubview:</code>；填充内容和数据查找；一般会造成CPU和 I/O瓶颈</p>
+<p>  可优化手段：简化view的布局和层级；减少使用xib、storyboard等</p>
+</li>
+<li><p>Display（显示）：Draw the views</p>
+<p>  执行细节： 调用 <code>drawRect:</code>（若重写了）；绘制字符串；一般会造成CPU和 内存瓶颈</p>
+<p>  可优化手段：减少自定义绘制（<code>drawRect:</code>），或者在自定义绘制中减少字符串、圆角layer等图层绘制</p>
+</li>
+<li><p>Prepare（准备）：Additional Core Animation work</p>
+<p>  执行细节：图片解码；图片格式转换（转换GPU不支持的图片）；一般会造成CPU和 内存瓶颈</p>
+<p>  可优化手段：异步线程解码图片；对大图进行向下采样显示；使用GPU支持的图片</p>
+</li>
+<li><p>Commit（提交）：Package up layers and send them to render server</p>
+<p>  执行细节：递归处理Layer-Tree：打包Layer信息并通过IPC发送到Render Server进程；如果图层树太复杂会消耗很大，对性能有很大的影响</p>
+<p>  可优化手段：简化图层树（如果图层树太复杂会消耗很大，对性能有很大的影响）</p>
+</li>
+</ul>
+</li>
+<li><p>Decode</p>
+</li>
+<li><p>DrawCalls</p>
+</li>
+<li><p>Render</p>
+</li>
+<li><p>Display</p>
+</li>
+</ol>
+<h2 id="Core-Animation-性能优化"><a href="#Core-Animation-性能优化" class="headerlink" title="Core Animation 性能优化"></a>Core Animation 性能优化</h2><ul>
+<li><a href="http://zxfcumtcs.github.io/2015/03/21/CoreAnimation/" target="_blank" rel="noopener external nofollow noreferrer">《Core Animation 性能优化》</a></li>
+</ul>
+<h2 id="Core-Animation执行动画时涉及的图层树类型有几种"><a href="#Core-Animation执行动画时涉及的图层树类型有几种" class="headerlink" title="Core Animation执行动画时涉及的图层树类型有几种"></a>Core Animation执行动画时涉及的图层树类型有几种</h2><p><img src="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/layer-tree.png" alt="image"></p>
+<ul>
+<li><p>model layer tree (or simply “layer tree”) </p>
+<p>  模型层树的对象（<code>modelLayer</code>）用于存放动画的目标值（比如起始值和结束值）。</p>
+</li>
+<li><p>presentation tree</p>
+<p>  表示层树的对象（<code>presentationLayer</code>）用于给上层访问动画过程中的实时值。</p>
+</li>
+<li><p>render tree</p>
+<p>  渲染树的对象（<code>renderLayer</code>）用于存放动画的绘制数据，供图形系统绘制动画使用，对上层屏蔽。</p>
+<p>  render tree 在系统的Render Server进程中，是真正处理动画的地方。而且线程的优先级也比我们主线程优先级高。所以有时候即使我们的App主线程busy，依然不会影响到手机屏幕的绘制工作</p>
+</li>
+</ul>
+<blockquote>
+<ul>
+<li><code>model layer tree</code>其实就是我们口中常说的图层树（<code>layer tree</code>）</li>
+<li>通过<code>layer.modelLayer</code>可以获得一个layer对象的<code>model layer object</code>；而事实上<code>layer.modelLayer</code>就是Layer对象本身，即<code>layer == layer.modelLayer</code></li>
+<li>通过<code>layer.presentationLayer</code>可以获得一个layer对象的<code>presentation layer object</code>的副本</li>
+</ul>
+</blockquote>
+<h2 id="iOS-渲染框架"><a href="#iOS-渲染框架" class="headerlink" title="iOS 渲染框架"></a>iOS 渲染框架</h2><ul>
+<li><p>UIKit Framework</p>
+<ul>
+<li>正如Apple官方文档对UIKit Framework的介绍，它主要提供了：界面呈现能力、事件响应能力、驱动RunLoop运行和与系统内核通信的数据。简单来说就是：主要负责界面展示、事件响应以及是RunLoop的需求方。UIView当然是属于UIKit Framework。</li>
+</ul>
+</li>
+<li><p>QuartzCore Framework(CoreAnimation)</p>
+<ul>
+<li>正如Apple官方文档对Quarz Core Framework的介绍，它提供了图形处理和视频图像处理的能力。简单来说就是：QuartzCore Framework负责把图形图像最终显示到屏幕上，这里我觉得应该是特指CoreAnimation。不要从字面上去理解CoreAnimation的职责，因为它的核心工作不单是负责动画的创建和执行，它还负责把我们用代码构建的界面显示到屏幕上，实际上是CoreAnimation通过OpenGLES做的。（别急，虽然这里面的机理很复杂，但是在后面会提到）。CALayer是属于QuarzCore Framework下的CoreAnimation</li>
+</ul>
+</li>
+<li><p>CoreGraphics Framework</p>
+<ul>
+<li>如Apple官方文档对Core Graphics Framework的介绍。CoreGraphics Framework一个基于C库函数的高级绘画引擎，它提供了非常强大的轻量级2D渲染能力。可以使用CoreGraphics处理基于path的绘图工作(如，CGPath)、变形操作(如，CGAffineTransform)、颜色管理(如，CGColor)、离屏渲染(如，CGBitmapContextCreateImage)、渲染模式(patterns)、渐变(gradients)、阴影效果、图形数据管理、图形创建、蒙版以及PDF文档的创建、显示和解析。 千万别和QuartzCore混淆，CoreGraphics负责创建显示到屏幕上的数据模型，QuartzCore(CoreAnimation –&gt; OpenGLES)负责把CoreGraphics创建的数据模型真正显示到屏幕上。 CG打头的类都是属于CoreGraphics Framework</li>
+<li>当开发者需要在 运行时创建图像 时，可以使用 Core Graphics 去绘制。与之相对的是 运行前创建图像，例如用 Photoshop 提前做好图片素材直接导入应用。相比之下，我们更需要 Core Graphics 去在运行时实时计算、绘制一系列图像帧来实现动画。</li>
+</ul>
+</li>
+<li><p>Core Image</p>
+<ul>
+<li>Core Image 与 Core Graphics 恰恰相反，Core Graphics 用于在 运行时创建图像，而 Core Image 是用来处理 运行前创建的图像 的。Core Image 框架拥有一系列现成的图像过滤器，能对已存在的图像进行高效的处理。</li>
+<li>大部分情况下，Core Image 会在 GPU 中完成工作，但如果 GPU 忙，会使用 CPU 进行处理。</li>
+</ul>
+</li>
+<li><p>OpenGL ES</p>
+<ul>
+<li>OpenGL ES（OpenGL for Embedded Systems，简称 GLES），是 OpenGL 的子集。在前面的 图形渲染原理综述 一文中提到过 OpenGL 是一套第三方标准，函数的内部实现由对应的 GPU 厂商开发实现。</li>
+</ul>
+</li>
+<li><p>Metal</p>
+<ul>
+<li>Metal 类似于 OpenGL ES，也是一套第三方标准，具体实现由苹果实现。大多数开发者都没有直接使用过 Metal，但其实所有开发者都在间接地使用 Metal。Core Animation、Core Image、SceneKit、SpriteKit 等等渲染框架都是构建于 Metal 之上的。</li>
+<li>当在真机上调试 OpenGL 程序时，控制台会打印出启用 Metal 的日志。根据这一点可以猜测，Apple 已经实现了一套机制将 OpenGL 命令无缝桥接到 Metal 上，由 Metal 担任真正于硬件交互的工作。</li>
+</ul>
+</li>
+</ul>
+<h2 id="UIKit-Framework、QuartzCore-Framework-CoreAnimation-、CoreGraphics-Framework-三者的关系"><a href="#UIKit-Framework、QuartzCore-Framework-CoreAnimation-、CoreGraphics-Framework-三者的关系" class="headerlink" title="UIKit Framework、QuartzCore Framework(CoreAnimation)、CoreGraphics Framework 三者的关系"></a>UIKit Framework、QuartzCore Framework(CoreAnimation)、CoreGraphics Framework 三者的关系</h2><p><img src="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/UIKit.png" alt="image"></p>
+<p>UIKit 建立在 Core Animation 基础之上，在 Core Animation 之下是 OpenGL ES 和 Core Graphics，分别对应 GPU 和 CPU。Core Animation 本身并不做渲染工作，而是将这些工作转交给 Graphics Hardware(GPU)处理。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/" title="当第一张图片加载渲染时（渲染原理+图片解码）">https://blog.yorkfish.me/2020/当第一张图片加载渲染时（渲染原理+图片解码）/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/2020/" rel="tag"># 2020</a>
+              <a href="/tags/EveryThingFromTheFirstClick-iOS-Version/" rel="tag"># EveryThingFromTheFirstClick(iOS Version)</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/" rel="prev" title="当用户第一次点击UIView（关于iOS硬件事件的那些事）">
+      <i class="fa fa-chevron-left"></i> 当用户第一次点击UIView（关于iOS硬件事件的那些事）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/" rel="next" title="手Y工程实践之Podfile.lock管理新方案">
+      手Y工程实践之Podfile.lock管理新方案 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UIImage和UIImageView"><span class="nav-number">2.</span> <span class="nav-text">UIImage和UIImageView</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UIImage解码"><span class="nav-number">3.</span> <span class="nav-text">UIImage解码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UIImage优化实践"><span class="nav-number">4.</span> <span class="nav-text">UIImage优化实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UIView的渲染"><span class="nav-number">5.</span> <span class="nav-text">UIView的渲染</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Core-Animation-性能优化"><span class="nav-number">6.</span> <span class="nav-text">Core Animation 性能优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Core-Animation执行动画时涉及的图层树类型有几种"><span class="nav-number">7.</span> <span class="nav-text">Core Animation执行动画时涉及的图层树类型有几种</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS-渲染框架"><span class="nav-number">8.</span> <span class="nav-text">iOS 渲染框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UIKit-Framework、QuartzCore-Framework-CoreAnimation-、CoreGraphics-Framework-三者的关系"><span class="nav-number">9.</span> <span class="nav-text">UIKit Framework、QuartzCore Framework(CoreAnimation)、CoreGraphics Framework 三者的关系</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

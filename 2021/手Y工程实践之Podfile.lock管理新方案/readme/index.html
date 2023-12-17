@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="背景在iOS工程接入CocoaPods做依赖管理后，开发者对Podfile.lock的管理主要有以下两种方案：  不把Podfile.lock纳入版本管理 把Podfile.lock纳入版本管理  这两种方案各有优劣和各有适用场景：  第1种方案不强制团队成员使用统一版本的CocoaPods，对团队成员较为友好，但是无法保证团队成员在本地安装的依赖是一致的；其适合个人或者前期对规范不作要求、规模很">
+<meta property="og:type" content="article">
+<meta property="og:title" content="手Y工程实践之Podfile.lock管理新方案">
+<meta property="og:url" content="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="背景在iOS工程接入CocoaPods做依赖管理后，开发者对Podfile.lock的管理主要有以下两种方案：  不把Podfile.lock纳入版本管理 把Podfile.lock纳入版本管理  这两种方案各有优劣和各有适用场景：  第1种方案不强制团队成员使用统一版本的CocoaPods，对团队成员较为友好，但是无法保证团队成员在本地安装的依赖是一致的；其适合个人或者前期对规范不作要求、规模很">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://git-scm.com/book/en/v2/images/smudge.png">
+<meta property="og:image" content="https://git-scm.com/book/en/v2/images/clean.png">
+<meta property="article:published_time" content="2021-03-07T02:10:01.000Z">
+<meta property="article:modified_time" content="2021-03-07T02:10:01.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="教程">
+<meta property="article:tag" content="2021">
+<meta property="article:tag" content="工程实践">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://git-scm.com/book/en/v2/images/smudge.png">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>手Y工程实践之Podfile.lock管理新方案 | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          手Y工程实践之Podfile.lock管理新方案
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-03-07 10:10:01" itemprop="dateCreated datePublished" datetime="2021-03-07T10:10:01+08:00">2021-03-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在iOS工程接入<code>CocoaPods</code>做依赖管理后，开发者对<code>Podfile.lock</code>的管理主要有以下两种方案：</p>
+<ol>
+<li>不把<code>Podfile.lock</code>纳入版本管理</li>
+<li>把<code>Podfile.lock</code>纳入版本管理</li>
+</ol>
+<p>这两种方案各有优劣和各有适用场景：</p>
+<ol>
+<li>第1种方案不强制团队成员使用统一版本的<code>CocoaPods</code>，对团队成员较为友好，但是无法保证团队成员在本地安装的依赖是一致的；其适合个人或者前期对规范不作要求、规模很小的团队</li>
+<li>第2种方案能保证团队成员在本地安装的依赖是一致的，但是却要强制团队成员使用统一版本的<code>CocoaPods</code>；其适合对规范有要求的团队</li>
+</ol>
+<p>在我加入手Y团队之前，手Y团队选用的是第1种方案。基于第1种方案的选择，为了能保证团队成员在本地安装的依赖是一致的，手Y团队又做了以下的解决措施：</p>
+<blockquote>
+<p>Podfile里的每个库都声明一个具名的固定版本号，如<code>pod &#39;yyabtestsdk&#39;, &#39;2.1.0-dev.2&#39;</code>、<code>pod &#39;yybaseapisdk&#39;, :git=&gt;&#39;https://xxx/yybaseapisdk-ios.git&#39;, :tag =&gt; &#39;7.46.0-dev.8&#39;</code>。</p>
+</blockquote>
+<p>随着团队的变大（现在iOS业务端已有40+人），这种方案的弊端逐渐暴露：</p>
+<ul>
+<li><p>无法百分百确保编译运行阶段，团队成员的本地安装的依赖是一致的</p>
+<p>这个弊端对应的场景是：有人更新了<code>Podfile</code>，安装了<code>非BreakingChanges</code>的、新版本的依赖库，并进行了代码推送；其他人拉取代码后，若不手动执行一次<code>Pod install/update</code>，其本地安装的依赖是落后的，并且在编译运行阶段，由于代码兼容，若非出现严重bug，其不会发现其本地依赖需要更新。</p>
+</li>
+<li><p>因本地依赖的版本不正确导致编译失败的时机延迟发生到了编译中后期</p>
+<p>这个弊端对应的场景是：有人更新了<code>Podfile</code>，安装了<code>BreakingChanges</code>的、新版本的依赖库，并进行了代码推送；其他人拉取代码后，若不手动执行一次<code>Pod install/update</code>，其本地安装的依赖是落后的，然后其进行编译时，由于代码不兼容，会发现编译失败了——但是这时候编译失败的时机常常是发生在编译中后期——在让开发者至少等待了十几分钟后才抛出编译失败的错误——这相当影响开发者的心情和工作效率。</p>
+<blockquote>
+<p>对于<code>BreakingChanges</code>的疑问可看下文的《Q&amp;A》</p>
+</blockquote>
+</li>
+</ul>
+<p>为了解决这些弊端，有必要考虑重新把<code>Podfile.lock</code>纳入版本管理。那有没有一种方案，能同时获得上述第1种方案和第2种方案的收益呢？具体是，希望有一种方案能满足以下的需求：</p>
+<ol>
+<li>保证团队成员本地安装的依赖是一致的</li>
+<li>允许团队成员不使用统一版本的<code>CocoaPods</code></li>
+<li>把因本地依赖的版本不正确导致编译失败的时机从编译中后期提前到编译前，帮助提升开发效率</li>
+<li>新方案对当前团队成员是零负担（不强制团队成员做不必要的事、不耗费团队成员不必要的注意力和精力）</li>
+</ol>
+<p>为此，我制定了一个新的<code>Podfile.lock</code>管理方案，下面将会做具体的介绍。</p>
+<a id="more"></a>
+
+<h2 id="手Y工程的Podfile-lock管理新方案"><a href="#手Y工程的Podfile-lock管理新方案" class="headerlink" title="手Y工程的Podfile.lock管理新方案"></a>手Y工程的Podfile.lock管理新方案</h2><p><code>Podfile.lock</code>管理新方案是：使用 Podfile.lock 文件副本 Podfile.lock.dump（相比原件，不记录 CocoaPods 版本信息）代替 Podfile.lock 文件纳入版本管理以保证团队各成员本地安装的依赖是一致的，并修改 CocoaPods 中和 Podfile.lock 文件相关的逻辑，包括 Podfile.lock 文件的读写逻辑和 Manifest.lock 的检测逻辑（Manifest.lock 检测脚本《Xcode Run Script Phase - [CP] Check Pods Manifest.lock》）。相关逻辑的修改借助<code>Ruby</code>强大的<code>Method Swizzling</code>能力实现，整体技术方案如下：</p>
+<ol>
+<li><p>hook <code>CocoaPods</code> 的读取<code>Podfile.lock</code>信息的方法<code>lockfile</code>（<code>Pod::Config.lockfile</code>），变更逻辑为：从 <code>Podfile.lock.dump</code>读取依赖库信息，从<code>Podfile.lock</code>读取<code>CocoaPods</code>版本信息，以及把<code>Podfile.lock.dump</code>记录的依赖库信同步到<code>Podfile.lock</code>；</p>
+</li>
+<li><p>hook <code>CocoaPods</code>的创建<code>Podfile.lock</code>的方法<code>write_lockfiles</code>（<code>Pod::Installer.write_lockfiles</code>），将其逻辑变更为：创建<code>Podfile.lock</code>后，再基于<code>Podfile.lock</code>创建一个移除了<code>CocoaPods</code>版本信息的副本<code>Podfile.lock.dump</code>；然后人为把<code>Podfile.lock.dump</code>纳入版本管理</p>
+<blockquote>
+<p>上述2个操作是为了满足需求1和需求2。对于此举的疑问可看下文的《Q&amp;A》。</p>
+</blockquote>
+</li>
+<li><p>hook <code>CocoaPods</code>的创建<code>Manifest.lock</code>检测脚本的方法<code>add_check_manifest_lock_script_phase</code>（<code>Pod::Installer::UserProjectIntegrator::TargetIntegrator.add_check_manifest_lock_script_phase</code>），将其逻辑变更为：基于本地的<code>Manifest.lock</code>创建副本<code>Manifest.lock.dump</code>，并比较<code>Manifest.lock.dump</code>是否和<code>Podfile.lock.dump</code>一致；若不一致，就使用<code>Podfile.lock.dump</code>更新本地的 <code>Podfile.lock</code>，并抛出错误信息和中断编译</p>
+<blockquote>
+<p>此举是为了满足需求3。</p>
+</blockquote>
+</li>
+<li><p>在执行<code>pod install/update</code>时，完成上述的hook</p>
+</li>
+</ol>
+<p>为了同时满足需求1和需求2，新方案采取的措施是：基于<code>Podfile.lock</code>生成一个不记录<code>CocoaPods</code>版本信息的副本<code>Podfile.lock.dump</code>，并使用<code>Podfile.lock.dump</code>代替<code>Podfile.lock</code>纳入版本管理。</p>
+<p>技术方案实施如下：</p>
+<ol>
+<li>在工程根目录创建hook <code>CocoaPods</code>的代码<code>PodilePatch_HookPod.rb</code>：</li>
+</ol>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Pod::Lockfile</span></span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Update internal cocoapods version.</span></span><br><span class="line">  <span class="comment">#</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">update_internal_cocoapods_version</span><span class="params">(version)</span></span></span><br><span class="line">    internal_data[<span class="string">'COCOAPODS'</span>] = version</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span> </span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Pod::Config</span></span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># <span class="doctag">@return</span> [Lockfile] The Local Lockfile to use for the current execution.</span></span><br><span class="line">  <span class="comment"># <span class="doctag">@return</span> [Nil] If no Lockfile is available.</span></span><br><span class="line">  <span class="comment">#</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">local_lockfile</span></span></span><br><span class="line">    @local_lockfile <span class="params">||</span>= Pod::Lockfile.from_file(lockfile_path) <span class="keyword">if</span> lockfile_path</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Returns the path of the Lockfile.</span></span><br><span class="line">  <span class="comment">#</span></span><br><span class="line">  <span class="comment"># <span class="doctag">@note</span> The Lockfile is named `Podfile.lock.dump`.</span></span><br><span class="line">  <span class="comment">#</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">team_lockfile_path</span></span></span><br><span class="line">    @team_lockfile_path <span class="params">||</span>= installation_root + <span class="string">'Podfile.lock.dump'</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># <span class="doctag">@return</span> [Lockfile] The Team Lockfile to use for the current execution.</span></span><br><span class="line">  <span class="comment"># <span class="doctag">@return</span> [Nil] If no Lockfile is available.</span></span><br><span class="line">  <span class="comment">#</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">team_lockfile</span></span></span><br><span class="line">    @team_lockfile <span class="params">||</span>= Pod::Lockfile.from_file(team_lockfile_path) <span class="keyword">if</span> team_lockfile_path</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># <span class="doctag">@return</span> [bool] If yes The Local Lockfile is did be updated with The Team Lockfile</span></span><br><span class="line">  <span class="comment">#</span></span><br><span class="line">  <span class="keyword">attr_accessor</span> <span class="symbol">:did_update_local_lockfile</span></span><br><span class="line">  did_update_local_lockfile = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 用户拉取代码后，立即执行 pod install，若本地的 Podfile.lock 非最新，这时候会导致安装的依赖是旧的，并且导致 Podfile.lock.dump 也变成旧的</span></span><br><span class="line">  <span class="comment"># 为了解决此问题，针对此种场景，hook Pod::Config.lockfile 方法，在用户执行 pod install/update 时，从 Podfile.lock.dump 读取依赖库信息，从 Podfile.lock 读取 CocoaPods 版本信息，以及把 Podfile.lock.dump 记录的依赖库信同步到 Podfile.lock</span></span><br><span class="line">  <span class="comment"># modify lockfile method</span></span><br><span class="line">  define_method(<span class="symbol">:lockfile</span>) <span class="keyword">do</span></span><br><span class="line">    <span class="comment"># 使用 Podfile.lock.dump（依赖库信息） 和 Podfile.lock （CocoaPods版本信息）生成 Lockfile</span></span><br><span class="line">    <span class="comment"># 以及同步 Podfile.lock.dump（依赖库信息）到 Podfile.lock</span></span><br><span class="line">    <span class="keyword">if</span> team_lockfile <span class="keyword">and</span> local_lockfile <span class="keyword">and</span> (did_update_local_lockfile == <span class="literal">false</span>)</span><br><span class="line">      puts <span class="string">"read Lockinfo from <span class="subst">#&#123;team_lockfile_path&#125;</span> and <span class="subst">#&#123;lockfile_path&#125;</span>"</span></span><br><span class="line">      <span class="comment"># puts "Generated Lockfile Instances: team_lockfile(#&#123;team_lockfile&#125;) and local_lockfile(#&#123;local_lockfile&#125;)"</span></span><br><span class="line"></span><br><span class="line">      cocoapods_version_str = <span class="string">"<span class="subst">#&#123;local_lockfile.cocoapods_version&#125;</span>"</span></span><br><span class="line">      team_lockfile.update_internal_cocoapods_version(cocoapods_version_str)</span><br><span class="line">      puts <span class="string">"team_lockfile.cocoapods_version: <span class="subst">#&#123;cocoapods_version_str&#125;</span>"</span></span><br><span class="line"></span><br><span class="line">      update_cmd = <span class="string">"cp Podfile.lock.dump Podfile.lock &amp;&amp; echo \"COCOAPODS: <span class="subst">#&#123;cocoapods_version_str&#125;</span>\"&gt;&gt; Podfile.lock"</span></span><br><span class="line">      puts <span class="string">"<span class="subst">#&#123;update_cmd&#125;</span>"</span></span><br><span class="line">      system update_cmd</span><br><span class="line"></span><br><span class="line">      did_update_local_lockfile = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    @lockfile <span class="params">||</span>= team_lockfile</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Pod::Installer</span></span></span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">dump_podfile_lock</span><span class="params">()</span></span></span><br><span class="line">    puts <span class="string">"dump Podfile.lock now ..."</span></span><br><span class="line"></span><br><span class="line">    system <span class="string">'cp Podfile.lock Podfile.lock.dump &amp;&amp; sed -i "" "/^COCOAPODS:/"d Podfile.lock.dump'</span></span><br><span class="line">    </span><br><span class="line">    puts <span class="string">"dump Podfile.lock at path(./Podfile.lock.dump) done!!!"</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 将来若团队的CocoaPods都升级到v1.10+后，可在新特性 post_integrate hook中执行 dump_podfile_lock</span></span><br><span class="line">  <span class="comment"># modify write_lockfiles method</span></span><br><span class="line">  old_write_lockfiles = instance_method(<span class="symbol">:write_lockfiles</span>)</span><br><span class="line">  define_method(<span class="symbol">:write_lockfiles</span>) <span class="keyword">do</span></span><br><span class="line">    old_write_lockfiles.bind(<span class="keyword">self</span>).()</span><br><span class="line">    dump_podfile_lock()</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">UserProjectIntegrator::TargetIntegrator</span></span></span><br><span class="line">    <span class="comment"># modify add_check_manifest_lock_script_phase method</span></span><br><span class="line">    define_method(<span class="symbol">:add_check_manifest_lock_script_phase</span>) <span class="keyword">do</span></span><br><span class="line">        phase_name = CHECK_MANIFEST_PHASE_NAME</span><br><span class="line">        native_targets.each <span class="keyword">do</span> <span class="params">|native_target|</span></span><br><span class="line">          phase = UserProjectIntegrator::TargetIntegrator.create_or_update_shell_script_build_phase(native_target, BUILD_PHASE_PREFIX + phase_name)</span><br><span class="line">          native_target.build_phases.unshift(phase).uniq! <span class="keyword">unless</span> native_target.build_phases.first == phase</span><br><span class="line">          phase.shell_script = &lt;&lt;-SH.strip_heredoc</span><br><span class="line">            export LANG=en_US.UTF-<span class="number">8</span></span><br><span class="line">            </span><br><span class="line">            Podfile_lock_dump_file=<span class="string">"$&#123;PODS_PODFILE_DIR_PATH&#125;/Podfile.lock.dump"</span></span><br><span class="line">            <span class="keyword">if</span> [ ! -f $&#123;Podfile_lock_dump_file&#125; ]; <span class="keyword">then</span></span><br><span class="line">                echo <span class="string">"$&#123;Podfile_lock_dump_file&#125; not found"</span> &gt;&amp;<span class="number">2</span></span><br><span class="line">                exit <span class="number">0</span></span><br><span class="line">            fi</span><br><span class="line"></span><br><span class="line">            Manifest_lock_dump_file=<span class="string">"$&#123;PODS_ROOT&#125;/Manifest.lock.dump"</span></span><br><span class="line">            cp <span class="string">"$&#123;PODS_ROOT&#125;/Manifest.lock"</span> $&#123;Manifest_lock_dump_file&#125; &amp;&amp; sed -i <span class="string">""</span> <span class="string">"/^COCOAPODS:/"</span>d $&#123;Manifest_lock_dump_file&#125;</span><br><span class="line">            <span class="keyword">if</span> [ ! -f $&#123;Manifest_lock_dump_file&#125; ]; <span class="keyword">then</span></span><br><span class="line">                echo <span class="string">"$&#123;Manifest_lock_dump_file&#125; not found"</span> &gt;&amp;<span class="number">2</span></span><br><span class="line">                exit <span class="number">0</span></span><br><span class="line">            fi</span><br><span class="line"></span><br><span class="line">            diff $&#123;Podfile_lock_dump_file&#125; $&#123;Manifest_lock_dump_file&#125; &gt; <span class="regexp">/dev/null</span></span><br><span class="line">            <span class="keyword">if</span> [ $? != <span class="number">0</span> ] ; <span class="keyword">then</span></span><br><span class="line">                <span class="comment"># 使用 Podfile.lock.dump 覆盖本地的 Podfile.lock</span></span><br><span class="line">                cp $&#123;Podfile_lock_dump_file&#125; <span class="string">"$&#123;PODS_PODFILE_DIR_PATH&#125;/Podfile.lock"</span> &amp;&amp; echo <span class="string">"COCOAPODS: $(pod --version)"</span>&gt;&gt; <span class="string">"$&#123;PODS_PODFILE_DIR_PATH&#125;/Podfile.lock"</span></span><br><span class="line"></span><br><span class="line">                <span class="comment"># 抛出错误，提醒开发者</span></span><br><span class="line">                echo <span class="string">"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\n(错误: 本地安装的Pod库依赖非最新。请执行 'pod install' 或者更新你的 CocoaPods 版本。)"</span> &gt;&amp;<span class="number">2</span></span><br><span class="line"></span><br><span class="line">                exit <span class="number">1</span></span><br><span class="line">            fi</span><br><span class="line">            <span class="comment"># This output is used by Xcode 'outputs' to avoid re-running this script phase.</span></span><br><span class="line">            echo <span class="string">"SUCCESS"</span> &gt; <span class="string">"$&#123;SCRIPT_OUTPUT_FILE_0&#125;"</span></span><br><span class="line">          SH</span><br><span class="line">          phase.input_paths = <span class="string">%w($&#123;PODS_PODFILE_DIR_PATH&#125;/Podfile.lock $&#123;PODS_ROOT&#125;/Manifest.lock)</span></span><br><span class="line">          phase.output_paths = [target.check_manifest_lock_script_output_file_path]</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在工程的<code>Podfile</code>中引入hook的代码：</li>
+</ol>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># hook pod</span></span><br><span class="line">require_relative <span class="string">'PodilePatch_HookPod'</span></span><br><span class="line"></span><br><span class="line">target <span class="string">'Demo'</span> <span class="keyword">do</span></span><br><span class="line">  pod <span class="string">'AFNetworking'</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>技术方案实施完毕后，按照业界以往把<code>Podfile.lock</code>纳入版本管理后的方式做工程开发即可：<code>pod install</code> first always。</p>
+<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><h3 id="何为BreakingChanges版本的依赖库？"><a href="#何为BreakingChanges版本的依赖库？" class="headerlink" title="何为BreakingChanges版本的依赖库？"></a>何为<code>BreakingChanges</code>版本的依赖库？</h3><p><code>BreakingChanges</code>版本的依赖库，其代码是不兼容的，其常见的一个特征就是：API不兼容，比如旧版本的API<code>f(a,b)</code>在新版本变成了<code>f(a,b,c)</code>。</p>
+<h3 id="为什么不直接把Podfile-lock纳入版本管理，而是使用其副本Pofile-lock-dump？"><a href="#为什么不直接把Podfile-lock纳入版本管理，而是使用其副本Pofile-lock-dump？" class="headerlink" title="为什么不直接把Podfile.lock纳入版本管理，而是使用其副本Pofile.lock.dump？"></a>为什么不直接把Podfile.lock纳入版本管理，而是使用其副本Pofile.lock.dump？</h3><p><code>Podfile.lock</code>纳入版本管理后，若团队成员安装的<code>CocoaPods</code>版本不一致，那么这个文件会由于记录的<code>CocoaPods</code>版本信息不一致，常常引起版本冲突——这导致团队成员每次更新依赖时都可能要解决一次这种冲突，耗费团队成员不必要的精力。</p>
+<p>那是否可以在生成<code>Podfile.lock</code>时，移除<code>CocoaPods</code>版本信息呢？</p>
+<p>在表面上，这能满足我们的需求，但是实际上，这样做，会导致在执行<code>pod install</code>时，即使本地的依赖已经是最新的，由于<code>CocoaPods</code>版本信息缺失，<code>CocoaPods</code>都会为重新安装一次所有的依赖，浪费了团队成员的时间。</p>
+<h3 id="除了上述方案，是否还有其他管理方案吗？"><a href="#除了上述方案，是否还有其他管理方案吗？" class="headerlink" title="除了上述方案，是否还有其他管理方案吗？"></a>除了上述方案，是否还有其他管理方案吗？</h3><p>答案是肯定的。这里分享另外两种技术方案。</p>
+<p>第1种技术方案：使用<a href="https://git-scm.com/book/zh/v2/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-Git-%E5%B1%9E%E6%80%A7" target="_blank" rel="noopener external nofollow noreferrer">Git Attributes</a>，自定义<code>smudge</code>和<code>clean</code>子过滤器，让<code>git</code>“忽略”<code>Podfile.lock</code>中记录<code>CocoaPods版本信息</code>的文本行。具体如下：</p>
+<ol>
+<li><p>工程根目录创建<code>.gitattributes</code>，并添加自定义过滤器执行规则：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo "Podfile.lock filter=ignorePodVersion" &gt; .gitattributes</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>为<code>ignorePodVersion</code>过滤器分别设置<code>smudge</code>和<code>clean</code>子过滤器：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git config --local filter.ignorePodVersion.smudge 'sed -i "" "/^COCOAPODS:/"d Podfile.lock &amp;&amp; echo "COCOAPODS: $(pod --version)" &gt;&gt; Podfile.lock'</span><br><span class="line"></span><br><span class="line">git config --local filter.ignorePodVersion.clean 'sed -i "" "/^COCOAPODS:/"d Podfile.lock</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li><p><code>smudge</code>子过滤器会在文件被检出时触发<br><img src="https://git-scm.com/book/en/v2/images/smudge.png" alt=" “smudge”过滤器会在文件被检出时触发"></p>
+</li>
+<li><p><code>clean</code>子过滤器会在文件被暂存时触发<br>  <img src="https://git-scm.com/book/en/v2/images/clean.png" alt="“clean”过滤器会在文件被暂存时触发"></p>
+</li>
+</ul>
+</blockquote>
+</li>
+</ol>
+<p>但是这种方案，会耗费团队成员不必要的注意力：每次<code>checkout</code>代码时，<code>Podfile.lock</code>都被<code>git</code>标记为<code>modified</code>，团队成员在终端或者SourceTree提交代码时，由于这个变更不是出自团队成员自身操作导致的，团队成员难免疑惑，继而耗费一些注意力和精力去理解这个事情——而这正是我努力去避免给团队成员的负担之一。</p>
+<p>第2种技术方案：使用<code>bundler</code>和<code>Gemfile</code>。<code>bundler</code>相当于<code>CocoaPods</code>，<code>Gemfile</code>相当于<code>Podfile</code>，这2个是<code>Ruby</code>开发中用于管理依赖的工具——我们可借助它们帮助统一管理当前项目的<code>Ruby</code>工具链版本，从而满足上述的需求1、2、3。具体实施如下：</p>
+<ol>
+<li><p>安装<code>bundler</code>，并在工程根目录下创建<code>Gemfile</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo gem install bundler</span><br><span class="line">cd path/to/project_root_dir</span><br><span class="line"><span class="meta">#</span><span class="bash"> create Gemfile</span></span><br><span class="line">bundle init</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编辑<code>Gemfile</code>，并添加项目所需的<code>Ruby</code>工具链版本信息：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># frozen_string_literal: true</span></span><br><span class="line"></span><br><span class="line">source <span class="string">"https://rubygems.org"</span></span><br><span class="line"></span><br><span class="line">git_source(<span class="symbol">:github</span>) &#123;<span class="params">|repo_name|</span> <span class="string">"https://github.com/<span class="subst">#&#123;repo_name&#125;</span>"</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加所需的 Ruby工具链</span></span><br><span class="line">gem <span class="string">'cocoapods'</span>, <span class="string">"1.10.1"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>工程根目录执行<code>sudo bundle install</code>，安装项目所需的<code>Ruby</code>工具链，并按需把生成的<code>Gemfile.lock</code>纳入版本管理</p>
+<blockquote>
+<p>注意：每次更新了所需的<code>Ruby</code>工具链版本，都需要执行一次<code>sudo bundle install</code></p>
+</blockquote>
+</li>
+<li><p>安装成功后，开发过程中使用<code>bundle exec pod install/update</code>代替<code>pod install/update</code>为工程安装<code>pod</code>依赖</p>
+</li>
+</ol>
+<p>由于需要引入<code>bundler</code>和<code>Gemfile</code>，以及使用<code>bundler exec pod install/update</code>代替<code>pod install/update</code>，这斜在我看来不符合我的需求4，故没有采取此方案。</p>
+<blockquote>
+<p>注意：一般来说，工具链版本比较稳定，其变更频率远远低于工程代码依赖的版本变化。其他团队在评估引入<code>bundler</code>和<code>Gemfile</code>给团队成员带来的负担时，应根据自己当前团队的情况（比如人数、技术栈等）进行评估。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2021/%E6%89%8BY%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5%E4%B9%8BPodfile.lock%E7%AE%A1%E7%90%86%E6%96%B0%E6%96%B9%E6%A1%88/readme/" title="手Y工程实践之Podfile.lock管理新方案">https://blog.yorkfish.me/2021/手Y工程实践之Podfile.lock管理新方案/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/%E6%95%99%E7%A8%8B/" rel="tag"># 教程</a>
+              <a href="/tags/2021/" rel="tag"># 2021</a>
+              <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" rel="tag"># 工程实践</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/" rel="prev" title="当第一张图片加载渲染时（渲染原理+图片解码）">
+      <i class="fa fa-chevron-left"></i> 当第一张图片加载渲染时（渲染原理+图片解码）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/%E6%89%8BY%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83%E5%8C%96%E5%BB%BA%E8%AE%BE%E4%B8%80%EF%BC%9ACommit%20Message%20%E8%A7%84%E8%8C%83%E5%BB%BA%E8%AE%BE/readme/" rel="next" title="手Y开发规范化建设一：Commit Message 规范建设">
+      手Y开发规范化建设一：Commit Message 规范建设 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#手Y工程的Podfile-lock管理新方案"><span class="nav-number">2.</span> <span class="nav-text">手Y工程的Podfile.lock管理新方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">3.</span> <span class="nav-text">Q&amp;A</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#何为BreakingChanges版本的依赖库？"><span class="nav-number">3.1.</span> <span class="nav-text">何为BreakingChanges版本的依赖库？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么不直接把Podfile-lock纳入版本管理，而是使用其副本Pofile-lock-dump？"><span class="nav-number">3.2.</span> <span class="nav-text">为什么不直接把Podfile.lock纳入版本管理，而是使用其副本Pofile.lock.dump？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#除了上述方案，是否还有其他管理方案吗？"><span class="nav-number">3.3.</span> <span class="nav-text">除了上述方案，是否还有其他管理方案吗？</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

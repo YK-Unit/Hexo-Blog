@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="UqKKfD7JNYnd__AMcMlkoOgSvS52v13_zR26UfTIxQ0">
+  <meta name="baidu-site-verification" content="g9YOLSrZfL">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.yorkfish.me","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言当App启动后，用户第一次点击App内的一个视图，这时候将会产生一个点击事件。 下面将会讲述这点击事件背后的相关知识点，比如：  点击事件如何从硬件层传递到App App如何查找到最佳响应者（hit-tested view） App查找到最佳响应者（hit-tested view）后，如何把点击事件传递给最佳响应者（hit-tested view） 最佳响应者（hit-tested view）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="当用户第一次点击UIView（关于iOS硬件事件的那些事）">
+<meta property="og:url" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/index.html">
+<meta property="og:site_name" content="YorkFish Blog">
+<meta property="og:description" content="前言当App启动后，用户第一次点击App内的一个视图，这时候将会产生一个点击事件。 下面将会讲述这点击事件背后的相关知识点，比如：  点击事件如何从硬件层传递到App App如何查找到最佳响应者（hit-tested view） App查找到最佳响应者（hit-tested view）后，如何把点击事件传递给最佳响应者（hit-tested view） 最佳响应者（hit-tested view）">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/_allTouchesMutable-_gestureRecognizers.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/sendEvent.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/hit-tesing.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/nextResponder.png">
+<meta property="og:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/sendAction.png">
+<meta property="article:published_time" content="2020-07-29T02:10:01.000Z">
+<meta property="article:modified_time" content="2020-07-29T02:10:01.000Z">
+<meta property="article:author" content="YorkFish">
+<meta property="article:tag" content="2020">
+<meta property="article:tag" content="EveryThingFromTheFirstClick(iOS Version)">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/_allTouchesMutable-_gestureRecognizers.png">
+
+<link rel="canonical" href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>当用户第一次点击UIView（关于iOS硬件事件的那些事） | YorkFish Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="YorkFish Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YorkFish Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">KISS</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/left-v.jpg">
+      <meta itemprop="name" content="YorkFish">
+      <meta itemprop="description" content="Keep IT Simple & Stupid">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YorkFish Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          当用户第一次点击UIView（关于iOS硬件事件的那些事）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-07-29 10:10:01" itemprop="dateCreated datePublished" datetime="2020-07-29T10:10:01+08:00">2020-07-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%9F%A5%E8%AF%86%E5%A4%8D%E7%9B%98/" itemprop="url" rel="index"><span itemprop="name">知识复盘</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>当App启动后，用户第一次点击App内的一个视图，这时候将会产生一个点击事件。</p>
+<p>下面将会讲述这点击事件背后的相关知识点，比如：</p>
+<ul>
+<li>点击事件如何从硬件层传递到App</li>
+<li>App如何查找到最佳响应者（hit-tested view）</li>
+<li>App查找到最佳响应者（hit-tested view）后，如何把点击事件传递给最佳响应者（hit-tested view）</li>
+<li>最佳响应者（hit-tested view）作为第一响应者（first responder），如何对事件进行响应和传递？</li>
+<li>异常场景的冲突解决<ul>
+<li>手势与点击冲突</li>
+<li>多个手势冲突</li>
+<li>让多个UIView响应同一个点击事件</li>
+</ul>
+</li>
+</ul>
+<h2 id="iOS设备事件的类型"><a href="#iOS设备事件的类型" class="headerlink" title="iOS设备事件的类型"></a>iOS设备事件的类型</h2><ul>
+<li>Touch Events(触摸事件)</li>
+<li>Motion Events(运动事件，比如重力感应和摇一摇等)</li>
+<li>Remote Events(远程事件，比如用耳机上得按键来控制手机)</li>
+</ul>
+<h2 id="可以处理触摸事件的类有哪些"><a href="#可以处理触摸事件的类有哪些" class="headerlink" title="可以处理触摸事件的类有哪些"></a>可以处理触摸事件的类有哪些</h2><ul>
+<li>UIResponder的子类（UIApplication，UIWindow，UIViewController和UIView）</li>
+<li>UIGestureRecognizer的子类</li>
+<li>UIControl的子类（UIButton，UISegmentedControl，UISwitch）</li>
+</ul>
+<blockquote>
+<ul>
+<li>UIResponder是iOS中用于处理用户事件的API，可以处理触摸事件、按压事件(3D touch)、远程控制事件、硬件运动事件。 可以通过touchesBegan、pressesBegan、motionBegan、remoteControlReceivedWithEvent等方法，获取到对应的回调消息。UIResponder不只用来接收事件，还可以处理和传递对应的事件，如果当前响应者不能处理，则转发给其他合适的响应者处理。</li>
+<li>UIConotrol是UIView（UIResponder）的子类，相比于UIResponder，其增加了target-action的特别设计。</li>
+</ul>
+</blockquote>
+<h2 id="UIConotrol、UIGestureRecognizer、-UIResponder的触摸事件响应优先级排名"><a href="#UIConotrol、UIGestureRecognizer、-UIResponder的触摸事件响应优先级排名" class="headerlink" title="UIConotrol、UIGestureRecognizer、 UIResponder的触摸事件响应优先级排名"></a>UIConotrol、UIGestureRecognizer、 UIResponder的触摸事件响应优先级排名</h2><ul>
+<li>UIResponder优先级最低</li>
+<li>UIConotrol的优先级大于其父视图上UIGestureRecognizer，小于添加在其自身上的UIGestureRecognizer</li>
+</ul>
+<h2 id="触摸事件如何从硬件层转发到App"><a href="#触摸事件如何从硬件层转发到App" class="headerlink" title="触摸事件如何从硬件层转发到App"></a>触摸事件如何从硬件层转发到App</h2><ol>
+<li><p>触摸发生时，系统内核生成触摸事件，然后交由给IOKit进程</p>
+</li>
+<li><p>IOKit进程把触摸事件封装成IOHIDEvent对象，通过IPC（mach port）发送给SpringBoard进程。</p>
+</li>
+<li><p>SpringBoard进程通过IPC（mach port）发送IOHIDEvent对象给当前App进程。</p>
+<blockquote>
+<p>需要注意的是，若当前前台无App运行，则SpringBoard进程会把该IOHIDEvent对象发送给桌面系统处理。</p>
+</blockquote>
+</li>
+<li><p>App进程的mach port收到IOHIDEvent后，会唤醒主线程的runloop，触发source1回调；source1回调又触发一个source0回调，将接收到的IOHIDEvent对象封装成UIEvent对象，发送给App进程的UIApplication对象处理。</p>
+</li>
+</ol>
+<h2 id="UIApplication收到触摸事件（UIEvent）后的处理流程"><a href="#UIApplication收到触摸事件（UIEvent）后的处理流程" class="headerlink" title="UIApplication收到触摸事件（UIEvent）后的处理流程"></a>UIApplication收到触摸事件（UIEvent）后的处理流程</h2><ol>
+<li><p>UIApplication对象通过 <code>hit-tesing</code> 机制查找最佳响应视图（<code>hit-tested view</code>）。</p>
+</li>
+<li><p>确定触摸事件的第一响应者（first-responder）——一般情况下，最佳响应视图（hit-tested view）将会是触摸事件的第一响应者（first-responder）。</p>
+<p> 具体地，根据最佳响应视图（<code>hit-tested view</code>）的类型和既定的UIConotrol、UIGestureRecognizer、 UIResponder的触摸事件响应优先级排名 ，确定第一响应者（first-responder）：</p>
+<ul>
+<li><p><code>hit-tested view</code>是UIControl类型，<code>hit-tested view</code>自身没有UIGestureRecognizer，则第一响应者是<code>hit-tested view</code></p>
+</li>
+<li><p><code>hit-tested view</code>是UIControl类型，<code>hit-tested view</code>自身有UIGestureRecognizer，则第一响应者是<code>hit-tested view</code>上的UIGestureRecognizer，第二响应者是<code>hit-tested view</code></p>
+</li>
+<li><p><code>hit-tested view</code>是UIResponder类型，<code>hit-tested view</code>自身和其后面的响应者视图上都没有UIGestureRecognizer，则第一响应者是<code>hit-tested view</code></p>
+</li>
+<li><p><code>hit-tested view</code>是UIResponder类型，<code>hit-tested view</code>自身或者和其后面的响应者视图上有UIGestureRecognizer，则第一响应者是<code>hit-tested view</code>上或者和其后面的响应者视图上的UIGestureRecognizer，第二响应者是<code>hit-tested view</code></p>
+<blockquote>
+<p>在进行<code>hit-tesing</code>过程中，<code>UIEvent</code>会收集这过程发现的<code>UIGestureRecognizer</code>到它的<code>_allTouchesMutable-_gestureRecognizers</code>中</p>
+<p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/_allTouchesMutable-_gestureRecognizers.png" alt="image"></p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>UIApplication对象通过<code>sendEvent:</code>把触摸事件（UIEvent）发送给第一响应者（first-responder）或者最佳响应视图（hit-tested view）；最佳响应视图（hit-tested view）收到事件后会沿着其响应链决策处理该触摸事件（UIEvent）。</p>
+<p> 具体地，UIApplication对象将事件通过<code>sendEvent:</code> 传递给事件所属的UIWindow对象，UIWindow对象根据第一响应者的类型，采用不同的逻辑使用 <code>sendEvent:</code>把触摸事件分发给发送给第一响应者（first-responder）或者最佳响应视图（hit-tested view）：</p>
+<ul>
+<li><p>若第一响应者（first-responder）是最佳响应视图（hit-tested view），则事件直接发送给最佳响应视图（hit-tested view）</p>
+</li>
+<li><p>若第一响应者（first-responder）UIGestureRecognizer，则最佳响应视图（hit-tested view）是第二响应者，然后事件会先发给UIGestureRecognizer，再发给最佳响应视图（hit-tested view）；UIGestureRecognizer收到事件后，会开始对事件进行识别，识别过程中，事件会继续分发给最佳响应视图（hit-tested view）；当UIGestureRecognizer识别出事件为其对应的手势后会触发<code>target-action</code>调用，并且事件将停止分发给最佳响应视图（hit-tested view）</p>
+<blockquote>
+<p>手势识别过程中或者识别成功后，可分别通过设置UIGestureRecognizer的<code>delaysTouchesBegan</code>属性和<code>cancelsTouchesInView</code>属性来控制是否分发事件给最佳响应视图（hit-tested view）</p>
+</blockquote>
+<p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/sendEvent.png" alt="image"></p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="hit-tesing-机制是什么"><a href="#hit-tesing-机制是什么" class="headerlink" title="hit-tesing 机制是什么"></a><code>hit-tesing</code> 机制是什么</h2><p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/hit-tesing.png" alt="image"></p>
+<ol>
+<li><p>当手指接触屏幕，UIApplication接收到手指的触摸事件之后，就会去调用UIWindow的<code>hitTest: withEvent:</code>方法</p>
+<blockquote>
+<p>如果存在多个UIWindow，则从KeyWindow开始遍历UIWindow数组</p>
+</blockquote>
+</li>
+<li><p>在<code>hitTest: withEvent:</code>方法中会调用<code>pointInside: withEvent:</code>去判断当前点击的point是否属于UIWindow范围内，如果是，就会以倒序的方式遍历它的子视图，即越后添加的视图，越先遍历</p>
+</li>
+<li><p>子视图也调用自身的<code>hitTest: withEvent:</code>方法，来查找最佳响应视图，若某个子视图就是最佳响应视图，则返回该子视图；若最终没有任何一个子视图是最佳响应视图，就返回nil</p>
+</li>
+</ol>
+<h2 id="hitTest-withEvent-方法的内部逻辑"><a href="#hitTest-withEvent-方法的内部逻辑" class="headerlink" title="hitTest: withEvent:方法的内部逻辑"></a><code>hitTest: withEvent:</code>方法的内部逻辑</h2><ol>
+<li><p>判断当前视图是否满足响应条件：</p>
+<ul>
+<li>可交互： <code>userInteractionEnabled = YES</code></li>
+<li>非隐藏：<code>hidden = NO</code></li>
+<li>透明度大于0：<code>alpha &gt; 0.01</code></li>
+<li>触摸点的位置在视图范围内：通过<code>pointInside: withEvent:</code>方法判断触摸点是否在视图的坐标范围内</li>
+</ul>
+</li>
+<li><p>若满足响应条件，则倒序遍历其子视图查找最佳响应视图，若存在更何时的子视图，就返回子视图，否则返回自身</p>
+</li>
+</ol>
+<p>具体代码逻辑如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">UIView</span> *)hitTest:(<span class="built_in">CGPoint</span>)point withEvent:(<span class="built_in">UIEvent</span> *)event &#123;</span><br><span class="line">    <span class="comment">//3种状态无法响应事件</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">self</span>.isUserInteractionEnabled || <span class="keyword">self</span>.isHidden || <span class="keyword">self</span>.alpha &lt;= <span class="number">0.01</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">     <span class="comment">//触摸点若不在当前视图上则无法响应事件</span></span><br><span class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> pointInside:point withEvent:event]) &#123;</span><br><span class="line">         <span class="comment">//从后往前遍历子视图数组</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">UIView</span> *subView <span class="keyword">in</span> [<span class="keyword">self</span>.subviews reverseObjectEnumerator]) &#123;</span><br><span class="line">            <span class="comment">// 坐标系的转换,把触摸点在当前视图上坐标转换为在子视图上的坐标</span></span><br><span class="line">            <span class="built_in">CGPoint</span> convertedPoint = [subView convertPoint:point fromView:<span class="keyword">self</span>];</span><br><span class="line">             <span class="comment">//询问子视图层级中的最佳响应视图</span></span><br><span class="line">            <span class="built_in">UIView</span> *hitTestView = [subView hitTest:convertedPoint withEvent:event];</span><br><span class="line">            <span class="keyword">if</span> (hitTestView) &#123;</span><br><span class="line">                 <span class="comment">//如果子视图中有更合适的就返回</span></span><br><span class="line">                <span class="keyword">return</span> hitTestView;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">         <span class="comment">//没有在子视图中找到更合适的响应视图，那么自身就是最合适的</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="响应链是什么"><a href="#响应链是什么" class="headerlink" title="响应链是什么"></a>响应链是什么</h2><p>响应链是一个以第一响应者对象为起点，以AppDelegate对象为终点，以响应者对象（UIResponder对象）的<code>nextResponder</code>属性作为连接上一个和下一个响应者对象工具的，一个单向的，响应者对象链条。</p>
+<blockquote>
+<p>每一个响应者对象（UIResponder对象）都有一个<code>nextResponder</code>属性，用于获取响应链中当前对象的下一个响应者。因此，一旦事件的最佳响应者确定了，这个事件所处的响应链就确定了。</p>
+</blockquote>
+<h2 id="响应者对象的nextResponder是什么"><a href="#响应者对象的nextResponder是什么" class="headerlink" title="响应者对象的nextResponder是什么"></a>响应者对象的<code>nextResponder</code>是什么</h2><p>不同响应者对象（<code>UIView</code>、<code>UIViewController</code>、<code>UIWindow</code>、<code>UIApplication</code>），其默认的<code>nextResponder</code>实现如下：</p>
+<ul>
+<li><p>UIView</p>
+<p>  若视图是控制器的根视图，则其<code>nextResponder</code>为控制器对象；否则，其<code>nextResponder</code>为父视图。</p>
+</li>
+<li><p>UIViewController</p>
+<p>  若控制器的视图是window的根视图，则其<code>nextResponder</code>为窗口对象；若控制器是从别的控制器present出来的，则其<code>nextResponder</code>为presenting view controller。</p>
+</li>
+<li><p>UIWindow</p>
+<p>  <code>nextResponder</code>为UIApplication对象。</p>
+</li>
+<li><p>UIApplication</p>
+<p>  若当前应用的app delegate是一个UIResponder对象，且不是UIView、UIViewController或app本身，则UIApplication的nextResponder为app delegate。</p>
+</li>
+</ul>
+<p>官网对于响应链的示例展示:</p>
+<p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/nextResponder.png" alt="image"></p>
+<h2 id="UIResponder类型响应者如何处理触摸事件？"><a href="#UIResponder类型响应者如何处理触摸事件？" class="headerlink" title="UIResponder类型响应者如何处理触摸事件？"></a>UIResponder类型响应者如何处理触摸事件？</h2><p>UIResponder类型响应者对于接收到的事件有3种操作：</p>
+<ul>
+<li>不拦截，默认操作：事件会自动沿着默认的响应链往下传递</li>
+<li>拦截，不再往下分发事件：重写 <code>touchesBegan:withEvent:</code> 进行事件处理，不调用父类的 <code>touchesBegan:withEvent:</code></li>
+<li>拦截，继续往下分发事件：重写 <code>touchesBegan:withEvent:</code> 进行事件处理，同时调用父类的 <code>touchesBegan:withEvent:</code> 将事件往下传递</li>
+</ul>
+<h2 id="UIControl类型响应者如何处理触摸事件？"><a href="#UIControl类型响应者如何处理触摸事件？" class="headerlink" title="UIControl类型响应者如何处理触摸事件？"></a>UIControl类型响应者如何处理触摸事件？</h2><p>UIControl是UIResponder的子类，其内部重写了touch相关的方法，当其收到触摸事件后，会对事件进行识别，若符合响应条件，会触发target-action进行响应：</p>
+<p>当UIControl监听到需要处理的交互事件时，会调用<code>sendAction:to:forEvent:</code> 将target、action以及event对象发送给全局应用，Application对象再通过 <code>sendAction:to:from:forEvent:</code> 向target发送action。</p>
+<blockquote>
+<p>注意：</p>
+<p>UIControl对象执行<code>addTarget:action:forControlEvents:</code> 时，若target传空，那么当事件发生时，UIApplication对象从<code>hited-view</code>开始沿着响应链从上往下寻找能响应action的对象。</p>
+</blockquote>
+<p><img src="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/sendAction.png" alt="image"></p>
+<h2 id="如何手动控制触摸事件的流向"><a href="#如何手动控制触摸事件的流向" class="headerlink" title="如何手动控制触摸事件的流向"></a>如何手动控制触摸事件的流向</h2><p>一般有2个方案：</p>
+<ol>
+<li>重写（Override）<code>hit-testing</code>的逻辑，具体地就是重写<code>UIResponder</code>子类的<code>hitTest: withEvent:</code>方法或者<code>pointInside: withEvent:</code>方法，控制返回的最佳响应视图</li>
+<li>重写（Override）触摸事件在响应链的传递逻辑，控制触摸事件的分发，具体地就是重写<code>UIResponder</code>子类的<code>touchesBegan:withEvent:</code>方法，根据业务需求增加响应逻辑和调用父类的<code>touchesBegan:withEvent:</code>方法，以控制是否把事件传递给<code>nextResponder</code></li>
+</ol>
+<blockquote>
+<p>题目变形：如何让多个视图响应触摸事件</p>
+</blockquote>
+<h2 id="如何扩大视图的点击范围"><a href="#如何扩大视图的点击范围" class="headerlink" title="如何扩大视图的点击范围"></a>如何扩大视图的点击范围</h2><p>重载视图的<code>hitTest: withEvent:</code>方法或者<code>pointInside: withEvent:</code>方法</p>
+<h2 id="如何让多个手势识别器并存"><a href="#如何让多个手势识别器并存" class="headerlink" title="如何让多个手势识别器并存"></a>如何让多个手势识别器并存</h2><p>重载手势识别器的UIGestureRecognizerDelegate的<code>gestureRecognizer:shouldRecognizeSimultaneouslyWithGestureRecognizer:</code>方法</p>
+<blockquote>
+<p>题目变形：解决右滑返回手势和UIScrollView中的手势冲突</p>
+</blockquote>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://juejin.im/entry/59a7b6e4f265da246f381d37" target="_blank" rel="noopener">《iOS触摸事件全家桶》</a></li>
+<li><a href="https://juejin.im/post/5d0e1e236fb9a07ee16931aa" target="_blank" rel="noopener">《iOS事件处理，看我就够了~》</a></li>
+<li><a href="https://juejin.im/post/6844903952773808136" target="_blank" rel="noopener">《【iOS面试粮食】UI视图—iOS事件的传递机制》</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>YorkFish
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.yorkfish.me/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBUIView%EF%BC%88%E5%85%B3%E4%BA%8EiOS%E7%A1%AC%E4%BB%B6%E4%BA%8B%E4%BB%B6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%89/readme/" title="当用户第一次点击UIView（关于iOS硬件事件的那些事）">https://blog.yorkfish.me/2020/当用户第一次点击UIView（关于iOS硬件事件的那些事）/readme/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/2020/" rel="tag"># 2020</a>
+              <a href="/tags/EveryThingFromTheFirstClick-iOS-Version/" rel="tag"># EveryThingFromTheFirstClick(iOS Version)</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/%E5%BD%93%E7%94%A8%E6%88%B7%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%82%B9%E5%87%BBApp%EF%BC%88App%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%EF%BC%89/readme/" rel="prev" title="当用户第一次点击App（App启动流程）">
+      <i class="fa fa-chevron-left"></i> 当用户第一次点击App（App启动流程）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/%E5%BD%93%E7%AC%AC%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%B8%B2%E6%9F%93%E6%97%B6%EF%BC%88%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86+%E5%9B%BE%E7%89%87%E8%A7%A3%E7%A0%81%EF%BC%89/readme/" rel="next" title="当第一张图片加载渲染时（渲染原理+图片解码）">
+      当第一张图片加载渲染时（渲染原理+图片解码） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS设备事件的类型"><span class="nav-number">2.</span> <span class="nav-text">iOS设备事件的类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可以处理触摸事件的类有哪些"><span class="nav-number">3.</span> <span class="nav-text">可以处理触摸事件的类有哪些</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UIConotrol、UIGestureRecognizer、-UIResponder的触摸事件响应优先级排名"><span class="nav-number">4.</span> <span class="nav-text">UIConotrol、UIGestureRecognizer、 UIResponder的触摸事件响应优先级排名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#触摸事件如何从硬件层转发到App"><span class="nav-number">5.</span> <span class="nav-text">触摸事件如何从硬件层转发到App</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UIApplication收到触摸事件（UIEvent）后的处理流程"><span class="nav-number">6.</span> <span class="nav-text">UIApplication收到触摸事件（UIEvent）后的处理流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hit-tesing-机制是什么"><span class="nav-number">7.</span> <span class="nav-text">hit-tesing 机制是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hitTest-withEvent-方法的内部逻辑"><span class="nav-number">8.</span> <span class="nav-text">hitTest: withEvent:方法的内部逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#响应链是什么"><span class="nav-number">9.</span> <span class="nav-text">响应链是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#响应者对象的nextResponder是什么"><span class="nav-number">10.</span> <span class="nav-text">响应者对象的nextResponder是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UIResponder类型响应者如何处理触摸事件？"><span class="nav-number">11.</span> <span class="nav-text">UIResponder类型响应者如何处理触摸事件？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UIControl类型响应者如何处理触摸事件？"><span class="nav-number">12.</span> <span class="nav-text">UIControl类型响应者如何处理触摸事件？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何手动控制触摸事件的流向"><span class="nav-number">13.</span> <span class="nav-text">如何手动控制触摸事件的流向</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何扩大视图的点击范围"><span class="nav-number">14.</span> <span class="nav-text">如何扩大视图的点击范围</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何让多个手势识别器并存"><span class="nav-number">15.</span> <span class="nav-text">如何让多个手势识别器并存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">16.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="YorkFish"
+      src="/uploads/left-v.jpg">
+  <p class="site-author-name" itemprop="name">YorkFish</p>
+  <div class="site-description" itemprop="description">Keep IT Simple & Stupid</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YK-Unit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YK-Unit" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eipcdio" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eipcdio" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/YorkFish_" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;YorkFish_" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/1505549" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;1505549" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://juejin.im/user/569db819816dfa005959d881" title="掘金 → https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;569db819816dfa005959d881" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>掘金</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/1e4e723ece8c" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;1e4e723ece8c" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-fw fa-link"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sitemap.xml" title="Sitemap → &#x2F;sitemap.xml"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YorkFish</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
