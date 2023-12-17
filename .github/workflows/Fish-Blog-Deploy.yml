@@ -35,9 +35,9 @@ jobs:
 
     # from: https://github.com/actions/setup-node  
     - name: Setup Node Env
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4.0.0
       with:
-        node-version: "13.x"
+        node-version: "16.x"
 
     - name: Setup Hexo Env
       run: |
